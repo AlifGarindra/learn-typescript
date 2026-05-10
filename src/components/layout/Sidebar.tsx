@@ -41,6 +41,23 @@ export function Sidebar({ onClose }: Props) {
         </div>
       </div>
 
+      {/* Playground link */}
+      <NavLink
+        to="/playground"
+        onClick={onClose}
+        className={({ isActive }) =>
+          `flex items-center gap-2.5 px-5 py-2.5 text-sm border-b border-white/8 transition-colors ${
+            isActive
+              ? 'bg-blue-600/15 text-blue-300'
+              : 'text-gray-400 hover:text-gray-200 hover:bg-white/4'
+          }`
+        }
+      >
+        <span className="text-base">⚡</span>
+        <span className="font-medium">Playground</span>
+        <span className="ml-auto text-xs text-gray-600">Coba langsung</span>
+      </NavLink>
+
       {/* Navigation */}
       <nav className="flex-1 overflow-y-auto py-3">
         {allLessons.map((bagian) => (
