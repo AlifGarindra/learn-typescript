@@ -8,8 +8,8 @@
       "judul": "Kenapa TypeScript Ada?",
       "badge": "Fondasi",
       "analogi": {
-        "judul": "Resep masakan vs memasak asal-asalan",
-        "cerita": "Bayangkan kamu masak untuk 5 orang. Kalau cuma untuk dirimu sendiri, masak asal-asalan tidak masalah — salah takaran? ya sudah, kamu sendiri yang rugi. Tapi kalau masak untuk banyak orang, kamu butuh resep yang jelas: berapa gram tepung, berapa menit dimasak, urutannya bagaimana. JavaScript itu seperti masak asal-asalan — bebas, cepat, seru. Tapi di proyek besar dengan banyak developer, 'asal-asalan' jadi bencana. TypeScript adalah resepnya."
+        "judul": "Bangun kompleks tanpa denah vs dengan denah",
+        "cerita": "Bayangkan kamu mau bangun warung kecil sendirian — bisa asal mulai, tidak perlu denah, selesai dalam seminggu. Tapi kalau kamu mau bangun kompleks 200 unit yang dikerjakan 50 tukang sekaligus, tanpa denah adalah bencana: tukang satu bikin tembok di tempat yang harusnya pintu, tukang lain pasang listrik di tempat yang harusnya pipa air. JavaScript itu cocok untuk warung kecil — bebas dan cepat. TypeScript adalah denah arsiteknya: semua pihak tahu persis apa yang harus dibangun di mana."
       },
       "masalah_di_javascript": {
         "penjelasan": "JavaScript dirancang untuk script kecil di browser. Tapi sekarang JS dipakai untuk aplikasi besar dengan ribuan file dan puluhan developer. Di sinilah masalah mulai muncul.",
@@ -53,8 +53,8 @@
       "judul": "TypeScript vs JavaScript — Bedanya Di Mana?",
       "badge": "Fondasi",
       "analogi": {
-        "judul": "Draft vs naskah final",
-        "cerita": "Penulis profesional menulis draft dulu dengan banyak catatan editor: 'bagian ini kurang jelas', 'kata ini salah', 'cek fakta ulang'. Draft itu penuh coretan dan komentar. Tapi naskah yang diterbitkan ke pembaca sudah bersih — tidak ada coretan. TypeScript adalah draft dengan catatan editor (tipe, interface, generics). JavaScript adalah naskah final yang diterbitkan — browser hanya membaca yang ini."
+        "judul": "Denah arsitek vs bangunan yang sudah jadi",
+        "cerita": "Denah arsitek penuh dengan catatan: \"material: bata merah kelas A\", \"tinggi plafon: 3.5m\", \"posisi stop kontak: 30cm dari pintu\". Semua anotasi itu ada di denah tapi tidak muncul di bangunan jadi — temboknya ya cuma tembok. TypeScript itu denah yang penuh anotasi tipe. JavaScript itu bangunan jadinya — browser hanya \"lihat\" hasilnya, bukan catatannya. Kedua-duanya adalah representasi hal yang sama, hanya di tahap yang berbeda."
       },
       "perbandingan": [
         {
@@ -95,8 +95,8 @@
       "judul": "Cara Kerja TypeScript: Compile TS → JS",
       "badge": "Fondasi",
       "analogi": {
-        "judul": "Penerjemah bahasa",
-        "cerita": "Kamu menulis surat dalam Bahasa Indonesia yang detail dan formal. Tapi penerimanya hanya mengerti Bahasa Inggris. Penerjemah (compiler TypeScript) membaca suratmu, memeriksa apakah ada kalimat yang tidak masuk akal, lalu menerjemahkannya ke Bahasa Inggris. Browser adalah penerimanya — ia hanya mengerti JavaScript, bukan TypeScript."
+        "judul": "Mandor yang terjemahkan denah ke instruksi tukang",
+        "cerita": "Arsitek buat denah dalam bahasa teknis yang detail. Tapi tukang di lapangan tidak bisa baca denah langsung — mereka butuh mandor yang menerjemahkan: \"Pak Budi, kamu pasang tembok di titik A sampai B, tinggi 3 meter.\" Compiler TypeScript (tsc) itu mandornya. Ia baca file .ts yang penuh anotasi, periksa kalau ada kesalahan, lalu hasilkan file .js yang bisa langsung \"dibaca\" oleh browser atau Node.js."
       },
       "alur_kerja": [
         {
@@ -139,8 +139,8 @@
       "judul": "Setup Project Pertama",
       "badge": "Fondasi",
       "analogi": {
-        "judul": "Mengatur dapur sebelum memasak",
-        "cerita": "Sebelum masak, kamu siapkan dulu peralatannya — kompor, pisau, talenan. Baru kemudian mulai masak. Setup TypeScript adalah menyiapkan 'dapur' — install compiler, buat file konfigurasi, tentukan aturan main."
+        "judul": "Survei lahan dan set up posko sebelum mulai bangun",
+        "cerita": "Sebelum satu bata pun dipasang, kamu survei lahan dulu: ukur batas, cek kontur tanah, pasang patok, buat posko koordinasi. Tanpa ini, tukang tidak tahu mulai dari mana. Setup TypeScript itu sama: install compiler, buat tsconfig.json (aturan main), tentukan folder kerja. Terasa seperti buang waktu di awal, tapi tanpa ini proyek akan kacau begitu skalanya bertambah besar."
       },
       "langkah_setup": [
         {

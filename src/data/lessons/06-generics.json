@@ -8,8 +8,8 @@
       "judul": "Apa itu Generics?",
       "badge": "Menengah",
       "analogi": {
-        "judul": "Cetakan kue",
-        "cerita": "Bayangkan cetakan kue berbentuk bintang. Cetakan ini tidak peduli adonannya apa — coklat, vanila, pandan, semua masuk. Yang keluar selalu berbentuk bintang, dengan bahan sesuai yang kamu masukkan. Generics di TypeScript persis itu: satu 'cetakan' (fungsi/interface/class) yang bisa bekerja dengan berbagai tipe data, tapi tetap menjaga konsistensi tipenya."
+        "judul": "Cetakan kusen yang sama untuk berbagai material",
+        "cerita": "Pabrik kusen punya satu cetakan standar untuk ukuran pintu 200x80cm. Cetakan itu tidak peduli materialnya apa — kayu jati, aluminium, PVC, baja ringan — semua masuk cetakan yang sama dan keluar dengan bentuk yang identik. Hasilnya berbeda materialnya tapi dimensinya sama persis. Generics di TypeScript persis itu: satu \"cetakan\" (fungsi/interface) yang bekerja dengan berbagai tipe data, tapi tetap menjaga konsistensi bentuknya."
       },
       "masalah_tanpa_generics": {
         "penjelasan": "Tanpa generics, kamu terpaksa pilih antara: tulis fungsi berbeda untuk tiap tipe (duplikasi kode), atau pakai `any` (kehilangan type safety).",
@@ -34,9 +34,18 @@
       "cara_baca_sintaks": {
         "penjelasan": "Cara membaca `function ambilPertama<T>(arr: T[]): T`:",
         "breakdown": [
-          { "bagian": "<T>", "arti": "Deklarasi type parameter bernama T. Huruf T adalah konvensi, bisa nama apapun." },
-          { "bagian": "arr: T[]", "arti": "Parameter arr adalah array dari T — tipe apapun yang dipilih." },
-          { "bagian": ": T", "arti": "Return type adalah T — tipe yang sama dengan elemen array." }
+          {
+            "bagian": "<T>",
+            "arti": "Deklarasi type parameter bernama T. Huruf T adalah konvensi, bisa nama apapun."
+          },
+          {
+            "bagian": "arr: T[]",
+            "arti": "Parameter arr adalah array dari T — tipe apapun yang dipilih."
+          },
+          {
+            "bagian": ": T",
+            "arti": "Return type adalah T — tipe yang sama dengan elemen array."
+          }
         ]
       },
       "poin_penting": "Generic type parameter (`<T>`) adalah seperti variabel, tapi untuk tipe. Saat fungsi dipanggil, T 'diisi' dengan tipe yang sebenarnya. Nama T adalah konvensi (Type), tapi kamu bisa pakai nama deskriptif seperti `<TItem>`, `<TInput>`, `<TResponse>`."
@@ -46,8 +55,8 @@
       "judul": "Generic Functions",
       "badge": "Menengah",
       "analogi": {
-        "judul": "Fungsi pos paket",
-        "cerita": "Kantor pos menerima paket apapun — dokumen, elektronik, pakaian. Proses pengirimnya sama: terima paket → cek alamat → kirim. Yang berbeda hanya isi paketnya. Generic function itu seperti kantor pos: proses logikanya sama, tapi tipe data yang 'dikirim' bisa berbeda-beda."
+        "judul": "Tukang servis yang bisa tangani apapun di kompleks",
+        "cerita": "Kompleks punya satu tukang servis andalan. Panggil dia untuk perbaiki AC — dia kerjakan. Panggil untuk perbaiki kunci pintu — dia kerjakan. Perbaiki keran bocor — dia kerjakan. Proses kerjanya sama: datang, diagnosa, perbaiki, selesai. Yang berbeda hanya \"benda\" yang diperbaiki. Generic functions bekerja sama: logika fungsinya sama, tapi tipe data yang diproses bisa berbeda-beda — dan TypeScript tetap tahu tipe spesifiknya."
       },
       "contoh_kode": [
         {
@@ -73,8 +82,8 @@
       "judul": "Generic Constraints (extends)",
       "badge": "Menengah",
       "analogi": {
-        "judul": "Cetakan kue dengan syarat",
-        "cerita": "Cetakan kue bintang menerima adonan apapun — tapi dengan syarat: adonannya harus bisa dipanggang (tidak bisa pakai es batu sebagai adonan). Constraints di generics sama: 'T bisa tipe apapun, tapi harus punya property/method tertentu'."
+        "judul": "Cetakan hanya terima material bersertifikat SNI",
+        "cerita": "Cetakan kusen di pabrik itu fleksibel soal material — tapi ada satu syarat: material harus punya sertifikat SNI (Standar Nasional Indonesia). Kayu boleh, aluminium boleh, tapi bahan abal-abal tanpa sertifikat tidak akan diterima mesin. Generic constraints (extends) di TypeScript sama: tipe parameter T boleh apa saja, ASALKAN memenuhi syarat minimum yang kamu tentukan. Fleksibel, tapi tetap ada batasnya."
       },
       "penjelasan": "Constraints membatasi generic type parameter agar hanya menerima tipe yang memenuhi syarat tertentu. Ditulis dengan `extends`.",
       "contoh_kode": [
@@ -101,8 +110,8 @@
       "judul": "Generic Interfaces & Kenapa Lebih Baik dari any",
       "badge": "Menengah",
       "analogi": {
-        "judul": "Wadah berlabel vs wadah misterius",
-        "cerita": "Bayangkan dua lemari es. Lemari pertama: semua kotak berlabel 'MAKANAN' — kamu tahu isinya makanan, tapi tidak tahu tepatnya apa sampai dibuka. Itu `any`. Lemari kedua: kotak-kotak berlabel spesifik 'NASI UDUK', 'JUS MANGGA', 'SUSU SAPI' — kamu tahu persis isinya sebelum dibuka. Itu generics."
+        "judul": "Formulir kontrak standar yang berlaku untuk semua tipe unit",
+        "cerita": "Pengelola kompleks punya satu template kontrak yang berlaku untuk semua jenis unit: apartemen, kios, rukan, gudang. Setiap kontrak punya blok standar (nama penyewa, masa sewa, harga), tapi detail spesifik unit-nya diisi sesuai tipe unit masing-masing. Satu template, banyak varian penggunaan — tapi strukturnya konsisten. Generic interfaces bekerja sama: mendefinisikan \"bentuk\" yang fleksibel dengan placeholder tipe yang diisi saat digunakan."
       },
       "contoh_kode": [
         {

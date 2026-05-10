@@ -8,8 +8,8 @@
       "judul": "Parameter Types & Return Type",
       "badge": "Dasar",
       "analogi": {
-        "judul": "Mesin pabrik",
-        "cerita": "Mesin pembuat kue keju punya spesifikasi jelas: input-nya tepung (200gr), gula (50gr), keju (100gr). Output-nya: kue keju 1 loyang. Kalau kamu masukkan ikan asin, mesinnya akan protes. Return type di TypeScript adalah spesifikasi output-nya: 'mesin ini dijamin menghasilkan X, bukan Y atau Z'."
+        "judul": "Mesin lift: spesifikasi input dan output yang jelas",
+        "cerita": "Mesin lift punya kontrak yang jelas: input berupa nomor lantai (angka bulat 1–20), output berupa gondola yang berhenti tepat di lantai itu. Kamu tidak bisa masukkan \"lantai dua\" (teks) atau \"lantai 1.5\" — mesinnya menolak. Dan outputnya selalu pasti: gondola di lantai yang diminta, bukan pintu terbuka di lantai random. Parameter types dan return type di TypeScript mendefinisikan kontrak fungsi setajam itu."
       },
       "contoh_kode": [
         {
@@ -35,8 +35,8 @@
       "judul": "Optional & Default Parameters",
       "badge": "Dasar",
       "analogi": {
-        "judul": "Kopi dengan pilihan tambahan",
-        "cerita": "Pesan kopi: kamu wajib bilang jenis kopi (espresso, americano, latte) — ini parameter wajib. Tapi gula dan susu opsional — kalau tidak bilang, barista pakai standar: gula 1 sendok, tidak pakai susu. Default parameter di TypeScript persis ini: ada nilai yang dipakai kalau kamu tidak memberikan argumen."
+        "judul": "Jasa cleaning service dengan opsi standar",
+        "cerita": "Kamu pesan cleaning service untuk unitmu. Yang wajib disebutkan: nomor unit. Sisanya opsional — kalau tidak bilang berapa orang, mereka kirim 2 orang (standar). Kalau tidak bilang jam berapa, mereka datang jam 9 pagi (standar). Kalau tidak bilang durasi, mereka estimasi sendiri. Optional parameters itu yang tidak wajib disebutkan. Default parameters itu nilai standar yang dipakai kalau kamu tidak menyebutkan."
       },
       "contoh_kode": [
         {
@@ -62,8 +62,8 @@
       "judul": "Rest Parameters",
       "badge": "Dasar",
       "analogi": {
-        "judul": "Wadah 'ambil semua'",
-        "cerita": "Di supermarket, kamu bisa pesan: '1 roti, 2 susu, dan sisanya ambil apa saja yang ada di promo'. 'Sisanya' itu tidak tentu jumlahnya — bisa 0, bisa 10. Rest parameter adalah 'wadah ambil semua' untuk argumen yang jumlahnya tidak tentu."
+        "judul": "Truk pindahan yang angkut berapa barang pun",
+        "cerita": "Kamu hubungi jasa pindahan: kamu wajib bilang alamat tujuan (parameter wajib), tapi soal barang yang dibawa — bisa satu, bisa seratus, terserah. Sopir truk siap terima apapun yang kamu mau pindahkan tanpa kamu harus sebutkan jumlahnya di awal. Rest parameters (...items) di TypeScript bekerja sama: fungsi terima satu atau lebih nilai ekstra dalam bentuk array, tanpa perlu tahu berapa jumlahnya saat fungsi didefinisikan."
       },
       "penjelasan": "Rest parameter mengumpulkan semua argumen yang tersisa menjadi sebuah array. Ditulis dengan `...` sebelum nama parameter.",
       "contoh_kode": [
@@ -90,8 +90,8 @@
       "judul": "void vs never sebagai Return Type",
       "badge": "Menengah",
       "analogi": {
-        "judul": "Kurir vs jalan buntu",
-        "cerita": "Kurir yang mengantarkan paket tanpa mengharapkan tanda terima balik — ia datang, taruh paket, pergi. Tidak ada yang dikembalikan. Itu `void`. Sekarang bayangkan kurir yang masuk ke jalan buntu — ia tidak pernah kembali sama sekali, bukan karena tidak ada yang dibawa, tapi karena jalannya tidak punya ujung. Itu `never`."
+        "judul": "Tombol intercom yang beda respons tergantung cara ditekan",
+        "cerita": "Panel intercom di lobby kompleks punya satu tombol yang pintar: tekan sekali = bel berbunyi satu kali di unit tujuan. Tekan dua kali = kirim pesan suara \"Ada tamu\". Tahan 3 detik = hubungi satpam. Satu tombol, input yang berbeda, respons yang berbeda. Function overloads di TypeScript sama: satu fungsi dengan beberapa \"kontrak\" berbeda tergantung tipe atau jumlah argumen yang diberikan."
       },
       "perbedaan": [
         {
@@ -123,8 +123,8 @@
       "judul": "Function Overloads",
       "badge": "Lanjutan",
       "analogi": {
-        "judul": "Tombol multipurpose",
-        "cerita": "Di kamera, ada satu tombol yang perilakunya berbeda tergantung konteks: tekan sekali = foto, tekan dan tahan = mulai video, tekan dua kali = foto burst. Satu tombol, tiga perilaku berbeda. Function overload di TypeScript sama: satu nama fungsi, tapi perilaku dan tipe yang berbeda tergantung argumen yang diberikan."
+        "judul": "Alarm biasa vs alarm kebakaran",
+        "cerita": "Alarm pengingat rapat berbunyi, mengingatkan kamu, lalu selesai — kamu lanjut aktivitas normal (void: fungsi selesai, eksekusi lanjut). Alarm kebakaran berbeda: begitu bunyi, sistem langsung kunci lift, buka pintu darurat, dan kirim sinyal ke pemadam — tidak ada \"kembali ke normal\" dari titik itu (never: fungsi tidak pernah return ke pemanggil, alur eksekusi tidak berlanjut). Kedua alarm sama-sama \"tidak return nilai\", tapi implikasinya sangat berbeda."
       },
       "penjelasan": "Overload memungkinkan kamu mendefinisikan beberapa 'signature' untuk satu fungsi. TypeScript akan pilih signature yang cocok berdasarkan argumen yang diberikan.",
       "contoh_kode": [

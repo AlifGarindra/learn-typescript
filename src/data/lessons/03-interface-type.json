@@ -8,8 +8,8 @@
       "judul": "Type Alias — Nama untuk Tipe Buatanmu",
       "badge": "Dasar",
       "analogi": {
-        "judul": "Nama panggilan",
-        "cerita": "Teman kamu namanya panjang: 'Muhammad Rizky Firmansyah'. Tapi semua orang memanggilnya 'Iki'. Nama panggilan tidak mengubah orangnya — itu tetap orang yang sama, hanya lebih mudah disebut. Type alias di TypeScript persis seperti itu: kamu beri nama pendek untuk tipe yang panjang atau kompleks."
+        "judul": "Kode singkat untuk tipe unit yang panjang",
+        "cerita": "Developer properti punya banyak tipe unit: \"Unit 2 Kamar Tidur dengan Carport dan Taman Belakang\" terlalu panjang untuk ditulis terus. Jadi mereka buat kode: Tipe-A, Tipe-B, Tipe-C. Kode itu bukan unit baru — itu tetap unit yang sama, hanya lebih mudah disebut. Type alias di TypeScript sama: kamu beri nama pendek untuk tipe yang panjang atau kompleks. Nama aliasnya bukan tipe baru, hanya cara cepat merujuk tipe yang sudah ada."
       },
       "penjelasan": "Type alias dibuat dengan keyword `type`. Kamu bisa beri nama untuk tipe apapun — primitif, union, objek, fungsi, bahkan tipe yang sudah punya nama.",
       "contoh_kode": [
@@ -36,8 +36,8 @@
       "judul": "Interface — Kontrak Bentuk Objek",
       "badge": "Dasar",
       "analogi": {
-        "judul": "Kontrak kerja",
-        "cerita": "Kontrak kerja menyebutkan: karyawan harus masuk jam 9, harus lapor ke manajer, harus selesaikan target. Siapapun yang tanda tangan kontrak itu wajib ikuti semua ketentuannya. Interface di TypeScript adalah kontrak — setiap objek atau class yang 'implement' interface wajib punya semua property yang disebutkan."
+        "judul": "SOP teknis yang wajib diikuti kontraktor",
+        "cerita": "Setiap kontraktor yang mengerjakan unit di kompleks harus ikuti SOP teknis: wajib pasang smoke detector, wajib ada ventilasi di dapur, wajib ada GFCI di kamar mandi. Kontraktor boleh tambah fitur ekstra, tapi SOP minimum tidak bisa dikurangi. Interface di TypeScript adalah SOP itu: siapapun atau apapun yang \"implement\" interface tersebut wajib memenuhi semua property dan method yang didefinisikan."
       },
       "penjelasan": "Interface mendefinisikan bentuk sebuah objek. Berbeda dengan type alias, interface dirancang khusus untuk mendeskripsikan objek dan class.",
       "contoh_kode": [
@@ -69,8 +69,8 @@
       "judul": "Interface vs Type — Kapan Pakai Yang Mana?",
       "badge": "Menengah",
       "analogi": {
-        "judul": "Palu vs obeng",
-        "cerita": "Keduanya alat. Untuk beberapa pekerjaan, dua-duanya bisa dipakai. Tapi ada situasi di mana satu jauh lebih tepat dari yang lain. Kamu tidak perlu pusing — pahami kelebihan masing-masing, lalu pilih yang paling sesuai situasi."
+        "judul": "SOP teknis vs kode tipe unit — kapan pakai yang mana",
+        "cerita": "Di kompleks, ada dua dokumen berbeda: SOP teknis (interface) untuk mendefinisikan standar yang bisa di-extend dan diimplementasikan kontraktor lain, dan kode tipe unit (type alias) untuk shorthand, kombinasi, atau hal yang bukan sekadar daftar spesifikasi. SOP bagus untuk kontrak terstruktur yang berkembang. Kode tipe bagus untuk kombinasi fleksibel: \"Tipe-A atau Tipe-B\", \"Tipe-C dan Tipe-D sekaligus\", atau tipe yang bukan objek sama sekali."
       },
       "perbandingan_fitur": [
         {
@@ -171,8 +171,8 @@
       "judul": "Intersection Types (&) — Gabungkan Beberapa Tipe",
       "badge": "Menengah",
       "analogi": {
-        "judul": "Karyawan rangkap jabatan",
-        "cerita": "Bayangkan seseorang yang sekaligus menjadi dokter DAN pengacara. Ia harus memenuhi syarat dokter (punya SIP, bisa periksa pasien) DAN syarat pengacara (punya SIK, bisa sidang di pengadilan). Intersection type (`&`) di TypeScript itu seperti itu: objek harus memenuhi syarat tipe A DAN tipe B secara bersamaan."
+        "judul": "Rukan — unit yang gabung dua fungsi sekaligus",
+        "cerita": "Rukan (rumah toko) adalah unit yang memenuhi dua SOP sekaligus: SOP hunian (ada kamar, dapur, kamar mandi) dan SOP komersial (ada ruang pamer, pintu kaca, papan nama). Satu unit, dua kontrak terpenuhi. Intersection types (&) di TypeScript sama: sebuah tipe yang memenuhi dua atau lebih interface sekaligus. Tidak pilih salah satu — keduanya harus dipenuhi."
       },
       "penjelasan": "Intersection type menggabungkan dua atau lebih tipe menjadi satu. Objek yang memenuhi intersection type harus punya SEMUA property dari tipe-tipe yang digabungkan.",
       "contoh_kode": [

@@ -8,8 +8,8 @@
       "judul": "Union Types — Bisa Ini atau Itu",
       "badge": "Dasar",
       "analogi": {
-        "judul": "Kotak amal vs kotak saran",
-        "cerita": "Di kantor ada kotak yang menerima dua hal: uang tunai atau cek. Keduanya diterima. Tapi yang menerima harus tahu cara menangani masing-masing — kalau uang tunai, masukkan ke brankas; kalau cek, proses ke bank. Union type di TypeScript sama: nilai bisa berupa A atau B, dan kamu harus perlakukan keduanya dengan benar."
+        "judul": "Sistem akses gerbang: kartu atau sidik jari",
+        "cerita": "Gerbang kompleks bisa dibuka dengan dua cara: kartu akses ATAU sidik jari. Keduanya valid. Tapi petugas keamanan harus tahu cara menangani masing-masing — kalau kartu, scan di reader kanan; kalau sidik jari, tempel di panel kiri. Union type di TypeScript sama: nilai bisa berupa tipe A ATAU tipe B, tapi kamu harus siap menangani kedua kemungkinan dengan benar."
       },
       "penjelasan": "Union type dibuat dengan simbol `|` (pipe). Artinya: nilai bertipe ini bisa berupa tipe pertama ATAU tipe kedua.",
       "contoh_kode": [
@@ -36,8 +36,8 @@
       "judul": "Literal Types — Nilai Spesifik Sebagai Tipe",
       "badge": "Dasar",
       "analogi": {
-        "judul": "Menu makanan dengan pilihan tetap",
-        "cerita": "Di restoran, menu minuman hanya ada: 'teh', 'kopi', 'jus jeruk', 'air putih'. Pelayan tidak terima pesanan 'susu kambing murni' atau 'es cendol spesial' — hanya 4 pilihan itu. Literal type di TypeScript sama: nilai yang diterima hanya yang spesifik, bukan semua string atau semua number."
+        "judul": "Panel lift dengan tombol lantai yang sudah tetap",
+        "cerita": "Panel lift di kompleks 20 lantai hanya punya tombol 1 sampai 20. Tidak ada tombol \"lantai 25\", tidak ada tombol \"basement 3\", tidak ada tombol bertulisan \"lantai mana saja\". Penghuni hanya bisa tekan salah satu dari 20 tombol yang ada. Literal types di TypeScript sama: bukan sekadar \"string\" atau \"number\", tapi nilai spesifik yang sudah ditentukan — hanya nilai-nilai itu yang valid, tidak lebih."
       },
       "penjelasan": "Literal type artinya tipe yang nilainya adalah nilai spesifik itu sendiri, bukan tipe umumnya. `'aktif'` adalah tipe yang hanya bisa berisi string 'aktif' — bukan semua string.",
       "contoh_kode": [
@@ -64,8 +64,8 @@
       "judul": "Type Narrowing — Menyempurnakan Tipe",
       "badge": "Menengah",
       "analogi": {
-        "judul": "Detektif yang mengumpulkan bukti",
-        "cerita": "Seorang detektif datang ke TKP. Ia tahu yang melakukan adalah 'seseorang' (tipe luas). Setelah lihat rekaman CCTV: 'laki-laki'. Setelah tanya saksi: 'laki-laki bertopi'. Setelah cek sidik jari: 'Ahmad dari RT 3'. Tiap bukti baru menyempurnakan (narrow) identitas pelaku. TypeScript bekerja sama: tiap pengecekan yang kamu tulis menyempurnakan tipe menjadi lebih spesifik."
+        "judul": "Satpam di pos jaga yang periksa identitas sebelum izinkan masuk",
+        "cerita": "Satpam di pos jaga kompleks terima siapa saja yang datang, tapi penanganannya berbeda: kalau tunjukkan kartu penghuni, langsung dibukakan gerbang. Kalau tunjukkan kartu tamu, catat dulu di buku tamu. Kalau tidak ada kartu, minta KTP dan hubungi penghuni yang dituju. Satpam \"menyempurnakan\" pemahamannya tentang siapa yang di depannya berdasarkan bukti yang ada. TypeScript narrowing bekerja sama: dari tipe yang luas (string | number), TypeScript mempersempit ke tipe spesifik berdasarkan pengecekan yang kamu lakukan."
       },
       "penjelasan": "Narrowing adalah proses TypeScript menyempurnakan tipe yang lebar (seperti `string | number`) menjadi tipe yang lebih spesifik berdasarkan kondisi yang kamu tulis.",
       "jenis_narrowing": [
@@ -109,8 +109,8 @@
       "judul": "Discriminated Union — Pattern Narrowing Terbaik",
       "badge": "Menengah",
       "analogi": {
-        "judul": "Seragam pegawai",
-        "cerita": "Di rumah sakit, kamu langsung tahu peran seseorang dari seragamnya: putih = dokter, biru muda = perawat, abu-abu = administrasi. Cukup lihat warna seragam, kamu langsung tahu apa yang bisa mereka lakukan dan tidak. Discriminated union bekerja sama: setiap anggota union punya 'seragam' — satu property khusus yang mengidentifikasi tipenya."
+        "judul": "Sistem stiker warna untuk tipe penghuni",
+        "cerita": "Pengelola kompleks pakai sistem stiker di kartu akses: stiker hijau = pemilik unit, stiker kuning = penyewa, stiker merah = tamu sementara. Begitu satpam lihat warna stikernya, ia langsung tahu aturan apa yang berlaku — pemilik boleh ke semua area, penyewa hanya area hunian, tamu hanya lobi. Discriminated union di TypeScript sama: satu property khusus (discriminant) yang membedakan varian, sehingga TypeScript bisa langsung tahu tipe pasti yang sedang dihadapi."
       },
       "penjelasan": "Discriminated union adalah pola di mana setiap tipe dalam union punya satu property yang nilainya unik (disebut 'discriminant'). TypeScript bisa narrow secara otomatis berdasarkan property ini.",
       "contoh_kode": [

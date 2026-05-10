@@ -8,8 +8,8 @@
       "judul": "Array — Kumpulan Nilai Sejenis",
       "badge": "Dasar",
       "analogi": {
-        "judul": "Rak buku",
-        "cerita": "Rak buku hanya boleh berisi buku. Kamu tidak bisa taruh piring di rak buku — itu melanggar aturan rak tersebut. `string[]` artinya 'rak yang hanya boleh berisi string'. Kalau kamu coba taruh number di sana, TypeScript langsung protes."
+        "judul": "Deretan kamar di satu koridor",
+        "cerita": "Lantai 3 kompleks punya satu koridor dengan kamar-kamar yang berurutan: 301, 302, 303, 304... Semua kamar tipe yang sama, bisa ditambah (kalau ada renovasi) atau dikurangi. Itulah array: kumpulan nilai bertipe sama, berurutan, dan jumlahnya bisa berubah. Kamu tidak bisa tiba-tiba taruh garasi di antara kamar-kamar itu — semua harus tipe yang sama."
       },
       "dua_cara_deklarasi": {
         "penjelasan": "Ada dua sintaks untuk array di TypeScript, keduanya setara:",
@@ -40,8 +40,8 @@
       "judul": "Tuple — Array dengan Tipe Per Posisi",
       "badge": "Menengah",
       "analogi": {
-        "judul": "Formulir dengan kolom tetap",
-        "cerita": "Bayangkan formulir data pegawai: kolom pertama SELALU nama (teks), kolom kedua SELALU umur (angka), kolom ketiga SELALU status aktif (ya/tidak). Urutan dan tipenya sudah ditentukan — tidak bisa ditukar. Tuple di TypeScript persis seperti itu: array dengan jumlah elemen tetap, dan tipe tiap posisinya sudah ditentukan."
+        "judul": "Unit studio dengan kompartemen fungsi tetap",
+        "cerita": "Studio tipe compact punya tata letak yang sudah fix: posisi 0 = area tidur (kasur, lemari), posisi 1 = area dapur (kompor, kulkas), posisi 2 = kamar mandi. Urutannya tidak bisa ditukar — kamar mandi tidak bisa di posisi 0. Tuple di TypeScript persis begitu: array dengan jumlah posisi tetap dan tipe per posisi sudah ditentukan. Berbeda dengan array biasa yang semua elemennya tipe sama."
       },
       "penjelasan": "Berbeda dengan array biasa yang semua elemennya harus bertipe sama, tuple mendefinisikan tipe per posisi. Posisi 0 bisa string, posisi 1 bisa number, posisi 2 bisa boolean.",
       "contoh_kode": [
@@ -73,8 +73,8 @@
       "judul": "Object Types — Mendeskripsikan Bentuk Objek",
       "badge": "Dasar",
       "analogi": {
-        "judul": "Blueprint rumah",
-        "cerita": "Sebelum bangun rumah, kamu buat blueprint: ruang tamu ada di sini, kamar tidur ada di sana, dapur di situ. Blueprint bukan rumahnya — tapi semua rumah yang dibangun dari blueprint itu punya struktur yang sama. Object type di TypeScript adalah blueprint-nya objek."
+        "judul": "Lembar spesifikasi unit yang wajib diisi saat serah terima",
+        "cerita": "Saat serah terima unit, penghuni isi lembar spesifikasi: nama lengkap (teks), nomor unit (angka), sudah bayar DP (ya/tidak), tanggal mulai huni (tanggal). Setiap kolom sudah punya tipe datanya — tidak bisa tulis angka di kolom nama, tidak bisa tulis teks di kolom \"sudah bayar\". Object types di TypeScript adalah lembar spesifikasi itu: kamu tentukan bentuk objeknya beserta tipe tiap property."
       },
       "penjelasan": "Object type mendeskripsikan 'bentuk' sebuah objek — properti apa saja yang harus ada, dan tipe tiap propertinya.",
       "contoh_kode": [
@@ -101,8 +101,8 @@
       "judul": "Optional Properties — Properti yang Boleh Tidak Ada",
       "badge": "Dasar",
       "analogi": {
-        "judul": "Formulir pendaftaran",
-        "cerita": "Di formulir pendaftaran, ada kolom wajib — nama, email, password. Ada juga kolom opsional — nomor telepon, foto profil, bio. Kolom opsional pakai tanda bintang (*) atau tulisan 'opsional'. TypeScript punya tanda yang sama: tanda tanya (?) setelah nama property."
+        "judul": "Fasilitas opsional yang tidak semua unit punya",
+        "cerita": "Semua unit di kompleks wajib punya listrik, air, dan kunci pintu. Tapi ada fasilitas opsional yang hanya unit tertentu yang punya: carport, water heater, AC di ruang tamu. Saat kamu isi formulir unit, kolom opsional itu tidak wajib diisi. Optional properties (tanda ?) di TypeScript sama: property yang boleh ada, boleh tidak ada — berbeda dengan property wajib yang harus selalu ada."
       },
       "penjelasan": "Tambahkan `?` setelah nama property untuk membuatnya opsional. Artinya property tersebut boleh ada, boleh tidak.",
       "contoh_kode": [
@@ -137,8 +137,8 @@
       "judul": "Readonly Properties — Properti yang Tidak Boleh Diubah",
       "badge": "Menengah",
       "analogi": {
-        "judul": "Nomor KTP",
-        "cerita": "Nomor KTP kamu tidak bisa diubah setelah dicetak. Nama bisa berubah (ganti nama resmi), alamat bisa berubah (pindah), tapi NIK tetap sama seumur hidup. `readonly` di TypeScript itu seperti NIK — nilainya ditentukan saat pertama kali dibuat, setelah itu tidak boleh diubah."
+        "judul": "Nomor sertifikat yang sudah diukir di plakat resmi",
+        "cerita": "Setiap unit punya plakat resmi dari notaris: nomor sertifikat, nomor kavling, dan koordinat tanah. Plakat itu sudah diukir dan disegel — tidak ada yang boleh mengubah angkanya, bahkan si pemilik sekalipun. Kalau ada perubahan, harus buat sertifikat baru dari awal. Readonly properties di TypeScript begitu: kamu bisa baca nilainya kapan saja, tapi tidak bisa ubah setelah objek dibuat."
       },
       "penjelasan": "Tambahkan `readonly` sebelum nama property untuk membuatnya hanya bisa dibaca — tidak bisa diubah setelah objek dibuat.",
       "contoh_kode": [
