@@ -8,8 +8,8 @@
       "judul": "Partial<T> — Semua Property Jadi Optional",
       "badge": "Menengah",
       "analogi": {
-        "judul": "Form edit profil",
-        "cerita": "Saat daftar akun, semua field wajib diisi: nama, email, password. Tapi saat edit profil, kamu hanya ubah yang mau diubah — tidak perlu isi ulang semua. `Partial<T>` mengubah semua property wajib jadi opsional, cocok untuk skenario 'update sebagian'."
+        "judul": "Formulir pengajuan renovasi yang tidak harus diisi semua",
+        "cerita": "Kamu mau renovasi unit — tidak harus renovasi semuanya sekaligus. Formulir pengajuan punya kolom: ganti keramik, cat ulang, perluas dapur, tambah kamar mandi. Cukup isi kolom yang mau direnovasi, sisanya dikosongkan. Partial<T> di TypeScript mengubah semua property wajib jadi opsional — cocok untuk skenario \"update sebagian\" seperti ini, di mana kamu tidak harus menyediakan semua data sekaligus."
       },
       "penjelasan": "`Partial<T>` mengambil tipe T dan membuat semua property-nya menjadi optional (`?`).",
       "contoh_kode": [
@@ -31,8 +31,8 @@
       "judul": "Required<T> — Semua Property Jadi Wajib",
       "badge": "Menengah",
       "analogi": {
-        "judul": "Checklist sebelum terbang",
-        "cerita": "Sebelum pesawat lepas landas, ada checklist yang SEMUA itemnya wajib dicentang — tidak ada yang opsional. `Required<T>` itu seperti mode 'pra-terbang': semua property yang tadinya opsional menjadi wajib."
+        "judul": "Checklist serah terima unit yang semua poin wajib tercentang",
+        "cerita": "Sebelum kunci diserahkan ke penghuni baru, tim QC kompleks punya checklist ketat: listrik ✓, air ✓, cat ✓, ventilasi ✓, kunci cadangan ✓, smoke detector ✓ — semua wajib ada. Tidak ada yang boleh dilewati dengan alasan \"nanti saja\". Required<T> di TypeScript kebalikan dari Partial: menghapus semua tanda opsional, menjadikan semua property wajib ada. Semua atau tidak sama sekali."
       },
       "penjelasan": "Kebalikan dari `Partial`. `Required<T>` menghapus tanda `?` dari semua property, menjadikan semuanya wajib.",
       "contoh_kode": [
@@ -49,8 +49,8 @@
       "judul": "Pick<T, K> — Ambil Sebagian Property",
       "badge": "Menengah",
       "analogi": {
-        "judul": "Profil publik vs profil lengkap",
-        "cerita": "Data user kamu ada di database: nama, email, password_hash, kartu_kredit, alamat_rumah, nomor_ktp. Tapi yang ditampilkan di profil publik hanya: nama dan foto. `Pick` itu seperti memilih mana saja yang mau ditampilkan ke publik — ambil beberapa field, sisanya tidak perlu."
+        "judul": "Denah yang ditampilkan ke calon pembeli: hanya ruangan utama",
+        "cerita": "Saat marketing tour, kamu tidak tunjukkan semua detail teknis di denah — hanya tampilkan bagian yang relevan untuk calon pembeli: kamar tidur, ruang keluarga, dapur, kamar mandi. Ruang panel listrik, shaft AC, dan ruang server tidak perlu ditampilkan. Pick<T, K> di TypeScript bekerja sama: ambil hanya subset property tertentu dari tipe yang besar, buat tipe baru yang lebih kecil dan fokus."
       },
       "penjelasan": "`Pick<T, K>` mengambil subset property dari T. K adalah union dari nama-nama property yang ingin diambil.",
       "contoh_kode": [
@@ -72,8 +72,8 @@
       "judul": "Omit<T, K> — Buang Sebagian Property",
       "badge": "Menengah",
       "analogi": {
-        "judul": "Resep tanpa bahan tertentu",
-        "cerita": "Resep nasi goreng lengkap ada: nasi, telur, kecap, garam, bawang. Tapi kamu masak untuk orang yang alergi telur — resepnya sama tapi tanpa telur. `Omit` itu seperti itu: ambil semuanya, tapi buang yang tidak perlu."
+        "judul": "Denah publik yang menyembunyikan ruang teknis",
+        "cerita": "Kebalikan dari denah marketing: kamu punya denah lengkap untuk kebutuhan internal, tapi ketika di-publish ke website, kamu hapus informasi teknis dan finansial — ruang genset, jalur utilitas, perkiraan biaya konstruksi. Omit<T, K> di TypeScript bekerja sama: mulai dari tipe lengkap, kemudian buang property tertentu yang tidak ingin kamu ekspos, hasilnya tipe yang lebih aman untuk ditampilkan ke luar."
       },
       "penjelasan": "`Omit<T, K>` adalah kebalikan Pick — ambil SEMUA property dari T kecuali yang disebutkan di K.",
       "contoh_kode": [
@@ -100,8 +100,8 @@
       "judul": "Record<K, V> — Tipe untuk Objek sebagai Map",
       "badge": "Menengah",
       "analogi": {
-        "judul": "Kamus",
-        "cerita": "Kamus adalah kumpulan pasangan 'kata → definisi'. Setiap kata (key) punya tepat satu definisi (value). `Record<K, V>` itu seperti kamus: K adalah tipe untuk key-nya, V adalah tipe untuk value-nya."
+        "judul": "Denah as-built yang sudah dilegalisir — tidak bisa diubah",
+        "cerita": "Setelah bangunan selesai, kontraktor buat denah as-built (as-built drawing): gambaran persis kondisi bangunan yang sebenarnya dibangun. Denah ini dilegalisir oleh konsultan dan pemerintah — tidak bisa diubah tanpa proses resmi yang panjang. Record<K,V>, Readonly<T>, dan teman-temannya adalah utility types yang \"mengunci\" atau \"memetakan\" tipe dengan cara yang konsisten dan terprediksi, seperti dokumen resmi yang sudah tersegel."
       },
       "penjelasan": "`Record<K, V>` membuat tipe objek di mana semua key bertipe K dan semua value bertipe V. Alternatif yang lebih ekspresif dari `{ [key: string]: V }`.",
       "contoh_kode": [
@@ -123,8 +123,8 @@
       "judul": "ReturnType<T> & Parameters<T>",
       "badge": "Lanjutan",
       "analogi": {
-        "judul": "Spesifikasi mesin",
-        "cerita": "Kalau kamu punya mesin (fungsi) tapi kehilangan manual-nya, kamu masih bisa cek: 'input mesin ini apa?' dan 'output mesin ini apa?' hanya dari fisik mesinnya. `Parameters` dan `ReturnType` itu seperti itu — kamu bisa 'baca' tipe input dan output sebuah fungsi secara otomatis."
+        "judul": "Panel kontrol gedung dengan satu tombol per ruangan",
+        "cerita": "Ruang kontrol gedung punya panel besar: setiap ruangan di kompleks punya satu baris di panel, dengan tombol yang sama (lampu, AC, kunci). Strukturnya konsisten — tiap \"kunci\" adalah nama ruangan, tiap \"nilai\" adalah set kontrol yang sama. Record<K, V> di TypeScript mendefinisikan objek yang berperan sebagai map: semua key bertipe sama (string nama ruangan), semua value bertipe sama (objek kontrol). Pola yang sangat umum untuk \"kamus\" atau \"lookup table\"."
       },
       "penjelasan": "`ReturnType<T>` mengekstrak tipe return dari fungsi. `Parameters<T>` mengekstrak tipe parameter sebagai tuple.",
       "contoh_kode": [
@@ -151,8 +151,8 @@
       "judul": "Readonly<T> & NonNullable<T>",
       "badge": "Menengah",
       "analogi": {
-        "judul": "Dokumen yang sudah ditandatangani vs jaminan ada isinya",
-        "cerita": "`Readonly` itu seperti dokumen yang sudah ditandatangani — tidak bisa diubah lagi. `NonNullable` itu seperti kontrak yang menjamin barangnya ada — tidak kosong, tidak null, pasti ada."
+        "judul": "Alat ukur yang baca spesifikasi dari mesin yang sudah ada",
+        "cerita": "Teknisi baru masuk ke kompleks — ia tidak tahu spesifikasi lift dan AC yang sudah terpasang. Daripada tanya ke mana-mana, ia ambil alat ukur khusus yang bisa \"membaca\" spesifikasi mesin langsung dari mesinnya: voltase output, parameter input yang diterima. ReturnType<T> dan Parameters<T> bekerja sama: daripada kamu mendefinisikan ulang tipe secara manual, biarkan TypeScript ekstrak informasi tipe itu langsung dari fungsi yang sudah ada."
       },
       "topik_kecil": [
         {

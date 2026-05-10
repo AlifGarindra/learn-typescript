@@ -8,8 +8,8 @@
       "judul": "string, number, boolean",
       "badge": "Dasar",
       "analogi": {
-        "judul": "Label pada toples dapur",
-        "cerita": "Di dapur kamu ada banyak toples. Tanpa label, kamu bisa salah ambil garam pas mau bikin teh manis. Dengan label 'Gula', 'Garam', 'Merica' — kamu tidak bisa salah. Types di TypeScript itu labelnya. Setiap variabel punya label yang menjelaskan isi yang boleh masuk."
+        "judul": "Ruangan yang punya fungsi tetap",
+        "cerita": "Di kompleks perumahan, setiap ruangan punya fungsi yang sudah ditentukan: kamar tidur untuk tidur, dapur untuk masak, garasi untuk kendaraan. Kamu tidak bisa tiba-tiba memasukkan kompor ke kamar tidur dan berharap itu masuk akal. Types di TypeScript bekerja sama: variabel bertipe string hanya boleh diisi teks, number hanya angka, boolean hanya true/false. Sesederhana itu — dan sesederhana itulah cara TypeScript mencegah kesalahan."
       },
       "konsep": [
         {
@@ -58,8 +58,8 @@
       "judul": "null dan undefined — Kenapa Beda?",
       "badge": "Dasar",
       "analogi": {
-        "judul": "Kotak kosong vs kotak yang belum ada",
-        "cerita": "Bayangkan kamu pesan makanan online. `undefined` itu seperti kolom 'catatan tambahan' yang belum kamu sentuh sama sekali — kosong karena tidak pernah diisi. `null` itu seperti kamu sengaja mengosongkan kolom itu — kamu tulis 'tidak ada catatan'. Sama-sama kosong, tapi niatnya beda: satu karena lupa/belum, satu karena memang sengaja dikosongkan."
+        "judul": "Ruang kosong yang sengaja vs ruang yang belum diputuskan",
+        "cerita": "Di kompleks ada dua jenis ruang \"kosong\": ruang yang sengaja dikosongkan untuk dijadikan gudang — pemilik sudah tahu fungsinya, memang mau dikosongkan (ini null). Ada juga ruang di lantai 4 yang di denah masih bertulisan \"TBD\" — belum diputuskan mau jadi apa, masih dalam pertimbangan (ini undefined). Sama-sama kosong, tapi niatnya sangat berbeda: satu sudah diputuskan kosong, satu belum diputuskan sama sekali."
       },
       "perbedaan": [
         {
@@ -102,8 +102,8 @@
       "judul": "any — Kapan Boleh, Kapan Bahaya",
       "badge": "Dasar",
       "analogi": {
-        "judul": "Laci 'lain-lain'",
-        "cerita": "Setiap rumah punya laci 'lain-lain' — tempat buang apa saja yang tidak tahu harus ditaruh di mana. Remote TV lama, baterai entah masih bagus atau tidak, kunci yang tidak tahu kunci apa. `any` di TypeScript itu laci lain-lain. Bisa diisi apa saja. Masalahnya: saat kamu butuh sesuatu dari laci itu, kamu tidak pernah yakin apa yang akan kamu temukan."
+        "judul": "Gudang serba guna yang terima apa saja",
+        "cerita": "Di kompleks ada satu gudang besar tanpa label, tanpa aturan — semua orang bebas taruh apapun di sana: kasur lama, cat tembok, kabel listrik, peralatan renang. Saat kamu butuh sesuatu dari gudang itu, kamu tidak pernah yakin apa yang akan kamu temukan. Itulah any di TypeScript: bebas diisi apapun, tapi saat dipakai, kamu tidak punya jaminan apa yang ada di dalamnya — dan bisa berujung bahaya."
       },
       "penjelasan": "Dengan tipe `any`, TypeScript mematikan semua pengecekan tipe untuk variabel tersebut. Variabel berperilaku persis seperti JavaScript biasa — bebas diisi apa saja, bebas dipanggil method apapun, tidak ada error.",
       "contoh_kode": [
@@ -131,8 +131,8 @@
       "judul": "unknown — Alternatif any yang Lebih Aman",
       "badge": "Menengah",
       "analogi": {
-        "judul": "Paket misterius",
-        "cerita": "Kamu terima paket tanpa label. `any` itu seperti langsung buka dan pakai isinya tanpa tahu apa — kalau isinya pisau dan kamu tidak hati-hati, tanganmu bisa terluka. `unknown` itu seperti memperlakukan paket itu dengan hati-hati: kamu tahu ada isinya, tapi sebelum pakai, kamu buka dulu dan periksa — 'oh ini buku, aman dibaca', 'oh ini cairan kimia, perlu sarung tangan'. Kamu tidak bisa pakai isinya sebelum tahu apa isinya."
+        "judul": "Paket dari kantor pusat developer",
+        "cerita": "Kantor pusat kirim paket ke kompleks kamu — kamu tahu pasti ada isinya, tapi tidak tahu isinya apa. Dengan any, kamu langsung buka dan pakai isi paket tanpa cek — kalau isinya bahan kimia berbahaya, kamu celaka. Dengan unknown, kamu perlakukan paket itu hati-hati: buka dulu, periksa — \"oh ini cat tembok biasa, aman dipakai.\" Kamu wajib identifikasi isinya sebelum menggunakannya."
       },
       "perbedaan_dengan_any": {
         "penjelasan": "Seperti `any`, `unknown` bisa diisi nilai apapun. Bedanya: kamu tidak bisa melakukan operasi apapun pada `unknown` sebelum memeriksa tipenya terlebih dahulu. Ini memaksamu untuk 'aman'.",
@@ -161,8 +161,8 @@
       "judul": "never — Tipe yang Tidak Pernah Ada Nilainya",
       "badge": "Menengah",
       "analogi": {
-        "judul": "Jalan buntu",
-        "cerita": "Di sebuah labirin, ada lorong-lorong yang berujung pada jalan buntu — tidak ada jalan keluar, tidak bisa lanjut. `never` adalah tipe untuk kode yang tidak akan pernah selesai dieksekusi — fungsi yang selalu throw error (jadi tidak pernah return), atau loop yang tidak pernah berhenti. Tipe ini seperti papan 'JALAN BUNTU' — sesuatu yang keberadaannya menandakan bahwa eksekusi tidak akan pernah sampai ke titik itu."
+        "judul": "Pintu yang diblokir permanen",
+        "cerita": "Saat renovasi, ada pintu lama yang diputuskan untuk ditutup selamanya — ditembok, diplester, dicat ulang. Fisiknya masih ada bekasnya di dinding, tapi tidak ada yang akan pernah lewat sana lagi. never di TypeScript itu pintu yang diblokir permanen: kode yang \"ada\" di sana, tapi tidak akan pernah dieksekusi. Fungsi yang selalu throw error, atau jalur kode yang logikanya mustahil tercapai — itulah never."
       },
       "kapan_muncul": [
         {
@@ -188,8 +188,8 @@
       "judul": "Type Inference — TS yang Tebak Tipenya Sendiri",
       "badge": "Dasar",
       "analogi": {
-        "judul": "Pelayan restoran yang hafal pesananmu",
-        "cerita": "Di restoran langganan, kamu duduk dan langsung disajikan kopi hitam tanpa gula — karena pelayan sudah hafal pesananmu. Kamu tidak perlu bilang 'saya mau kopi hitam tanpa gula'. TypeScript bekerja seperti itu: kalau kamu tulis `let angka = 42`, TS langsung tahu ini `number` — kamu tidak perlu menulis `: number` secara eksplisit."
+        "judul": "Mandor yang hafal keahlian tiap tukang tanpa ditanya",
+        "cerita": "Mandor yang berpengalaman tidak perlu tanya \"kamu ahli apa?\" ke tiap tukang. Ia sudah tahu: Pak Budi datang dengan perlengkapan las = ahli las. Pak Ahmad bawa kotak listrik = teknisi listrik. Cukup lihat konteksnya, langsung tahu. TypeScript bekerja sama lewat type inference: kamu tulis let harga = 150000 dan TypeScript langsung tahu ini number tanpa kamu perlu tulis let harga: number = 150000. Cukup lihat nilainya, TypeScript sudah tebak tipenya."
       },
       "penjelasan": "Type inference adalah kemampuan TypeScript untuk menebak tipe suatu nilai dari konteksnya. TS cukup cerdas untuk menyimpulkan tipe dari: nilai awal variabel, nilai yang dikembalikan fungsi, dan konteks penggunaan.",
       "contoh_kode": [
@@ -221,8 +221,8 @@
       "judul": "Type Annotation — Kamu yang Tulis Tipenya",
       "badge": "Dasar",
       "analogi": {
-        "judul": "Menulis label di toples sendiri",
-        "cerita": "Kalau type inference itu seperti pelayan yang hafal pesananmu, maka type annotation itu seperti kamu sendiri yang menulis label di toplesmu. Kadang kamu perlu labelkan sesuatu yang tidak jelas dari isinya — misalnya toples berisi bubuk putih yang bisa gula atau garam. Daripada pelayan tebak-tebak, kamu tulis labelnya sendiri: 'GULA'."
+        "judul": "Papan spesifikasi yang dipasang di pintu tiap ruangan",
+        "cerita": "Di kompleks yang well-managed, setiap ruangan punya papan spesifikasi di pintu: \"KAMAR TIDUR UTAMA — Luas: 4x5m — Kapasitas: 2 orang\". Papan itu kamu pasang sendiri, secara eksplisit. Bukan tebakan — kamu yang memutuskan dan mengumumkan. Type annotation di TypeScript persis itu: kamu yang menulis tipe secara eksplisit dengan sintaks : TipeNya, bukan mengandalkan TypeScript untuk menebak."
       },
       "penjelasan": "Type annotation adalah saat kamu secara eksplisit menulis tipe dengan sintaks `: TipeNya`. Kamu 'mengumumkan' ke TypeScript: 'ini tipenya, saya yang menentukan'.",
       "sintaks_dasar": {
