@@ -1,0 +1,248 @@
+{
+  "bagian": 1,
+  "judul": "Types Dasar",
+  "deskripsi": "Types adalah inti dari TypeScript. Di bagian ini kamu akan belajar semua tipe bawaan TS — dari yang paling simpel sampai yang paling sering bikin bingung.",
+  "topik": [
+    {
+      "id": "01-01",
+      "judul": "string, number, boolean",
+      "badge": "Dasar",
+      "analogi": {
+        "judul": "Label pada toples dapur",
+        "cerita": "Di dapur kamu ada banyak toples. Tanpa label, kamu bisa salah ambil garam pas mau bikin teh manis. Dengan label 'Gula', 'Garam', 'Merica' — kamu tidak bisa salah. Types di TypeScript itu labelnya. Setiap variabel punya label yang menjelaskan isi yang boleh masuk."
+      },
+      "konsep": [
+        {
+          "nama": "string",
+          "deskripsi": "Untuk teks — apapun yang diapit tanda kutip",
+          "contoh_kode": [
+            {
+              "label": "Deklarasi string",
+              "kode": "let nama: string = 'Budi Santoso';\nlet kota: string = \"Jakarta\";\nlet sapaan: string = `Halo, ${nama}!`; // template literal juga string\n\n// ✅ Ini boleh\nnama = 'Andi';\n\n// ❌ Ini tidak boleh\nnama = 42;\n// Error: Type 'number' is not assignable to type 'string'",
+              "tipe": "typescript"
+            }
+          ]
+        },
+        {
+          "nama": "number",
+          "deskripsi": "Untuk semua angka — bulat maupun desimal. TypeScript (dan JavaScript) tidak membedakan integer dan float.",
+          "contoh_kode": [
+            {
+              "label": "Deklarasi number",
+              "kode": "let umur: number = 25;\nlet harga: number = 149999.99;\nlet suhu: number = -5;     // negatif boleh\nlet hex: number = 0xFF;    // hexadecimal boleh\nlet biner: number = 0b1010; // binary boleh\n\n// ✅ Ini boleh\numur = 26;\n\n// ❌ Ini tidak boleh\numur = '26';\n// Error: Type 'string' is not assignable to type 'number'",
+              "tipe": "typescript"
+            }
+          ]
+        },
+        {
+          "nama": "boolean",
+          "deskripsi": "Hanya dua nilai: true atau false. Tidak ada 'truthy/falsy' seperti di JS — harus benar-benar true atau false.",
+          "contoh_kode": [
+            {
+              "label": "Deklarasi boolean",
+              "kode": "let sudahLogin: boolean = false;\nlet isPremium: boolean = true;\nlet aktif: boolean = sudahLogin && isPremium;\n\n// ❌ Ini tidak boleh — meski di JS angka 1 dianggap 'truthy'\nlet aktif: boolean = 1;\n// Error: Type 'number' is not assignable to type 'boolean'",
+              "tipe": "typescript"
+            }
+          ]
+        }
+      ],
+      "contoh_nyata": {
+        "label": "Contoh gabungan dalam konteks nyata",
+        "kode": "// Data produk di toko online\nlet namaProduk: string = 'Sepatu Lari Nike';\nlet hargaProduk: number = 899000;\nlet tersedia: boolean = true;\nlet deskripsi: string = `${namaProduk} seharga Rp ${hargaProduk.toLocaleString('id-ID')}`;\n\nconsole.log(deskripsi);\n// Output: Sepatu Lari Nike seharga Rp 899.000",
+        "tipe": "typescript"
+      },
+      "poin_penting": "Di TypeScript kamu tidak selalu harus menulis tipenya secara eksplisit — TS bisa menebak sendiri. Kalau kamu tulis `let nama = 'Budi'`, TS otomatis tahu bahwa `nama` bertipe string. Ini namanya type inference, dibahas di topik 01-06."
+    },
+    {
+      "id": "01-02",
+      "judul": "null dan undefined — Kenapa Beda?",
+      "badge": "Dasar",
+      "analogi": {
+        "judul": "Kotak kosong vs kotak yang belum ada",
+        "cerita": "Bayangkan kamu pesan makanan online. `undefined` itu seperti kolom 'catatan tambahan' yang belum kamu sentuh sama sekali — kosong karena tidak pernah diisi. `null` itu seperti kamu sengaja mengosongkan kolom itu — kamu tulis 'tidak ada catatan'. Sama-sama kosong, tapi niatnya beda: satu karena lupa/belum, satu karena memang sengaja dikosongkan."
+      },
+      "perbedaan": [
+        {
+          "tipe": "undefined",
+          "arti": "Variabel sudah dideklarasikan tapi belum diberi nilai",
+          "contoh_kode": {
+            "kode": "let alamat: string | undefined;\nconsole.log(alamat); // undefined — belum diisi\n\n// Sering muncul di: parameter opsional, property opsional,\n// variabel yang belum diinisialisasi",
+            "tipe": "typescript"
+          }
+        },
+        {
+          "tipe": "null",
+          "arti": "Secara eksplisit menyatakan 'tidak ada nilai'",
+          "contoh_kode": {
+            "kode": "let fotoProfile: string | null = null;\n// Artinya: 'saya tahu field ini ada, tapi saat ini memang kosong'\n\n// Contoh nyata: user belum upload foto\nfotoProfile = null;\n\n// Setelah upload:\nfotoProfile = 'https://cdn.example.com/foto/budi.jpg';",
+            "tipe": "typescript"
+          }
+        }
+      ],
+      "strict_null_checks": {
+        "judul": "Kenapa ini penting: strictNullChecks",
+        "penjelasan": "Dengan `strict: true` di tsconfig, TypeScript tidak akan membiarkan nilai null atau undefined masuk ke tipe yang tidak mengizinkannya. Ini mencegah error paling umum di JavaScript: 'Cannot read property of null'.",
+        "contoh_kode": [
+          {
+            "label": "Tanpa strict — berbahaya",
+            "kode": "// Di JavaScript atau TS tanpa strict:\nlet nama: string = null; // Tidak ada error, tapi berbahaya!\nnama.toUpperCase();      // 💥 Runtime error: Cannot read properties of null",
+            "tipe": "typescript"
+          },
+          {
+            "label": "Dengan strict — aman",
+            "kode": "// Dengan strict: true (direkomendasikan)\nlet nama: string = null;\n// ❌ Error: Type 'null' is not assignable to type 'string'\n\n// Kalau memang bisa null, deklarasikan dengan benar:\nlet nama: string | null = null; // ✅ Jujur bahwa ini bisa null\n\n// Sebelum dipakai, TS paksa kamu cek dulu:\nif (nama !== null) {\n  console.log(nama.toUpperCase()); // ✅ Aman, TS tahu nama pasti string di sini\n}",
+            "tipe": "typescript"
+          }
+        ]
+      },
+      "poin_penting": "Konvensi umum: gunakan `null` untuk nilai yang memang sengaja dikosongkan (dari database, API, atau pilihan user). Gunakan `undefined` untuk hal yang opsional atau belum diinisialisasi. Tapi yang terpenting: jangan campur keduanya sembarangan di satu codebase."
+    },
+    {
+      "id": "01-03",
+      "judul": "any — Kapan Boleh, Kapan Bahaya",
+      "badge": "Dasar",
+      "analogi": {
+        "judul": "Laci 'lain-lain'",
+        "cerita": "Setiap rumah punya laci 'lain-lain' — tempat buang apa saja yang tidak tahu harus ditaruh di mana. Remote TV lama, baterai entah masih bagus atau tidak, kunci yang tidak tahu kunci apa. `any` di TypeScript itu laci lain-lain. Bisa diisi apa saja. Masalahnya: saat kamu butuh sesuatu dari laci itu, kamu tidak pernah yakin apa yang akan kamu temukan."
+      },
+      "penjelasan": "Dengan tipe `any`, TypeScript mematikan semua pengecekan tipe untuk variabel tersebut. Variabel berperilaku persis seperti JavaScript biasa — bebas diisi apa saja, bebas dipanggil method apapun, tidak ada error.",
+      "contoh_kode": [
+        {
+          "label": "any mematikan semua pengecekan",
+          "kode": "let data: any = 'halo';\ndata = 42;          // ✅ boleh\ndata = true;        // ✅ boleh\ndata = { x: 1 };    // ✅ boleh\ndata = null;        // ✅ boleh\n\n// TS tidak protes meski ini jelas salah:\ndata.toUpperCase();    // tidak error di compile time\ndata.tidakAdaMethod(); // tidak error di compile time\ndata[0][1][2];         // tidak error di compile time\n// Tapi semua ini bisa meledak saat dijalankan! 💥",
+          "tipe": "typescript"
+        },
+        {
+          "label": "Kapan any 'masuk akal' dipakai?",
+          "kode": "// 1. Migrasi dari JavaScript ke TypeScript\n//    Daripada semuanya error sekaligus, pakai any dulu\nfunction prosesData(input: any) {\n  // TODO: definisikan tipe yang proper nanti\n  return input;\n}\n\n// 2. Data dari sumber yang benar-benar tidak diketahui bentuknya\n//    (tapi gunakan 'unknown' yang lebih aman — dibahas di topik berikutnya)\nconst responAPI: any = await fetch('/api/data').then(r => r.json());\n\n// 3. Library pihak ketiga yang tidak punya type definitions\ndeclare const libraryLama: any;",
+          "tipe": "typescript"
+        },
+        {
+          "label": "Bahaya tersembunyi any",
+          "kode": "function hitungTotal(items: any[]) {\n  return items.reduce((total, item) => total + item.harga, 0);\n}\n\n// TS tidak akan protes ini:\nhitungTotal([{ nama: 'Baju', hrg: 100000 }]);\n//                            ^^^ typo! harusnya 'harga'\n// Hasilnya: NaN — dan kamu tidak tahu kenapa",
+          "tipe": "typescript"
+        }
+      ],
+      "aturan_praktis": "Treat `any` seperti technical debt — kadang perlu, tapi segera bayar utangnya. Kalau kamu nulis `any`, tandai dengan komentar `// TODO: definisikan tipe yang proper`. Jangan biarkan `any` tersebar di seluruh codebase.",
+      "poin_penting": "Ada aturan ESLint bernama `@typescript-eslint/no-explicit-any` yang akan memperingatkan kamu setiap kali menulis `any`. Sangat disarankan untuk diaktifkan di project serius."
+    },
+    {
+      "id": "01-04",
+      "judul": "unknown — Alternatif any yang Lebih Aman",
+      "badge": "Menengah",
+      "analogi": {
+        "judul": "Paket misterius",
+        "cerita": "Kamu terima paket tanpa label. `any` itu seperti langsung buka dan pakai isinya tanpa tahu apa — kalau isinya pisau dan kamu tidak hati-hati, tanganmu bisa terluka. `unknown` itu seperti memperlakukan paket itu dengan hati-hati: kamu tahu ada isinya, tapi sebelum pakai, kamu buka dulu dan periksa — 'oh ini buku, aman dibaca', 'oh ini cairan kimia, perlu sarung tangan'. Kamu tidak bisa pakai isinya sebelum tahu apa isinya."
+      },
+      "perbedaan_dengan_any": {
+        "penjelasan": "Seperti `any`, `unknown` bisa diisi nilai apapun. Bedanya: kamu tidak bisa melakukan operasi apapun pada `unknown` sebelum memeriksa tipenya terlebih dahulu. Ini memaksamu untuk 'aman'.",
+        "contoh_kode": [
+          {
+            "label": "any vs unknown — perbedaan kunci",
+            "kode": "// Dengan any — tidak ada perlindungan\nlet dataAny: any = ambilDariAPI();\ndataAny.toUpperCase(); // TS tidak protes, meski bisa meledak\n\n// Dengan unknown — TS paksa kamu cek dulu\nlet dataUnknown: unknown = ambilDariAPI();\ndataUnknown.toUpperCase();\n// ❌ Error: Object is of type 'unknown'\n// Kamu harus periksa tipenya dulu!",
+            "tipe": "typescript"
+          },
+          {
+            "label": "Cara pakai unknown yang benar",
+            "kode": "let input: unknown = ambilDariAPI();\n\n// Cara 1: typeof check\nif (typeof input === 'string') {\n  console.log(input.toUpperCase()); // ✅ aman, TS tahu ini string\n}\n\n// Cara 2: instanceof check\nif (input instanceof Date) {\n  console.log(input.getFullYear()); // ✅ aman, TS tahu ini Date\n}\n\n// Cara 3: custom type guard (dibahas di bagian 4)\nfunction isUser(val: unknown): val is User {\n  return typeof val === 'object' && val !== null && 'nama' in val;\n}",
+            "tipe": "typescript"
+          },
+          {
+            "label": "Contoh nyata: handle error di catch",
+            "kode": "// Di TypeScript, error di catch block bertipe 'unknown'\n// karena apapun bisa di-throw\ntry {\n  const data = JSON.parse(inputUser);\n} catch (error: unknown) {\n  // ❌ Ini tidak boleh langsung:\n  // console.log(error.message);\n\n  // ✅ Harus cek dulu:\n  if (error instanceof Error) {\n    console.log(error.message); // aman\n  } else {\n    console.log('Error tidak dikenal:', String(error));\n  }\n}",
+            "tipe": "typescript"
+          }
+        ]
+      },
+      "poin_penting": "Saat kamu menerima data dari luar (API, localStorage, user input, JSON.parse), gunakan `unknown` bukan `any`. Ini memaksamu untuk selalu validasi data sebelum dipakai — kebiasaan yang sangat baik."
+    },
+    {
+      "id": "01-05",
+      "judul": "never — Tipe yang Tidak Pernah Ada Nilainya",
+      "badge": "Menengah",
+      "analogi": {
+        "judul": "Jalan buntu",
+        "cerita": "Di sebuah labirin, ada lorong-lorong yang berujung pada jalan buntu — tidak ada jalan keluar, tidak bisa lanjut. `never` adalah tipe untuk kode yang tidak akan pernah selesai dieksekusi — fungsi yang selalu throw error (jadi tidak pernah return), atau loop yang tidak pernah berhenti. Tipe ini seperti papan 'JALAN BUNTU' — sesuatu yang keberadaannya menandakan bahwa eksekusi tidak akan pernah sampai ke titik itu."
+      },
+      "kapan_muncul": [
+        {
+          "situasi": "Fungsi yang selalu throw error",
+          "kode": "// Fungsi ini tidak pernah return nilai apapun\n// karena selalu throw sebelum sempat return\nfunction lemparError(pesan: string): never {\n  throw new Error(pesan);\n  // Baris setelah throw tidak akan pernah dieksekusi\n}\n\n// Berbeda dengan void — void artinya return undefined\n// never artinya TIDAK PERNAH return sama sekali\nfunction cetakLog(pesan: string): void {\n  console.log(pesan);\n  // Fungsi ini return undefined secara implisit\n}",
+          "tipe": "typescript"
+        },
+        {
+          "situasi": "Exhaustive check — memastikan semua kasus sudah ditangani",
+          "kode": "type Status = 'aktif' | 'nonaktif' | 'suspended';\n\nfunction handleStatus(status: Status): string {\n  switch (status) {\n    case 'aktif':\n      return 'User aktif';\n    case 'nonaktif':\n      return 'User tidak aktif';\n    case 'suspended':\n      return 'User disuspend';\n    default:\n      // Kalau semua case sudah ditangani, TypeScript tahu\n      // bahwa 'status' di sini bertipe 'never'\n      // Ini adalah safety net — kalau ada Status baru ditambahkan\n      // tapi switch-nya belum diupdate, baris ini akan error\n      const _exhaustiveCheck: never = status;\n      return _exhaustiveCheck;\n  }\n}",
+          "tipe": "typescript"
+        },
+        {
+          "situasi": "Tipe yang tidak mungkin ada — intersection yang kontradiksi",
+          "kode": "// string & number tidak mungkin ada secara bersamaan\ntype Mustahil = string & number; // tipenya jadi 'never'\n\nlet x: Mustahil; // tidak ada nilai yang bisa dimasukkan ke x",
+          "tipe": "typescript"
+        }
+      ],
+      "poin_penting": "`never` jarang kamu tulis secara eksplisit di kode sehari-hari. Tapi kamu akan sering *melihatnya* di pesan error TypeScript. Artinya selalu sama: 'kode ini tidak mungkin dieksekusi' atau 'tidak ada nilai yang memenuhi syarat ini'."
+    },
+    {
+      "id": "01-06",
+      "judul": "Type Inference — TS yang Tebak Tipenya Sendiri",
+      "badge": "Dasar",
+      "analogi": {
+        "judul": "Pelayan restoran yang hafal pesananmu",
+        "cerita": "Di restoran langganan, kamu duduk dan langsung disajikan kopi hitam tanpa gula — karena pelayan sudah hafal pesananmu. Kamu tidak perlu bilang 'saya mau kopi hitam tanpa gula'. TypeScript bekerja seperti itu: kalau kamu tulis `let angka = 42`, TS langsung tahu ini `number` — kamu tidak perlu menulis `: number` secara eksplisit."
+      },
+      "penjelasan": "Type inference adalah kemampuan TypeScript untuk menebak tipe suatu nilai dari konteksnya. TS cukup cerdas untuk menyimpulkan tipe dari: nilai awal variabel, nilai yang dikembalikan fungsi, dan konteks penggunaan.",
+      "contoh_kode": [
+        {
+          "label": "Inference dari nilai awal",
+          "kode": "// Kamu tidak perlu menulis tipe ini:\nlet nama: string = 'Budi'; // terlalu verbose\n\n// TypeScript sudah tahu 'Budi' itu string:\nlet nama = 'Budi'; // ✅ lebih ringkas, tipe tetap string\n\n// Coba assign nilai berbeda — tetap error:\nnama = 42;\n// ❌ Error: Type 'number' is not assignable to type 'string'",
+          "tipe": "typescript"
+        },
+        {
+          "label": "Inference return type fungsi",
+          "kode": "// TS bisa tebak return type dari isi fungsinya\nfunction tambah(a: number, b: number) {\n  return a + b; // TS tahu ini return number\n}\n\nconst hasil = tambah(5, 3); // 'hasil' otomatis bertipe number\nconst teks = hasil.toUpperCase();\n// ❌ Error: Property 'toUpperCase' does not exist on type 'number'\n// TS tahu 'hasil' adalah number, bukan string",
+          "tipe": "typescript"
+        },
+        {
+          "label": "Inference di array",
+          "kode": "// TS tebak dari isi array\nconst buah = ['apel', 'mangga', 'jeruk'];\n// Tipe: string[]\n\nconst campuran = ['apel', 42, true];\n// Tipe: (string | number | boolean)[]\n// TS lihat semua elemen dan buat union type",
+          "tipe": "typescript"
+        },
+        {
+          "label": "Kapan kamu PERLU menulis tipe eksplisit",
+          "kode": "// 1. Variabel yang dideklarasikan tanpa nilai awal\nlet hasil: number; // harus eksplisit karena belum ada nilai\nhasil = hitungSesuatu();\n\n// 2. Parameter fungsi — TS tidak bisa tebak ini\nfunction sapa(nama: string) { // harus eksplisit\n  return `Halo, ${nama}`;\n}\n\n// 3. Saat inferensi terlalu lebar dari yang kamu mau\nconst status = 'aktif'; // tipe: string (terlalu lebar)\nconst status: 'aktif' | 'nonaktif' = 'aktif'; // lebih spesifik\n\n// 4. Return type kompleks yang ingin kamu dokumentasikan\nfunction getUser(): User | null { // eksplisit agar jelas\n  ...\n}",
+          "tipe": "typescript"
+        }
+      ],
+      "poin_penting": "Gunakan type inference sebanyak mungkin untuk kode yang lebih bersih. Tulis tipe eksplisit hanya saat TS tidak bisa tebak sendiri, atau saat kamu ingin mendokumentasikan intent dengan jelas. Ini bukan kelemahan — ini fitur."
+    },
+    {
+      "id": "01-07",
+      "judul": "Type Annotation — Kamu yang Tulis Tipenya",
+      "badge": "Dasar",
+      "analogi": {
+        "judul": "Menulis label di toples sendiri",
+        "cerita": "Kalau type inference itu seperti pelayan yang hafal pesananmu, maka type annotation itu seperti kamu sendiri yang menulis label di toplesmu. Kadang kamu perlu labelkan sesuatu yang tidak jelas dari isinya — misalnya toples berisi bubuk putih yang bisa gula atau garam. Daripada pelayan tebak-tebak, kamu tulis labelnya sendiri: 'GULA'."
+      },
+      "penjelasan": "Type annotation adalah saat kamu secara eksplisit menulis tipe dengan sintaks `: TipeNya`. Kamu 'mengumumkan' ke TypeScript: 'ini tipenya, saya yang menentukan'.",
+      "sintaks_dasar": {
+        "penjelasan": "Sintaks annotation selalu berupa titik dua (`:`) diikuti nama tipenya:",
+        "contoh_kode": {
+          "kode": "// Variabel\nlet nama: string;\nlet umur: number;\nlet aktif: boolean;\n\n// Parameter fungsi\nfunction sapa(nama: string, umur: number) {\n  return `${nama}, ${umur} tahun`;\n}\n\n// Return type fungsi\nfunction hitungLuas(p: number, l: number): number {\n  return p * l;\n}\n\n// Beberapa tipe sekaligus (dibahas detail di bagian 4)\nlet id: string | number; // bisa string atau number",
+          "tipe": "typescript"
+        }
+      },
+      "annotation_objek": {
+        "penjelasan": "Untuk objek, kamu bisa langsung tulis bentuknya di annotation:",
+        "contoh_kode": [
+          {
+            "label": "Inline object type annotation",
+            "kode": "// Langsung di parameter\nfunction tampilkanUser(user: { nama: string; umur: number; email: string }) {\n  console.log(`${user.nama} (${user.umur}) — ${user.email}`);\n}\n\n// Atau di variabel\nlet produk: { nama: string; harga: number; stok: number } = {\n  nama: 'Kaos Polos',\n  harga: 75000,\n  stok: 50\n};\n\n// Kalau bentuknya kompleks atau dipakai berkali-kali,\n// lebih baik pakai interface atau type alias (dibahas di bagian 3)",
+            "tipe": "typescript"
+          }
+        ]
+      },
+      "poin_penting": "Tidak ada aturan kaku kapan pakai inference dan kapan pakai annotation. Panduan praktis: gunakan annotation saat kodenya lebih mudah dibaca dengan tipe eksplisit, atau saat kamu ingin 'mengunci' tipe tertentu yang berbeda dari yang TS tebak."
+    }
+  ]
+}

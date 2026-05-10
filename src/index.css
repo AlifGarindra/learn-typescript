@@ -1,0 +1,42 @@
+@import "tailwindcss";
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    margin: 0;
+    background: #0f1117;
+    color: #e2e8f0;
+    font-family: system-ui, 'Segoe UI', Roboto, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  #root {
+    min-height: 100svh;
+  }
+}
+
+/* Shiki code highlight */
+.shiki {
+  border-radius: 0.5rem;
+  padding: 1rem 1.25rem;
+  overflow-x: auto;
+  font-size: 0.875rem;
+  line-height: 1.6;
+  tab-size: 2;
+}
+
+.shiki code {
+  font-family: ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace;
+  background: transparent;
+  padding: 0;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: #1e2030; }
+::-webkit-scrollbar-thumb { background: #3b4263; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #6272a4; }

@@ -1,0 +1,172 @@
+{
+  "bagian": 2,
+  "judul": "Struktur Data",
+  "deskripsi": "Kalau types dasar itu tentang nilai tunggal, struktur data adalah tentang kumpulan nilai. Di sini kamu belajar cara TypeScript mendescribe array, tuple, dan objek — termasuk properti yang opsional dan yang tidak boleh diubah.",
+  "topik": [
+    {
+      "id": "02-01",
+      "judul": "Array — Kumpulan Nilai Sejenis",
+      "badge": "Dasar",
+      "analogi": {
+        "judul": "Rak buku",
+        "cerita": "Rak buku hanya boleh berisi buku. Kamu tidak bisa taruh piring di rak buku — itu melanggar aturan rak tersebut. `string[]` artinya 'rak yang hanya boleh berisi string'. Kalau kamu coba taruh number di sana, TypeScript langsung protes."
+      },
+      "dua_cara_deklarasi": {
+        "penjelasan": "Ada dua sintaks untuk array di TypeScript, keduanya setara:",
+        "contoh_kode": {
+          "kode": "// Cara 1: TipeElement[]\n// Lebih umum dipakai, lebih ringkas\nlet buah: string[] = ['apel', 'mangga', 'jeruk'];\nlet nilai: number[] = [90, 85, 92, 78];\nlet flags: boolean[] = [true, false, true];\n\n// Cara 2: Array<TipeElement>\n// Lebih eksplisit, berguna untuk tipe yang kompleks\nlet buah: Array<string> = ['apel', 'mangga', 'jeruk'];\nlet nilai: Array<number> = [90, 85, 92, 78];\n\n// Keduanya identik — pilih yang lebih kamu suka\n// Konsistensi lebih penting dari pilihan sintaksnya",
+          "tipe": "typescript"
+        }
+      },
+      "contoh_operasi": {
+        "label": "Operasi array — TS tetap jaga tipenya",
+        "kode": "const produk: string[] = ['Baju', 'Celana', 'Sepatu'];\n\n// ✅ Push string — boleh\nproduk.push('Topi');\n\n// ❌ Push number — tidak boleh\nproduk.push(42);\n// Error: Argument of type 'number' is not assignable to\n//        parameter of type 'string'\n\n// ✅ map, filter, reduce juga terjaga tipenya\nconst hurufBesar = produk.map(p => p.toUpperCase());\n// hurufBesar bertipe string[] — TS tahu ini\n\nconst panjang = produk.map(p => p.length);\n// panjang bertipe number[] — TS tahu .length return number",
+        "tipe": "typescript"
+      },
+      "array_of_objects": {
+        "label": "Array of objects — paling sering dipakai",
+        "kode": "// Definisikan dulu tipe objeknya\ninterface Produk {\n  id: number;\n  nama: string;\n  harga: number;\n}\n\n// Array of Produk\nconst keranjang: Produk[] = [\n  { id: 1, nama: 'Kaos', harga: 75000 },\n  { id: 2, nama: 'Celana', harga: 150000 },\n];\n\n// TS tahu properti apa yang tersedia saat iterasi\nconst total = keranjang.reduce((sum, item) => sum + item.harga, 0);\n// item.harga ✅ — TS tahu 'harga' ada di Produk\n// item.diskon ❌ — Error: Property 'diskon' does not exist on type 'Produk'",
+        "tipe": "typescript"
+      },
+      "readonly_array": {
+        "label": "ReadonlyArray — array yang tidak boleh diubah",
+        "kode": "// Kadang kamu mau array yang tidak bisa dimodifikasi\nconst HARI_KERJA: ReadonlyArray<string> = \n  ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat'];\n\n// Atau pakai sintaks shorthand:\nconst HARI_KERJA: readonly string[] = \n  ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat'];\n\nHARI_KERJA.push('Sabtu');\n// ❌ Error: Property 'push' does not exist on type 'readonly string[]'\n\nHARI_KERJA[0] = 'Sunday';\n// ❌ Error: Index signature in type 'readonly string[]'\n//          only permits reading",
+        "tipe": "typescript"
+      },
+      "poin_penting": "TypeScript akan menginfer tipe array secara otomatis dari isinya. `const angka = [1, 2, 3]` otomatis bertipe `number[]`. Kamu hanya perlu eksplisit saat array dimulai kosong (`const items: string[] = []`) atau saat berisi campuran yang ingin kamu batasi."
+    },
+    {
+      "id": "02-02",
+      "judul": "Tuple — Array dengan Tipe Per Posisi",
+      "badge": "Menengah",
+      "analogi": {
+        "judul": "Formulir dengan kolom tetap",
+        "cerita": "Bayangkan formulir data pegawai: kolom pertama SELALU nama (teks), kolom kedua SELALU umur (angka), kolom ketiga SELALU status aktif (ya/tidak). Urutan dan tipenya sudah ditentukan — tidak bisa ditukar. Tuple di TypeScript persis seperti itu: array dengan jumlah elemen tetap, dan tipe tiap posisinya sudah ditentukan."
+      },
+      "penjelasan": "Berbeda dengan array biasa yang semua elemennya harus bertipe sama, tuple mendefinisikan tipe per posisi. Posisi 0 bisa string, posisi 1 bisa number, posisi 2 bisa boolean.",
+      "contoh_kode": [
+        {
+          "label": "Tuple dasar",
+          "kode": "// Deklarasi tuple: [TipePosisi0, TipePosisi1, ...]\nlet koordinat: [number, number] = [10, 20];\nlet profil: [string, number, boolean] = ['Budi', 25, true];\n\n// Akses elemen\nconsole.log(koordinat[0]); // 10 — bertipe number\nconsole.log(profil[0]);    // 'Budi' — bertipe string\nconsole.log(profil[1]);    // 25 — bertipe number\n\n// ✅ TypeScript tahu tipe tiap posisi\nlet namaUser = profil[0]; // tipe: string\nlet umurUser = profil[1]; // tipe: number\n\n// ❌ Urutan tidak boleh salah\nlet koordinatSalah: [number, number] = [10, '20'];\n// Error: Type 'string' is not assignable to type 'number'",
+          "tipe": "typescript"
+        },
+        {
+          "label": "Named tuple — lebih readable",
+          "kode": "// Bisa kasih nama untuk tiap posisi (TS 4.0+)\n// Nama tidak mempengaruhi perilaku, hanya dokumentasi\ntype Koordinat = [lat: number, lng: number];\ntype RentangTanggal = [mulai: Date, selesai: Date];\n\nconst lokasi: Koordinat = [-6.2, 106.8]; // Jakarta\nconst proyek: RentangTanggal = [new Date('2024-01-01'), new Date('2024-12-31')];\n\n// Saat hover di editor, kamu lihat nama parameternya — lebih jelas",
+          "tipe": "typescript"
+        },
+        {
+          "label": "Tuple vs Array — kapan pakai yang mana?",
+          "kode": "// Pakai ARRAY saat:\n// - Jumlah elemen tidak tetap\n// - Semua elemen tipenya sama\nconst nilaiUjian: number[] = [90, 85, 92, 78, 95];\n\n// Pakai TUPLE saat:\n// - Jumlah elemen tetap dan sudah diketahui\n// - Tiap posisi punya makna berbeda\n// Contoh nyata: return dari fungsi yang return 2 nilai\nfunction getMinMax(angka: number[]): [number, number] {\n  return [Math.min(...angka), Math.max(...angka)];\n}\n\nconst [min, max] = getMinMax([5, 2, 8, 1, 9]);\n// min = 1, max = 9\n// Destructuring tuple sangat clean!",
+          "tipe": "typescript"
+        },
+        {
+          "label": "useState React — tuple dalam praktik nyata",
+          "kode": "// useState di React return tuple [nilai, setter]\n// Ini contoh nyata kenapa tuple penting:\nconst [count, setCount] = useState<number>(0);\n// count bertipe: number\n// setCount bertipe: (value: number) => void\n\nconst [nama, setNama] = useState<string>('');\n// nama bertipe: string\n// setNama bertipe: (value: string) => void",
+          "tipe": "typescript"
+        }
+      ],
+      "poin_penting": "Tuple paling sering muncul saat destructuring return value dari fungsi (seperti useState). Daripada return objek `{ min, max }`, kadang tuple `[min, max]` lebih ringkas — terutama kalau penamanya sudah jelas dari konteks."
+    },
+    {
+      "id": "02-03",
+      "judul": "Object Types — Mendeskripsikan Bentuk Objek",
+      "badge": "Dasar",
+      "analogi": {
+        "judul": "Blueprint rumah",
+        "cerita": "Sebelum bangun rumah, kamu buat blueprint: ruang tamu ada di sini, kamar tidur ada di sana, dapur di situ. Blueprint bukan rumahnya — tapi semua rumah yang dibangun dari blueprint itu punya struktur yang sama. Object type di TypeScript adalah blueprint-nya objek."
+      },
+      "penjelasan": "Object type mendeskripsikan 'bentuk' sebuah objek — properti apa saja yang harus ada, dan tipe tiap propertinya.",
+      "contoh_kode": [
+        {
+          "label": "Inline object type",
+          "kode": "// Langsung tulis bentuknya\nfunction tampilkanProduk(produk: { nama: string; harga: number; kategori: string }) {\n  console.log(`[${produk.kategori}] ${produk.nama} — Rp ${produk.harga.toLocaleString('id-ID')}`);\n}\n\ntampilkanProduk({ nama: 'Kaos', harga: 75000, kategori: 'Pakaian' }); // ✅\ntampilkanProduk({ nama: 'Kaos', harga: 75000 }); // ❌ Error: missing 'kategori'",
+          "tipe": "typescript"
+        },
+        {
+          "label": "Type alias untuk objek — lebih reusable",
+          "kode": "// Definisikan sekali, pakai berkali-kali\ntype Produk = {\n  nama: string;\n  harga: number;\n  kategori: string;\n};\n\n// Pakai di fungsi\nfunction tampilkanProduk(produk: Produk) { ... }\n\n// Pakai di array\nconst katalog: Produk[] = [...];\n\n// Pakai di variabel\nconst featured: Produk = { nama: 'Jaket', harga: 250000, kategori: 'Pakaian' };",
+          "tipe": "typescript"
+        },
+        {
+          "label": "Objek nested",
+          "kode": "type Alamat = {\n  jalan: string;\n  kota: string;\n  provinsi: string;\n  kodePos: string;\n};\n\ntype User = {\n  id: number;\n  nama: string;\n  email: string;\n  alamat: Alamat; // objek di dalam objek\n};\n\nconst user: User = {\n  id: 1,\n  nama: 'Budi Santoso',\n  email: 'budi@mail.com',\n  alamat: {\n    jalan: 'Jl. Merdeka No. 10',\n    kota: 'Jakarta',\n    provinsi: 'DKI Jakarta',\n    kodePos: '10110'\n  }\n};\n\n// Akses nested property\nconsole.log(user.alamat.kota); // 'Jakarta'",
+          "tipe": "typescript"
+        }
+      ],
+      "poin_penting": "Untuk objek yang dipakai sekali, inline type sudah cukup. Kalau dipakai di lebih dari satu tempat, selalu ekstrak ke type alias atau interface (dibahas di bagian 3). DRY principle berlaku untuk tipe juga."
+    },
+    {
+      "id": "02-04",
+      "judul": "Optional Properties — Properti yang Boleh Tidak Ada",
+      "badge": "Dasar",
+      "analogi": {
+        "judul": "Formulir pendaftaran",
+        "cerita": "Di formulir pendaftaran, ada kolom wajib — nama, email, password. Ada juga kolom opsional — nomor telepon, foto profil, bio. Kolom opsional pakai tanda bintang (*) atau tulisan 'opsional'. TypeScript punya tanda yang sama: tanda tanya (?) setelah nama property."
+      },
+      "penjelasan": "Tambahkan `?` setelah nama property untuk membuatnya opsional. Artinya property tersebut boleh ada, boleh tidak.",
+      "contoh_kode": [
+        {
+          "label": "Deklarasi optional property",
+          "kode": "type Profil = {\n  nama: string;         // wajib\n  email: string;        // wajib\n  telepon?: string;     // opsional\n  bio?: string;         // opsional\n  fotoUrl?: string;     // opsional\n};\n\n// ✅ Hanya isi yang wajib\nconst profil1: Profil = {\n  nama: 'Budi',\n  email: 'budi@mail.com'\n};\n\n// ✅ Isi sebagian opsional\nconst profil2: Profil = {\n  nama: 'Ani',\n  email: 'ani@mail.com',\n  telepon: '081234567890'\n};\n\n// ✅ Isi semua\nconst profil3: Profil = {\n  nama: 'Cici',\n  email: 'cici@mail.com',\n  telepon: '089876543210',\n  bio: 'Developer dari Bandung',\n  fotoUrl: 'https://cdn.example.com/cici.jpg'\n};",
+          "tipe": "typescript"
+        },
+        {
+          "label": "Mengakses optional property dengan aman",
+          "kode": "function tampilkanProfil(profil: Profil) {\n  console.log(profil.nama);\n  console.log(profil.email);\n\n  // ❌ Langsung akses tanpa cek — bisa undefined\n  console.log(profil.telepon.toUpperCase());\n  // Error: Object is possibly 'undefined'\n\n  // ✅ Cara 1: if check\n  if (profil.telepon) {\n    console.log(profil.telepon.toUpperCase());\n  }\n\n  // ✅ Cara 2: optional chaining (?.) \n  console.log(profil.telepon?.toUpperCase());\n  // Kalau telepon undefined, hasilnya undefined (tidak error)\n\n  // ✅ Cara 3: nullish coalescing (??)\n  console.log(profil.bio ?? 'Belum ada bio');\n  // Kalau bio undefined, tampilkan 'Belum ada bio'\n}",
+          "tipe": "typescript"
+        },
+        {
+          "label": "Optional di parameter fungsi",
+          "kode": "// Parameter opsional juga pakai ?\nfunction buat Salam(nama: string, sapaan?: string): string {\n  // sapaan bisa undefined, jadi kita beri default\n  const awalan = sapaan ?? 'Halo';\n  return `${awalan}, ${nama}!`;\n}\n\nbuatSalam('Budi');            // 'Halo, Budi!'\nbuatSalam('Ani', 'Selamat pagi');  // 'Selamat pagi, Ani!'\n\n// Parameter opsional HARUS di posisi terakhir\nfunction test(a: string, b?: number, c: boolean) {} // ❌ Error\nfunction test(a: string, c: boolean, b?: number) {} // ✅",
+          "tipe": "typescript"
+        }
+      ],
+      "optional_vs_nullable": {
+        "judul": "Optional (?) vs Nullable (| null) — bedanya penting!",
+        "penjelasan": "Ini sering bikin bingung. Tanda tanya berarti properti mungkin tidak ada sama sekali. Pipe null berarti properti selalu ada, tapi nilainya bisa null.",
+        "contoh_kode": {
+          "kode": "type Contoh = {\n  // Optional: property ini mungkin tidak ada di objek\n  telepon?: string;\n  // Artinya: { nama: 'Budi' } valid, tidak perlu ada 'telepon'\n\n  // Nullable: property ada, tapi nilainya bisa null\n  fotoUrl: string | null;\n  // Artinya: objek HARUS punya 'fotoUrl', tapi boleh null\n};\n\n// Kapan pakai yang mana?\n// Optional (?): untuk data yang memang tidak selalu relevan\n//   Contoh: nomor telepon di profil user\n// Nullable (| null): untuk data yang selalu ada tapi bisa kosong\n//   Contoh: foto profil — ada field-nya, tapi belum diupload",
+          "tipe": "typescript"
+        }
+      },
+      "poin_penting": "Optional chaining (`?.`) dan nullish coalescing (`??`) adalah dua operator JavaScript yang sangat berguna saat bekerja dengan optional properties. Pelajari keduanya — kamu akan pakai sangat sering."
+    },
+    {
+      "id": "02-05",
+      "judul": "Readonly Properties — Properti yang Tidak Boleh Diubah",
+      "badge": "Menengah",
+      "analogi": {
+        "judul": "Nomor KTP",
+        "cerita": "Nomor KTP kamu tidak bisa diubah setelah dicetak. Nama bisa berubah (ganti nama resmi), alamat bisa berubah (pindah), tapi NIK tetap sama seumur hidup. `readonly` di TypeScript itu seperti NIK — nilainya ditentukan saat pertama kali dibuat, setelah itu tidak boleh diubah."
+      },
+      "penjelasan": "Tambahkan `readonly` sebelum nama property untuk membuatnya hanya bisa dibaca — tidak bisa diubah setelah objek dibuat.",
+      "contoh_kode": [
+        {
+          "label": "Deklarasi readonly",
+          "kode": "type User = {\n  readonly id: number;      // tidak boleh diubah\n  readonly createdAt: Date; // tidak boleh diubah\n  nama: string;             // boleh diubah\n  email: string;            // boleh diubah\n};\n\nconst user: User = {\n  id: 1,\n  createdAt: new Date(),\n  nama: 'Budi',\n  email: 'budi@mail.com'\n};\n\n// ✅ Ubah property biasa\nuser.nama = 'Budi Santoso';\nuser.email = 'budi.santoso@mail.com';\n\n// ❌ Ubah readonly — tidak boleh!\nuser.id = 2;\n// Error: Cannot assign to 'id' because it is a read-only property\nuser.createdAt = new Date();\n// Error: Cannot assign to 'createdAt' because it is a read-only property",
+          "tipe": "typescript"
+        },
+        {
+          "label": "Readonly di interface",
+          "kode": "interface KonfigurasiApp {\n  readonly namaApp: string;\n  readonly versi: string;\n  readonly baseUrl: string;\n  debugMode: boolean; // ini boleh diubah\n}\n\nconst config: KonfigurasiApp = {\n  namaApp: 'TokoKu',\n  versi: '1.0.0',\n  baseUrl: 'https://api.tokoku.com',\n  debugMode: false\n};\n\n// Konfigurasi dasar tidak boleh diubah saat runtime\n// Tapi debug mode boleh di-toggle\nconfig.debugMode = true; // ✅\nconfig.baseUrl = 'https://api.lain.com'; // ❌ Error",
+          "tipe": "typescript"
+        },
+        {
+          "label": "Readonly<T> — jadikan semua property readonly",
+          "kode": "type Produk = {\n  id: number;\n  nama: string;\n  harga: number;\n};\n\n// Buat versi readonly dari Produk\ntype ProdukReadonly = Readonly<Produk>;\n// Sama dengan:\n// type ProdukReadonly = {\n//   readonly id: number;\n//   readonly nama: string;\n//   readonly harga: number;\n// }\n\nconst p: ProdukReadonly = { id: 1, nama: 'Kaos', harga: 75000 };\np.harga = 80000; // ❌ Error\n\n// Berguna saat kamu mau pastikan fungsi tidak mengubah data yang diterima\nfunction tampilkan(produk: Readonly<Produk>) {\n  // Di dalam fungsi ini, produk tidak bisa diubah sama sekali\n  produk.nama = 'x'; // ❌ Error — diproteksi!\n  console.log(produk.nama); // ✅ Baca saja\n}",
+          "tipe": "typescript"
+        }
+      ],
+      "perbedaan_dengan_const": {
+        "judul": "readonly vs const — bedanya?",
+        "penjelasan": "Sering bikin bingung — kapan pakai const, kapan pakai readonly?",
+        "contoh_kode": {
+          "kode": "// const: untuk VARIABEL — referensinya tidak bisa diubah\nconst user = { nama: 'Budi', umur: 25 };\nuser = { nama: 'Ani', umur: 22 }; // ❌ Error: tidak bisa reassign const\nuser.nama = 'Andi'; // ✅ Tapi isinya masih bisa diubah!\n\n// readonly: untuk PROPERTY dalam objek/interface\n// Melindungi property dari perubahan\ntype User = { readonly nama: string; umur: number };\nconst u: User = { nama: 'Budi', umur: 25 };\nu.nama = 'Andi'; // ❌ Error: readonly property\nu.umur = 26;     // ✅ Boleh\n\n// Singkatnya:\n// const = lock pada variabelnya (tidak bisa reassign)\n// readonly = lock pada property objeknya (tidak bisa diubah isinya)",
+          "tipe": "typescript"
+        }
+      },
+      "poin_penting": "Gunakan `readonly` untuk data yang seharusnya immutable setelah dibuat: ID dari database, timestamp, konfigurasi, atau data yang kamu terima dari API. Ini mencegah bug di mana data tidak sengaja dimodifikasi di tempat yang tidak seharusnya."
+    }
+  ]
+}

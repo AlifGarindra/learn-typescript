@@ -1,0 +1,122 @@
+{
+  "bagian": 6,
+  "judul": "Generics",
+  "deskripsi": "Generics adalah fitur yang paling sering bikin bingung tapi paling powerful di TypeScript. Setelah paham, kamu akan sadar bahwa generics ada di mana-mana — di Array, Promise, useState React, dan fungsi yang kamu tulis sendiri.",
+  "topik": [
+    {
+      "id": "06-01",
+      "judul": "Apa itu Generics?",
+      "badge": "Menengah",
+      "analogi": {
+        "judul": "Cetakan kue",
+        "cerita": "Bayangkan cetakan kue berbentuk bintang. Cetakan ini tidak peduli adonannya apa — coklat, vanila, pandan, semua masuk. Yang keluar selalu berbentuk bintang, dengan bahan sesuai yang kamu masukkan. Generics di TypeScript persis itu: satu 'cetakan' (fungsi/interface/class) yang bisa bekerja dengan berbagai tipe data, tapi tetap menjaga konsistensi tipenya."
+      },
+      "masalah_tanpa_generics": {
+        "penjelasan": "Tanpa generics, kamu terpaksa pilih antara: tulis fungsi berbeda untuk tiap tipe (duplikasi kode), atau pakai `any` (kehilangan type safety).",
+        "contoh_kode": [
+          {
+            "label": "Tanpa generics — duplikasi atau kehilangan type safety",
+            "kode": "// Pilihan 1: tulis fungsi berbeda untuk tiap tipe — duplikasi!\nfunction ambilPertamaString(arr: string[]): string {\n  return arr[0];\n}\nfunction ambilPertamaNumber(arr: number[]): number {\n  return arr[0];\n}\nfunction ambilPertamaBoolean(arr: boolean[]): boolean {\n  return arr[0];\n}\n// Dan seterusnya... 🥱\n\n// Pilihan 2: pakai any — kehilangan type safety\nfunction ambilPertama(arr: any[]): any {\n  return arr[0];\n}\nconst hasil = ambilPertama(['apel', 'mangga']);\nhasil.toFixed(2); // TS tidak protes, padahal 'apel' bukan number! 💥",
+            "tipe": "typescript"
+          }
+        ]
+      },
+      "solusi_generics": {
+        "penjelasan": "Dengan generics, kamu buat satu fungsi yang bekerja untuk semua tipe, tapi TypeScript tetap tahu tipenya secara spesifik.",
+        "contoh_kode": [
+          {
+            "label": "Dengan generics — satu fungsi, type safe",
+            "kode": "// <T> adalah 'type parameter' — placeholder untuk tipe apapun\nfunction ambilPertama<T>(arr: T[]): T {\n  return arr[0];\n}\n\n// TypeScript infer T dari argumen yang diberikan:\nconst buah = ambilPertama(['apel', 'mangga', 'jeruk']);\n// T = string, buah bertipe: string\n\nconst angka = ambilPertama([1, 2, 3, 4, 5]);\n// T = number, angka bertipe: number\n\nconst flags = ambilPertama([true, false, true]);\n// T = boolean, flags bertipe: boolean\n\n// TypeScript sekarang TAHU tipenya:\nbuah.toUpperCase(); // ✅ string method tersedia\nangka.toFixed(2);   // ✅ number method tersedia\nbuah.toFixed(2);    // ❌ Error: 'toFixed' tidak ada di string",
+            "tipe": "typescript"
+          }
+        ]
+      },
+      "cara_baca_sintaks": {
+        "penjelasan": "Cara membaca `function ambilPertama<T>(arr: T[]): T`:",
+        "breakdown": [
+          { "bagian": "<T>", "arti": "Deklarasi type parameter bernama T. Huruf T adalah konvensi, bisa nama apapun." },
+          { "bagian": "arr: T[]", "arti": "Parameter arr adalah array dari T — tipe apapun yang dipilih." },
+          { "bagian": ": T", "arti": "Return type adalah T — tipe yang sama dengan elemen array." }
+        ]
+      },
+      "poin_penting": "Generic type parameter (`<T>`) adalah seperti variabel, tapi untuk tipe. Saat fungsi dipanggil, T 'diisi' dengan tipe yang sebenarnya. Nama T adalah konvensi (Type), tapi kamu bisa pakai nama deskriptif seperti `<TItem>`, `<TInput>`, `<TResponse>`."
+    },
+    {
+      "id": "06-02",
+      "judul": "Generic Functions",
+      "badge": "Menengah",
+      "analogi": {
+        "judul": "Fungsi pos paket",
+        "cerita": "Kantor pos menerima paket apapun — dokumen, elektronik, pakaian. Proses pengirimnya sama: terima paket → cek alamat → kirim. Yang berbeda hanya isi paketnya. Generic function itu seperti kantor pos: proses logikanya sama, tapi tipe data yang 'dikirim' bisa berbeda-beda."
+      },
+      "contoh_kode": [
+        {
+          "label": "Multiple type parameters",
+          "kode": "// Dua type parameter: T dan U\nfunction pasangkan<T, U>(pertama: T, kedua: U): [T, U] {\n  return [pertama, kedua];\n}\n\nconst pasangan1 = pasangkan('nama', 25);\n// tipe: [string, number]\n\nconst pasangan2 = pasangkan(true, ['a', 'b', 'c']);\n// tipe: [boolean, string[]]\n\n// Generic transform\nfunction transformasi<TInput, TOutput>(\n  data: TInput,\n  transformer: (input: TInput) => TOutput\n): TOutput {\n  return transformer(data);\n}\n\nconst panjangTeks = transformasi('halo dunia', str => str.length);\n// TInput = string, TOutput = number\n// panjangTeks bertipe: number",
+          "tipe": "typescript"
+        },
+        {
+          "label": "Generic dengan array operations",
+          "kode": "// Fungsi generic yang berguna untuk data fetching\nasync function ambilData<T>(url: string): Promise<T> {\n  const response = await fetch(url);\n  if (!response.ok) {\n    throw new Error(`HTTP error: ${response.status}`);\n  }\n  return response.json() as T;\n}\n\n// Penggunaan — spesifikasikan tipe yang diharapkan:\ninterface Produk { id: number; nama: string; harga: number; }\ninterface User { id: number; nama: string; email: string; }\n\nconst produk = await ambilData<Produk>('/api/produk/1');\n// produk bertipe: Produk — TS tahu semua property-nya!\n\nconst user = await ambilData<User>('/api/user/1');\n// user bertipe: User",
+          "tipe": "typescript"
+        },
+        {
+          "label": "Generic untuk state management sederhana",
+          "kode": "// Generic class/interface untuk response API\ninterface ApiResponse<T> {\n  data: T;\n  status: number;\n  pesan: string;\n  berhasil: boolean;\n}\n\n// Pakai dengan tipe berbeda\ntype ResponseProduk = ApiResponse<Produk>;\ntype ResponseListUser = ApiResponse<User[]>;\ntype ResponseLogin = ApiResponse<{ token: string; user: User }>;\n\n// Fungsi yang return ApiResponse\nasync function fetchApi<T>(url: string): Promise<ApiResponse<T>> {\n  const response = await fetch(url);\n  return response.json();\n}\n\nconst result = await fetchApi<Produk[]>('/api/produk');\n// result.data bertipe: Produk[] ✅\n// result.status bertipe: number ✅\n// result.data[0].nama bertipe: string ✅",
+          "tipe": "typescript"
+        }
+      ],
+      "poin_penting": "Kamu bisa eksplisit tentukan type argument: `ambilData<Produk>(url)`. Atau biarkan TypeScript infer dari konteks. Eksplisit diperlukan saat TypeScript tidak bisa infer sendiri — seperti di contoh fetch yang return type-nya tidak bisa diketahui dari argumen."
+    },
+    {
+      "id": "06-03",
+      "judul": "Generic Constraints (extends)",
+      "badge": "Menengah",
+      "analogi": {
+        "judul": "Cetakan kue dengan syarat",
+        "cerita": "Cetakan kue bintang menerima adonan apapun — tapi dengan syarat: adonannya harus bisa dipanggang (tidak bisa pakai es batu sebagai adonan). Constraints di generics sama: 'T bisa tipe apapun, tapi harus punya property/method tertentu'."
+      },
+      "penjelasan": "Constraints membatasi generic type parameter agar hanya menerima tipe yang memenuhi syarat tertentu. Ditulis dengan `extends`.",
+      "contoh_kode": [
+        {
+          "label": "Constraint dasar",
+          "kode": "// Tanpa constraint — T bisa apa saja\nfunction tampilkanPanjang<T>(item: T) {\n  console.log(item.length); // ❌ Error: T mungkin tidak punya .length\n}\n\n// Dengan constraint — T harus punya property 'length'\ninterface PunyaPanjang {\n  length: number;\n}\n\nfunction tampilkanPanjang<T extends PunyaPanjang>(item: T) {\n  console.log(item.length); // ✅ Aman — T pasti punya .length\n}\n\ntampilkanPanjang('halo');        // ✅ string punya .length\ntampilkanPanjang([1, 2, 3]);     // ✅ array punya .length\ntampilkanPanjang({ length: 5 }); // ✅ objek dengan property length\ntampilkanPanjang(42);            // ❌ Error: number tidak punya .length",
+          "tipe": "typescript"
+        },
+        {
+          "label": "Constraint dengan keyof — akses property yang aman",
+          "kode": "// keyof T = union dari semua nama property T\n// K extends keyof T = K harus nama property yang ada di T\nfunction ambilNilai<T, K extends keyof T>(objek: T, kunci: K): T[K] {\n  return objek[kunci];\n}\n\nconst user = { nama: 'Budi', umur: 25, email: 'budi@mail.com' };\n\nconst namanya = ambilNilai(user, 'nama');   // tipe: string ✅\nconst umurnya = ambilNilai(user, 'umur');   // tipe: number ✅\nambilNilai(user, 'telepon'); // ❌ Error: 'telepon' bukan property User",
+          "tipe": "typescript"
+        },
+        {
+          "label": "Constraint dengan tipe lain",
+          "kode": "// T harus bisa di-compare (punya method compareTo, atau setidaknya number/string)\nfunction cariMaks<T extends number | string>(arr: T[]): T {\n  return arr.reduce((maks, item) => item > maks ? item : maks);\n}\n\ncariMaks([3, 1, 4, 1, 5, 9]); // 9\ncariMaks(['banana', 'apple', 'cherry']); // 'cherry'\ncariMaks([true, false]); // ❌ boolean tidak memenuhi constraint\n\n// Constraint berganda — T harus implements banyak interface\ninterface Serializable {\n  serialize(): string;\n}\ninterface Identifiable {\n  id: number;\n}\n\nfunction simpanDanLog<T extends Serializable & Identifiable>(item: T) {\n  console.log(`Simpan item #${item.id}`);\n  database.simpan(item.serialize());\n}",
+          "tipe": "typescript"
+        }
+      ],
+      "poin_penting": "`T extends Tipe` tidak berarti T adalah subclass dari Tipe (seperti di bahasa lain). Di TypeScript ini berarti 'T harus memiliki semua property yang ada di Tipe' — structural typing, bukan inheritance."
+    },
+    {
+      "id": "06-04",
+      "judul": "Generic Interfaces & Kenapa Lebih Baik dari any",
+      "badge": "Menengah",
+      "analogi": {
+        "judul": "Wadah berlabel vs wadah misterius",
+        "cerita": "Bayangkan dua lemari es. Lemari pertama: semua kotak berlabel 'MAKANAN' — kamu tahu isinya makanan, tapi tidak tahu tepatnya apa sampai dibuka. Itu `any`. Lemari kedua: kotak-kotak berlabel spesifik 'NASI UDUK', 'JUS MANGGA', 'SUSU SAPI' — kamu tahu persis isinya sebelum dibuka. Itu generics."
+      },
+      "contoh_kode": [
+        {
+          "label": "Generic interface",
+          "kode": "// Interface generic untuk stack data structure\ninterface Stack<T> {\n  push(item: T): void;\n  pop(): T | undefined;\n  peek(): T | undefined;\n  ukuran(): number;\n  kosong(): boolean;\n}\n\n// Implementasi\nclass StackArray<T> implements Stack<T> {\n  private items: T[] = [];\n\n  push(item: T) { this.items.push(item); }\n  pop(): T | undefined { return this.items.pop(); }\n  peek(): T | undefined { return this.items[this.items.length - 1]; }\n  ukuran() { return this.items.length; }\n  kosong() { return this.items.length === 0; }\n}\n\n// Pakai dengan tipe berbeda\nconst stackAngka = new StackArray<number>();\nstackAngka.push(1);\nstackAngka.push(2);\nconst atas = stackAngka.peek(); // tipe: number | undefined\n\nconst stackTeks = new StackArray<string>();\nstackTeks.push('halo');\nstackTeks.push('world');\nconst teks = stackTeks.pop(); // tipe: string | undefined",
+          "tipe": "typescript"
+        },
+        {
+          "label": "Perbandingan: any vs generics",
+          "kode": "// Dengan any — kehilangan type safety\nfunction pertamaAny(arr: any[]): any {\n  return arr[0];\n}\nconst x = pertamaAny([1, 2, 3]);\nx.toUpperCase(); // TS tidak protes! 💥 Runtime error menanti\n\n// Dengan generics — type safe!\nfunction pertamaGeneric<T>(arr: T[]): T {\n  return arr[0];\n}\nconst y = pertamaGeneric([1, 2, 3]);\ny.toUpperCase(); // ❌ Error: 'toUpperCase' tidak ada di number\ny.toFixed(2);    // ✅ Method number tersedia\n\n// Dengan any — semua return type hilang:\nconst cache: Map<string, any> = new Map();\ncache.set('user', { nama: 'Budi' });\nconst user = cache.get('user');\nuser.nama;        // tidak ada autocomplete, TS anggap any\nuser.tidakAda;    // TS tidak protes\n\n// Dengan generics — type safe cache:\nconst cacheTyped = new Map<string, User>();\ncacheTyped.set('user1', { id: 1, nama: 'Budi', email: '...' });\nconst userTyped = cacheTyped.get('user1'); // tipe: User | undefined\nuserTyped?.nama;      // ✅ autocomplete tersedia\nuserTyped?.tidakAda;  // ❌ Error: property tidak ada di User",
+          "tipe": "typescript"
+        }
+      ],
+      "poin_penting": "Generics memberikan fleksibilitas `any` tapi dengan type safety. Ini adalah prinsip utama: tulis kode yang fleksibel tapi tidak mengorbankan keamanan tipe. Kalau kamu merasa butuh `any`, pertimbangkan apakah generics bisa menggantikannya."
+    }
+  ]
+}

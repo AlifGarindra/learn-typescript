@@ -1,0 +1,136 @@
+{
+  "bagian": 4,
+  "judul": "Union Types & Narrowing",
+  "deskripsi": "Union types memungkinkan sebuah nilai memiliki lebih dari satu kemungkinan tipe. Narrowing adalah cara TypeScript (dan kamu) menyempurnakan tipe tersebut menjadi lebih spesifik. Keduanya bekerja bersama dan sangat sering dipakai.",
+  "topik": [
+    {
+      "id": "04-01",
+      "judul": "Union Types — Bisa Ini atau Itu",
+      "badge": "Dasar",
+      "analogi": {
+        "judul": "Kotak amal vs kotak saran",
+        "cerita": "Di kantor ada kotak yang menerima dua hal: uang tunai atau cek. Keduanya diterima. Tapi yang menerima harus tahu cara menangani masing-masing — kalau uang tunai, masukkan ke brankas; kalau cek, proses ke bank. Union type di TypeScript sama: nilai bisa berupa A atau B, dan kamu harus perlakukan keduanya dengan benar."
+      },
+      "penjelasan": "Union type dibuat dengan simbol `|` (pipe). Artinya: nilai bertipe ini bisa berupa tipe pertama ATAU tipe kedua.",
+      "contoh_kode": [
+        {
+          "label": "Union type dasar",
+          "kode": "// ID bisa string atau number\ntype ID = string | number;\n\nlet userId: ID = 'usr_abc123'; // ✅\nuserId = 42;                   // ✅ juga boleh\nuserId = true;                 // ❌ Error: boolean bukan bagian dari union\n\n// Status dengan literal union\ntype StatusPesanan = 'pending' | 'diproses' | 'dikirim' | 'selesai' | 'dibatalkan';\n\nlet status: StatusPesanan = 'pending'; // ✅\nstatus = 'dikirim';                    // ✅\nstatus = 'nyasar';                     // ❌ Error: bukan nilai yang valid",
+          "tipe": "typescript"
+        },
+        {
+          "label": "Union dengan objek",
+          "kode": "type Kucing = {\n  jenis: 'kucing';\n  nama: string;\n  suara: 'meow';\n};\n\ntype Anjing = {\n  jenis: 'anjing';\n  nama: string;\n  ras: string;\n};\n\ntype Hewan = Kucing | Anjing;\n\nfunction sapaHewan(hewan: Hewan) {\n  // Hanya 'nama' yang pasti ada (ada di keduanya)\n  console.log(`Halo, ${hewan.nama}!`);\n\n  // 'ras' hanya ada di Anjing — perlu narrowing dulu\n  console.log(hewan.ras); // ❌ Error: 'ras' tidak ada di Kucing\n}",
+          "tipe": "typescript"
+        },
+        {
+          "label": "Property bersama vs property eksklusif",
+          "kode": "type Kartu = {\n  tipe: 'debit' | 'kredit';\n  nomor: string;     // ada di keduanya\n  pemilik: string;   // ada di keduanya\n};\n\ntype KartuKredit = Kartu & {\n  tipe: 'kredit';\n  limitKredit: number;  // hanya kartu kredit\n  tagihanBulanIni: number;\n};\n\ntype KartuDebit = Kartu & {\n  tipe: 'debit';\n  saldoTersedia: number; // hanya kartu debit\n};\n\ntype KartuPembayaran = KartuKredit | KartuDebit;\n\nfunction cekSaldo(kartu: KartuPembayaran) {\n  // nomor dan pemilik aman diakses (ada di keduanya)\n  console.log(`Kartu: ${kartu.nomor} — ${kartu.pemilik}`);\n\n  // saldoTersedia hanya ada di KartuDebit\n  // limitKredit hanya ada di KartuKredit\n  // Butuh narrowing untuk akses ini\n}",
+          "tipe": "typescript"
+        }
+      ],
+      "poin_penting": "Saat bekerja dengan union type, TypeScript hanya mengizinkan akses ke property yang PASTI ada di semua anggota union. Untuk akses property yang hanya ada di salah satu, kamu perlu narrowing — yang dibahas di topik-topik berikutnya."
+    },
+    {
+      "id": "04-02",
+      "judul": "Literal Types — Nilai Spesifik Sebagai Tipe",
+      "badge": "Dasar",
+      "analogi": {
+        "judul": "Menu makanan dengan pilihan tetap",
+        "cerita": "Di restoran, menu minuman hanya ada: 'teh', 'kopi', 'jus jeruk', 'air putih'. Pelayan tidak terima pesanan 'susu kambing murni' atau 'es cendol spesial' — hanya 4 pilihan itu. Literal type di TypeScript sama: nilai yang diterima hanya yang spesifik, bukan semua string atau semua number."
+      },
+      "penjelasan": "Literal type artinya tipe yang nilainya adalah nilai spesifik itu sendiri, bukan tipe umumnya. `'aktif'` adalah tipe yang hanya bisa berisi string 'aktif' — bukan semua string.",
+      "contoh_kode": [
+        {
+          "label": "String literal",
+          "kode": "// String literal type\ntype Arah = 'utara' | 'selatan' | 'timur' | 'barat';\ntype MetodePembayaran = 'transfer' | 'kartu' | 'ewallet' | 'tunai';\ntype Ukuran = 'XS' | 'S' | 'M' | 'L' | 'XL' | 'XXL';\n\nlet arah: Arah = 'utara'; // ✅\narah = 'barat daya';      // ❌ Error: not in union\n\n// Dalam fungsi\nfunction pindah(langkah: number, arah: Arah) {\n  console.log(`Bergerak ${langkah} langkah ke ${arah}`);\n}\n\npindah(5, 'timur');     // ✅\npindah(3, 'diagonal'); // ❌ Error",
+          "tipe": "typescript"
+        },
+        {
+          "label": "Number literal",
+          "kode": "// Number literal untuk nilai yang terbatas\ntype DiceRoll = 1 | 2 | 3 | 4 | 5 | 6;\ntype HttpOkStatus = 200 | 201 | 204;\ntype HttpErrorStatus = 400 | 401 | 403 | 404 | 500;\n\nfunction lemparDadu(): DiceRoll {\n  return (Math.floor(Math.random() * 6) + 1) as DiceRoll;\n}\n\nfunction handleStatus(status: HttpOkStatus | HttpErrorStatus) {\n  if (status === 200) { /* OK */ }\n  if (status === 404) { /* Not Found */ }\n}",
+          "tipe": "typescript"
+        },
+        {
+          "label": "Const assertion — buat literal dari nilai",
+          "kode": "// Tanpa as const, TS infer tipe lebar\nconst config = {\n  env: 'production',  // tipe: string (lebar)\n  port: 3000          // tipe: number (lebar)\n};\n\n// Dengan as const, semua jadi literal type\nconst config = {\n  env: 'production',  // tipe: 'production' (literal!)\n  port: 3000          // tipe: 3000 (literal!)\n} as const;\n\n// Berguna untuk definisikan konstanta\nconst ROUTES = {\n  HOME: '/',\n  TENTANG: '/tentang',\n  PRODUK: '/produk',\n  KONTAK: '/kontak'\n} as const;\n\ntype Route = typeof ROUTES[keyof typeof ROUTES];\n// Route = '/' | '/tentang' | '/produk' | '/kontak'",
+          "tipe": "typescript"
+        }
+      ],
+      "poin_penting": "Literal types sangat powerful dikombinasikan dengan union. `type Status = 'aktif' | 'nonaktif'` lebih baik dari `type Status = string` karena TypeScript bisa otomatis cek apakah semua kemungkinan status sudah ditangani."
+    },
+    {
+      "id": "04-03",
+      "judul": "Type Narrowing — Menyempurnakan Tipe",
+      "badge": "Menengah",
+      "analogi": {
+        "judul": "Detektif yang mengumpulkan bukti",
+        "cerita": "Seorang detektif datang ke TKP. Ia tahu yang melakukan adalah 'seseorang' (tipe luas). Setelah lihat rekaman CCTV: 'laki-laki'. Setelah tanya saksi: 'laki-laki bertopi'. Setelah cek sidik jari: 'Ahmad dari RT 3'. Tiap bukti baru menyempurnakan (narrow) identitas pelaku. TypeScript bekerja sama: tiap pengecekan yang kamu tulis menyempurnakan tipe menjadi lebih spesifik."
+      },
+      "penjelasan": "Narrowing adalah proses TypeScript menyempurnakan tipe yang lebar (seperti `string | number`) menjadi tipe yang lebih spesifik berdasarkan kondisi yang kamu tulis.",
+      "jenis_narrowing": [
+        {
+          "nama": "typeof narrowing",
+          "deskripsi": "Gunakan `typeof` untuk narrow tipe primitif",
+          "contoh_kode": {
+            "kode": "function proses(input: string | number) {\n  // Di sini, input masih string | number\n  \n  if (typeof input === 'string') {\n    // Di dalam sini, TypeScript TAHU input adalah string\n    console.log(input.toUpperCase()); // ✅ method string tersedia\n  } else {\n    // Di sini, TypeScript TAHU input adalah number\n    console.log(input.toFixed(2)); // ✅ method number tersedia\n  }\n}\n\n// Contoh lain\nfunction formatNilai(nilai: string | number | boolean) {\n  if (typeof nilai === 'string') return nilai.trim();\n  if (typeof nilai === 'number') return nilai.toLocaleString('id-ID');\n  return nilai ? 'Ya' : 'Tidak'; // sudah pasti boolean\n}",
+            "tipe": "typescript"
+          }
+        },
+        {
+          "nama": "instanceof narrowing",
+          "deskripsi": "Gunakan `instanceof` untuk narrow tipe class atau objek khusus",
+          "contoh_kode": {
+            "kode": "function formatTanggal(nilai: Date | string) {\n  if (nilai instanceof Date) {\n    // nilai adalah Date\n    return nilai.toLocaleDateString('id-ID');\n  }\n  // Di sini, nilai pasti string\n  return new Date(nilai).toLocaleDateString('id-ID');\n}\n\n// Narrowing error\nfunction tanganiError(error: unknown) {\n  if (error instanceof Error) {\n    // error adalah Error object — bisa akses .message\n    console.error(error.message);\n  } else if (typeof error === 'string') {\n    console.error(error);\n  } else {\n    console.error('Error tidak dikenal');\n  }\n}",
+            "tipe": "typescript"
+          }
+        },
+        {
+          "nama": "in narrowing",
+          "deskripsi": "Gunakan `in` untuk cek apakah property ada di objek",
+          "contoh_kode": {
+            "kode": "type Kucing = { nama: string; bersuara(): string; };\ntype Robot = { nama: string; model: string; daya: number; };\n\ntype MakhlukAtauMesin = Kucing | Robot;\n\nfunction identifikasi(entitas: MakhlukAtauMesin) {\n  if ('daya' in entitas) {\n    // TypeScript tahu entitas adalah Robot\n    console.log(`Robot model ${entitas.model}, daya ${entitas.daya}W`);\n  } else {\n    // TypeScript tahu entitas adalah Kucing\n    console.log(`Kucing: ${entitas.bersuara()}`);\n  }\n}",
+            "tipe": "typescript"
+          }
+        },
+        {
+          "nama": "Truthiness narrowing",
+          "deskripsi": "Cek nilai truthy/falsy untuk narrow null, undefined, atau string kosong",
+          "contoh_kode": {
+            "kode": "function tampilkanFoto(url: string | null | undefined) {\n  if (url) {\n    // Di sini url pasti string yang tidak kosong\n    return `<img src=\"${url}\" />`;\n  }\n  // Di sini url adalah null, undefined, atau string kosong\n  return `<img src=\"/default-avatar.png\" />`;\n}\n\n// Hati-hati: truthiness check tidak bedakan null vs undefined vs ''\n// Kalau perlu bedakan, pakai === null atau === undefined",
+            "tipe": "typescript"
+          }
+        }
+      ],
+      "poin_penting": "Narrowing adalah fitur TypeScript yang bekerja secara otomatis — kamu cukup menulis kondisi if yang logis, dan TS akan menyempurnakan tipenya sendiri di dalam blok tersebut. Tidak perlu cast manual."
+    },
+    {
+      "id": "04-04",
+      "judul": "Discriminated Union — Pattern Narrowing Terbaik",
+      "badge": "Menengah",
+      "analogi": {
+        "judul": "Seragam pegawai",
+        "cerita": "Di rumah sakit, kamu langsung tahu peran seseorang dari seragamnya: putih = dokter, biru muda = perawat, abu-abu = administrasi. Cukup lihat warna seragam, kamu langsung tahu apa yang bisa mereka lakukan dan tidak. Discriminated union bekerja sama: setiap anggota union punya 'seragam' — satu property khusus yang mengidentifikasi tipenya."
+      },
+      "penjelasan": "Discriminated union adalah pola di mana setiap tipe dalam union punya satu property yang nilainya unik (disebut 'discriminant'). TypeScript bisa narrow secara otomatis berdasarkan property ini.",
+      "contoh_kode": [
+        {
+          "label": "Pattern discriminated union",
+          "kode": "// Property 'tipe' adalah discriminant-nya\ntype BerhasilLogin = {\n  tipe: 'berhasil';    // discriminant\n  user: User;\n  token: string;\n};\n\ntype GagalLogin = {\n  tipe: 'gagal';       // discriminant\n  pesan: string;\n  kodeError: number;\n};\n\ntype HasilLogin = BerhasilLogin | GagalLogin;\n\nfunction tanganiLogin(hasil: HasilLogin) {\n  // TypeScript narrow otomatis berdasarkan 'tipe'\n  if (hasil.tipe === 'berhasil') {\n    // TS tahu ini BerhasilLogin\n    console.log(`Selamat datang, ${hasil.user.nama}!`);\n    simpanToken(hasil.token);\n  } else {\n    // TS tahu ini GagalLogin\n    console.log(`Login gagal: ${hasil.pesan}`);\n    tampilkanError(hasil.kodeError);\n  }\n}",
+          "tipe": "typescript"
+        },
+        {
+          "label": "Discriminated union dengan switch — lebih powerful",
+          "kode": "type Aksi =\n  | { tipe: 'TAMBAH_ITEM'; payload: Produk }\n  | { tipe: 'HAPUS_ITEM'; payload: { id: number } }\n  | { tipe: 'UPDATE_JUMLAH'; payload: { id: number; jumlah: number } }\n  | { tipe: 'KOSONGKAN' };\n\nfunction reducer(state: KeranjangState, aksi: Aksi): KeranjangState {\n  switch (aksi.tipe) {\n    case 'TAMBAH_ITEM':\n      // aksi.payload bertipe Produk\n      return { ...state, items: [...state.items, aksi.payload] };\n\n    case 'HAPUS_ITEM':\n      // aksi.payload bertipe { id: number }\n      return {\n        ...state,\n        items: state.items.filter(i => i.id !== aksi.payload.id)\n      };\n\n    case 'UPDATE_JUMLAH':\n      // aksi.payload bertipe { id: number; jumlah: number }\n      return {\n        ...state,\n        items: state.items.map(i =>\n          i.id === aksi.payload.id\n            ? { ...i, jumlah: aksi.payload.jumlah }\n            : i\n        )\n      };\n\n    case 'KOSONGKAN':\n      // aksi tidak punya payload\n      return { ...state, items: [] };\n  }\n}",
+          "tipe": "typescript"
+        },
+        {
+          "label": "Exhaustive check — pastikan semua case tertangani",
+          "kode": "type Notifikasi =\n  | { tipe: 'info'; pesan: string }\n  | { tipe: 'sukses'; pesan: string }\n  | { tipe: 'peringatan'; pesan: string; aksi?: string }\n  | { tipe: 'error'; pesan: string; kode: number };\n\nfunction tampilkanNotifikasi(notif: Notifikasi) {\n  switch (notif.tipe) {\n    case 'info': return tampilkanInfo(notif.pesan);\n    case 'sukses': return tampilkanSukses(notif.pesan);\n    case 'peringatan': return tampilkanPeringatan(notif.pesan, notif.aksi);\n    case 'error': return tampilkanError(notif.pesan, notif.kode);\n    default:\n      // Kalau semua case sudah ditangani, TypeScript tahu\n      // notif di sini bertipe 'never'\n      // Kalau ada tipe baru di union yang belum ditambahkan ke switch,\n      // baris ini akan ERROR — kamu terhindar dari bug yang tersembunyi!\n      const _cekSelesai: never = notif;\n      throw new Error(`Tipe notifikasi tidak dikenal: ${_cekSelesai}`);\n  }\n}",
+          "tipe": "typescript"
+        }
+      ],
+      "poin_penting": "Discriminated union adalah salah satu pattern paling powerful di TypeScript. Gunakan ini setiap kali kamu punya data yang bisa berada di beberapa 'state' berbeda — loading/sukses/error, berbagai jenis event, atau berbagai jenis user."
+    }
+  ]
+}

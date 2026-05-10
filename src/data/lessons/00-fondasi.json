@@ -1,0 +1,174 @@
+{
+  "bagian": 0,
+  "judul": "Fondasi TypeScript",
+  "deskripsi": "Sebelum nulis satu baris TypeScript pun, kamu perlu paham dulu — kenapa TS ada, apa masalah yang ia selesaikan, dan bagaimana cara kerjanya di balik layar.",
+  "topik": [
+    {
+      "id": "00-01",
+      "judul": "Kenapa TypeScript Ada?",
+      "badge": "Fondasi",
+      "analogi": {
+        "judul": "Resep masakan vs memasak asal-asalan",
+        "cerita": "Bayangkan kamu masak untuk 5 orang. Kalau cuma untuk dirimu sendiri, masak asal-asalan tidak masalah — salah takaran? ya sudah, kamu sendiri yang rugi. Tapi kalau masak untuk banyak orang, kamu butuh resep yang jelas: berapa gram tepung, berapa menit dimasak, urutannya bagaimana. JavaScript itu seperti masak asal-asalan — bebas, cepat, seru. Tapi di proyek besar dengan banyak developer, 'asal-asalan' jadi bencana. TypeScript adalah resepnya."
+      },
+      "masalah_di_javascript": {
+        "penjelasan": "JavaScript dirancang untuk script kecil di browser. Tapi sekarang JS dipakai untuk aplikasi besar dengan ribuan file dan puluhan developer. Di sinilah masalah mulai muncul.",
+        "contoh_kode": [
+          {
+            "label": "Fungsi yang dipanggil salah — JS tidak protes",
+            "kode": "function hitungHarga(harga, diskon) {\n  return harga - (harga * diskon / 100);\n}\n\n// Developer lain memanggil fungsi ini\nhitungHarga('50000', 10);  // harga dikirim sebagai string!\n// Hasilnya: '50000' - 500 = '50000500'  😱\n// Tidak ada error, tapi hasilnya jelas salah",
+            "tipe": "error"
+          },
+          {
+            "label": "Property yang tidak ada — JS diam saja",
+            "kode": "function tampilkanProfil(user) {\n  console.log(user.nama);\n  console.log(user.emial); // typo! harusnya 'email'\n  // JS tidak protes, cuma print 'undefined'\n}\n\ntampilkanProfil({ nama: 'Budi', email: 'budi@mail.com' });\n// Output:\n// Budi\n// undefined  ← bug tersembunyi!",
+            "tipe": "error"
+          },
+          {
+            "label": "Refactor yang berbahaya",
+            "kode": "// Kamu rename property 'nama' jadi 'namaLengkap'\n// di 47 file berbeda... mana yang sudah diganti?\n// JS tidak akan memberitahumu mana yang terlewat 😰",
+            "tipe": "error"
+          }
+        ]
+      },
+      "solusi_typescript": {
+        "penjelasan": "TypeScript menambahkan sistem tipe ke JavaScript. Sebelum kode dijalankan, TS memeriksa: apakah semua fungsi dipanggil dengan argumen yang benar? Apakah semua property yang diakses memang ada? Ini disebut 'static type checking' — pengecekan sebelum runtime.",
+        "contoh_kode": [
+          {
+            "label": "TypeScript langsung tangkap error",
+            "kode": "function hitungHarga(harga: number, diskon: number): number {\n  return harga - (harga * diskon / 100);\n}\n\nhitungHarga('50000', 10);\n// ❌ Error: Argument of type 'string' is not assignable\n//          to parameter of type 'number'\n// Error ini muncul DI EDITOR, sebelum kode dijalankan!",
+            "tipe": "error"
+          },
+          {
+            "label": "Typo langsung ketahuan",
+            "kode": "interface User {\n  nama: string;\n  email: string;\n}\n\nfunction tampilkanProfil(user: User) {\n  console.log(user.nama);\n  console.log(user.emial);\n  // ❌ Error: Property 'emial' does not exist on type 'User'.\n  //          Did you mean 'email'?\n  // TS bahkan kasih saran perbaikannya!\n}",
+            "tipe": "error"
+          }
+        ]
+      },
+      "poin_penting": "TypeScript tidak membuat kode lebih lambat atau lebih berat — hasil akhirnya tetap JavaScript biasa. TS hanya bekerja saat development, seperti spell-checker yang hilang begitu dokumen dicetak."
+    },
+    {
+      "id": "00-02",
+      "judul": "TypeScript vs JavaScript — Bedanya Di Mana?",
+      "badge": "Fondasi",
+      "analogi": {
+        "judul": "Draft vs naskah final",
+        "cerita": "Penulis profesional menulis draft dulu dengan banyak catatan editor: 'bagian ini kurang jelas', 'kata ini salah', 'cek fakta ulang'. Draft itu penuh coretan dan komentar. Tapi naskah yang diterbitkan ke pembaca sudah bersih — tidak ada coretan. TypeScript adalah draft dengan catatan editor (tipe, interface, generics). JavaScript adalah naskah final yang diterbitkan — browser hanya membaca yang ini."
+      },
+      "perbandingan": [
+        {
+          "aspek": "Tipe data",
+          "javascript": "Dinamis — tipe ditentukan saat runtime",
+          "typescript": "Statis — tipe diperiksa saat compile time"
+        },
+        {
+          "aspek": "Error",
+          "javascript": "Muncul saat kode dijalankan (runtime error)",
+          "typescript": "Muncul di editor sebelum dijalankan (compile error)"
+        },
+        {
+          "aspek": "Ekstensi file",
+          "javascript": ".js",
+          "typescript": ".ts (atau .tsx untuk React)"
+        },
+        {
+          "aspek": "Bisa langsung dijalankan di browser?",
+          "javascript": "Ya",
+          "typescript": "Tidak — harus dikompilasi ke JS dulu"
+        },
+        {
+          "aspek": "Autocomplete di editor",
+          "javascript": "Terbatas",
+          "typescript": "Sangat lengkap — editor tahu persis properti apa yang tersedia"
+        },
+        {
+          "aspek": "Kurva belajar",
+          "javascript": "Lebih rendah",
+          "typescript": "Lebih tinggi di awal, tapi worth it untuk proyek besar"
+        }
+      ],
+      "poin_penting": "TypeScript adalah superset dari JavaScript — semua kode JS yang valid juga valid di TS. Kamu bisa rename file .js ke .ts dan itu sudah TypeScript (meski belum memanfaatkan fitur TS-nya)."
+    },
+    {
+      "id": "00-03",
+      "judul": "Cara Kerja TypeScript: Compile TS → JS",
+      "badge": "Fondasi",
+      "analogi": {
+        "judul": "Penerjemah bahasa",
+        "cerita": "Kamu menulis surat dalam Bahasa Indonesia yang detail dan formal. Tapi penerimanya hanya mengerti Bahasa Inggris. Penerjemah (compiler TypeScript) membaca suratmu, memeriksa apakah ada kalimat yang tidak masuk akal, lalu menerjemahkannya ke Bahasa Inggris. Browser adalah penerimanya — ia hanya mengerti JavaScript, bukan TypeScript."
+      },
+      "alur_kerja": [
+        {
+          "langkah": 1,
+          "judul": "Kamu nulis .ts",
+          "deskripsi": "File TypeScript dengan semua anotasi tipe"
+        },
+        {
+          "langkah": 2,
+          "judul": "TypeScript Compiler (tsc) bekerja",
+          "deskripsi": "Memeriksa tipe, mencari error, lalu menghasilkan file .js"
+        },
+        {
+          "langkah": 3,
+          "judul": "File .js dihasilkan",
+          "deskripsi": "Semua anotasi tipe dihapus — tinggal JavaScript murni"
+        },
+        {
+          "langkah": 4,
+          "judul": "Browser / Node.js menjalankan .js",
+          "deskripsi": "Runtime tidak tahu apa-apa soal TypeScript"
+        }
+      ],
+      "contoh_kode": [
+        {
+          "label": "Input: TypeScript (.ts)",
+          "kode": "interface Produk {\n  nama: string;\n  harga: number;\n  stok: number;\n}\n\nfunction formatHarga(produk: Produk): string {\n  if (produk.stok === 0) {\n    return `${produk.nama} — Habis`;\n  }\n  return `${produk.nama} — Rp ${produk.harga.toLocaleString('id-ID')}`;\n}",
+          "tipe": "typescript"
+        },
+        {
+          "label": "Output: JavaScript (.js) — hasil compile",
+          "kode": "// Semua tipe hilang, tapi logikanya sama persis\nfunction formatHarga(produk) {\n  if (produk.stok === 0) {\n    return `${produk.nama} — Habis`;\n  }\n  return `${produk.nama} — Rp ${produk.harga.toLocaleString('id-ID')}`;\n}",
+          "tipe": "javascript"
+        }
+      ],
+      "poin_penting": "Tipe di TypeScript hanya ada saat development. Saat dijalankan di browser, semua anotasi tipe sudah dihapus. Ini artinya TypeScript tidak menambah overhead apapun ke performa aplikasimu."
+    },
+    {
+      "id": "00-04",
+      "judul": "Setup Project Pertama",
+      "badge": "Fondasi",
+      "analogi": {
+        "judul": "Mengatur dapur sebelum memasak",
+        "cerita": "Sebelum masak, kamu siapkan dulu peralatannya — kompor, pisau, talenan. Baru kemudian mulai masak. Setup TypeScript adalah menyiapkan 'dapur' — install compiler, buat file konfigurasi, tentukan aturan main."
+      },
+      "langkah_setup": [
+        {
+          "judul": "Install TypeScript",
+          "kode": "# Install secara global (untuk pakai tsc di mana saja)\nnpm install -g typescript\n\n# Atau install di project saja (lebih disarankan)\nnpm install --save-dev typescript\n\n# Cek versi\ntsc --version",
+          "tipe": "bash"
+        },
+        {
+          "judul": "Inisialisasi tsconfig.json",
+          "kode": "# Buat file konfigurasi TypeScript\ntsc --init\n\n# Ini membuat tsconfig.json di folder project kamu",
+          "tipe": "bash"
+        },
+        {
+          "judul": "tsconfig.json — penjelasan tiap opsi penting",
+          "kode": "{\n  \"compilerOptions\": {\n    // Target: JS versi berapa yang dihasilkan?\n    // 'ES2020' sudah aman untuk browser/Node modern\n    \"target\": \"ES2020\",\n\n    // Module system yang digunakan\n    // 'ESNext' untuk Vite/modern bundler\n    // 'CommonJS' untuk Node.js legacy\n    \"module\": \"ESNext\",\n\n    // Folder hasil compile .js disimpan di mana\n    \"outDir\": \"./dist\",\n\n    // Folder source .ts kamu\n    \"rootDir\": \"./src\",\n\n    // strict: true — aktifkan semua pengecekan ketat\n    // SELALU nyalakan ini di project baru!\n    // Ini mencakup: noImplicitAny, strictNullChecks, dll\n    \"strict\": true,\n\n    // Izinkan import file .json langsung\n    \"resolveJsonModule\": true,\n\n    // Untuk interoperabilitas dengan CommonJS modules\n    \"esModuleInterop\": true\n  },\n  \"include\": [\"src/**/*\"],   // file yang dikompilasi\n  \"exclude\": [\"node_modules\"] // file yang dilewati\n}",
+          "tipe": "json"
+        },
+        {
+          "judul": "Setup dengan Vite (cara paling cepat untuk React + TS)",
+          "kode": "# Buat project baru dengan Vite + React + TypeScript\nnpm create vite@latest nama-project -- --template react-ts\n\ncd nama-project\nnpm install\nnpm run dev\n\n# Selesai! tsconfig sudah dikonfigurasi otomatis",
+          "tipe": "bash"
+        }
+      ],
+      "struktur_folder": {
+        "penjelasan": "Struktur project TypeScript dasar yang direkomendasikan:",
+        "struktur": "nama-project/\n├── src/\n│   ├── index.ts        ← entry point\n│   └── utils/\n│       └── format.ts   ← contoh file TS\n├── dist/               ← hasil compile (auto-generated)\n├── tsconfig.json       ← konfigurasi TypeScript\n├── package.json\n└── node_modules/"
+      },
+      "poin_penting": "Untuk project baru, selalu nyalakan 'strict: true' di tsconfig. Ini terasa lebih ketat di awal, tapi menyelamatkanmu dari banyak bug tersembunyi. Jauh lebih mudah mulai strict daripada mengaktifkannya di tengah project yang sudah besar."
+    }
+  ]
+}

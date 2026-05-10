@@ -1,0 +1,198 @@
+{
+  "bagian": 3,
+  "judul": "Interface & Type Alias",
+  "deskripsi": "Interface dan type alias adalah dua cara mendefinisikan 'kontrak' bentuk data di TypeScript. Keduanya sering bisa dipakai bergantian, tapi punya kelebihan masing-masing. Di bagian ini kita bongkar keduanya sampai tuntas.",
+  "topik": [
+    {
+      "id": "03-01",
+      "judul": "Type Alias — Nama untuk Tipe Buatanmu",
+      "badge": "Dasar",
+      "analogi": {
+        "judul": "Nama panggilan",
+        "cerita": "Teman kamu namanya panjang: 'Muhammad Rizky Firmansyah'. Tapi semua orang memanggilnya 'Iki'. Nama panggilan tidak mengubah orangnya — itu tetap orang yang sama, hanya lebih mudah disebut. Type alias di TypeScript persis seperti itu: kamu beri nama pendek untuk tipe yang panjang atau kompleks."
+      },
+      "penjelasan": "Type alias dibuat dengan keyword `type`. Kamu bisa beri nama untuk tipe apapun — primitif, union, objek, fungsi, bahkan tipe yang sudah punya nama.",
+      "contoh_kode": [
+        {
+          "label": "Type alias untuk tipe sederhana",
+          "kode": "// Beri nama untuk union type yang sering dipakai\ntype ID = string | number;\ntype Status = 'aktif' | 'nonaktif' | 'suspended';\ntype Callback = () => void;\n\n// Sekarang bisa dipakai di mana-mana\nlet userId: ID = 'usr_123';\nuserId = 42; // ✅ boleh, karena ID = string | number\n\nlet statusAkun: Status = 'aktif';\nstatusAkun = 'menunggu'; // ❌ Error: not assignable to type 'Status'",
+          "tipe": "typescript"
+        },
+        {
+          "label": "Type alias untuk objek",
+          "kode": "type Produk = {\n  id: number;\n  nama: string;\n  harga: number;\n  kategori: string;\n  stok: number;\n  tersedia: boolean;\n};\n\n// Bisa extend lewat intersection\ntype ProdukDenganDiskon = Produk & {\n  diskon: number;     // persentase diskon\n  hargaAsli: number;  // harga sebelum diskon\n};\n\nconst itemSale: ProdukDenganDiskon = {\n  id: 1,\n  nama: 'Jaket Musim Dingin',\n  harga: 200000,\n  kategori: 'Pakaian',\n  stok: 10,\n  tersedia: true,\n  diskon: 20,\n  hargaAsli: 250000\n};",
+          "tipe": "typescript"
+        },
+        {
+          "label": "Type alias untuk fungsi",
+          "kode": "// Tipe untuk fungsi — sangat berguna untuk callback\ntype HandlerKlik = (event: MouseEvent) => void;\ntype Transformer<T, U> = (input: T) => U;\ntype Predikat<T> = (item: T) => boolean;\n\n// Pakai sebagai tipe parameter\nfunction daftarkanListener(handler: HandlerKlik) {\n  document.addEventListener('click', handler);\n}\n\nconst filterAktif: Predikat<User> = (user) => user.aktif === true;\nconst users: User[] = [...];\nconst userAktif = users.filter(filterAktif);",
+          "tipe": "typescript"
+        }
+      ],
+      "poin_penting": "Type alias tidak membuat tipe baru — hanya memberi nama. `type Nama = string` tidak membuat tipe 'Nama' yang berbeda dari string; itu masih string, hanya diberi nama berbeda. Ini penting dipahami untuk membedakan type alias dengan class."
+    },
+    {
+      "id": "03-02",
+      "judul": "Interface — Kontrak Bentuk Objek",
+      "badge": "Dasar",
+      "analogi": {
+        "judul": "Kontrak kerja",
+        "cerita": "Kontrak kerja menyebutkan: karyawan harus masuk jam 9, harus lapor ke manajer, harus selesaikan target. Siapapun yang tanda tangan kontrak itu wajib ikuti semua ketentuannya. Interface di TypeScript adalah kontrak — setiap objek atau class yang 'implement' interface wajib punya semua property yang disebutkan."
+      },
+      "penjelasan": "Interface mendefinisikan bentuk sebuah objek. Berbeda dengan type alias, interface dirancang khusus untuk mendeskripsikan objek dan class.",
+      "contoh_kode": [
+        {
+          "label": "Deklarasi interface dasar",
+          "kode": "interface User {\n  id: number;\n  nama: string;\n  email: string;\n  aktif: boolean;\n}\n\n// Semua objek bertipe User HARUS punya keempat property ini\nconst user1: User = {\n  id: 1,\n  nama: 'Budi',\n  email: 'budi@mail.com',\n  aktif: true\n}; // ✅\n\nconst user2: User = {\n  id: 2,\n  nama: 'Ani'\n  // ❌ Error: missing 'email' and 'aktif'\n};",
+          "tipe": "typescript"
+        },
+        {
+          "label": "Interface dengan method",
+          "kode": "interface KeranjangBelanja {\n  items: Produk[];\n  tambahItem(produk: Produk): void;\n  hapusItem(id: number): void;\n  hitungTotal(): number;\n  kosongkan(): void;\n}\n\n// Class yang implement interface ini harus punya\n// semua property dan method di atas\nclass KeranjangBelanjaSaya implements KeranjangBelanja {\n  items: Produk[] = [];\n\n  tambahItem(produk: Produk) {\n    this.items.push(produk);\n  }\n\n  hapusItem(id: number) {\n    this.items = this.items.filter(p => p.id !== id);\n  }\n\n  hitungTotal() {\n    return this.items.reduce((total, p) => total + p.harga, 0);\n  }\n\n  kosongkan() {\n    this.items = [];\n  }\n}",
+          "tipe": "typescript"
+        },
+        {
+          "label": "Interface extends — mewarisi interface lain",
+          "kode": "interface EntityDasar {\n  id: number;\n  createdAt: Date;\n  updatedAt: Date;\n}\n\n// User mewarisi semua property EntityDasar\ninterface User extends EntityDasar {\n  nama: string;\n  email: string;\n}\n\n// Produk juga mewarisi EntityDasar\ninterface Produk extends EntityDasar {\n  nama: string;\n  harga: number;\n}\n\n// Bisa extend lebih dari satu interface\ninterface Admin extends User {\n  level: number;\n  permissions: string[];\n}\n\nconst admin: Admin = {\n  // Dari EntityDasar\n  id: 1,\n  createdAt: new Date(),\n  updatedAt: new Date(),\n  // Dari User\n  nama: 'Super Admin',\n  email: 'admin@mail.com',\n  // Dari Admin sendiri\n  level: 10,\n  permissions: ['read', 'write', 'delete']\n};",
+          "tipe": "typescript"
+        },
+        {
+          "label": "Declaration merging — fitur eksklusif interface",
+          "kode": "// Interface bisa 'digabung' — ini tidak bisa dilakukan type alias\ninterface Konfigurasi {\n  namaApp: string;\n}\n\n// Deklarasi kedua kalinya — ini MENAMBAH, bukan mengganti\ninterface Konfigurasi {\n  versi: string;\n}\n\n// Hasilnya: Konfigurasi punya KEDUA property\nconst config: Konfigurasi = {\n  namaApp: 'TokoKu',\n  versi: '1.0.0'\n};\n\n// Berguna untuk extend interface dari library pihak ketiga\n// tanpa harus modifikasi source-nya",
+          "tipe": "typescript"
+        }
+      ],
+      "poin_penting": "Interface dan type alias untuk objek bisa dipakai bergantian di sebagian besar kasus. Perbedaan utama: interface bisa di-extend dan di-merge, type alias lebih fleksibel (bisa untuk union, tuple, primitif). Lihat topik berikutnya untuk panduan memilih."
+    },
+    {
+      "id": "03-03",
+      "judul": "Interface vs Type — Kapan Pakai Yang Mana?",
+      "badge": "Menengah",
+      "analogi": {
+        "judul": "Palu vs obeng",
+        "cerita": "Keduanya alat. Untuk beberapa pekerjaan, dua-duanya bisa dipakai. Tapi ada situasi di mana satu jauh lebih tepat dari yang lain. Kamu tidak perlu pusing — pahami kelebihan masing-masing, lalu pilih yang paling sesuai situasi."
+      },
+      "perbandingan_fitur": [
+        {
+          "fitur": "Tipe objek",
+          "interface": "✅ Bisa",
+          "type_alias": "✅ Bisa",
+          "catatan": "Keduanya setara untuk mendefinisikan bentuk objek"
+        },
+        {
+          "fitur": "Union types (A | B)",
+          "interface": "❌ Tidak bisa",
+          "type_alias": "✅ Hanya type alias",
+          "catatan": "type Status = 'aktif' | 'nonaktif' — interface tidak bisa ini"
+        },
+        {
+          "fitur": "Intersection (A & B)",
+          "interface": "✅ Lewat extends",
+          "type_alias": "✅ Lewat &",
+          "catatan": "Caranya berbeda tapi hasilnya mirip"
+        },
+        {
+          "fitur": "Tuple",
+          "interface": "❌ Tidak natural",
+          "type_alias": "✅ Hanya type alias",
+          "catatan": "type Koordinat = [number, number]"
+        },
+        {
+          "fitur": "Primitif",
+          "interface": "❌ Tidak bisa",
+          "type_alias": "✅ Bisa",
+          "catatan": "type ID = string | number"
+        },
+        {
+          "fitur": "Declaration merging",
+          "interface": "✅ Bisa digabung",
+          "type_alias": "❌ Tidak bisa — akan error",
+          "catatan": "Berguna untuk extend library pihak ketiga"
+        },
+        {
+          "fitur": "implements (di class)",
+          "interface": "✅ Lebih natural",
+          "type_alias": "✅ Bisa juga",
+          "catatan": "Konvensinya pakai interface untuk class contract"
+        },
+        {
+          "fitur": "Pesan error",
+          "interface": "Biasanya lebih readable",
+          "type_alias": "Bisa verbose untuk tipe kompleks",
+          "catatan": "Interface menampilkan nama, type alias kadang expand seluruh tipe"
+        }
+      ],
+      "panduan_memilih": {
+        "judul": "Panduan praktis memilih",
+        "rules": [
+          {
+            "situasi": "Mendefinisikan bentuk objek atau class",
+            "pilihan": "Interface",
+            "alasan": "Lebih semantik, bisa di-extend, pesan error lebih bersih"
+          },
+          {
+            "situasi": "Union types, literal types, primitif",
+            "pilihan": "Type alias",
+            "alasan": "Interface tidak bisa melakukan ini"
+          },
+          {
+            "situasi": "Tuple",
+            "pilihan": "Type alias",
+            "alasan": "Interface tidak natural untuk tuple"
+          },
+          {
+            "situasi": "Extend library pihak ketiga",
+            "pilihan": "Interface",
+            "alasan": "Declaration merging memungkinkan extend tanpa fork"
+          },
+          {
+            "situasi": "Tipe fungsi atau callback",
+            "pilihan": "Type alias",
+            "alasan": "Lebih ringkas: type Handler = (e: Event) => void"
+          }
+        ]
+      },
+      "contoh_kode": [
+        {
+          "label": "Kapan type HARUS dipakai",
+          "kode": "// Union — hanya type yang bisa\ntype Ukuran = 'S' | 'M' | 'L' | 'XL';\ntype Warna = 'merah' | 'biru' | 'hitam' | 'putih';\ntype IDAtauNama = string | number;\n\n// Tuple — hanya type yang natural\ntype Koordinat = [lat: number, lng: number];\ntype Range = [min: number, max: number];\n\n// Tipe fungsi — lebih ringkas dengan type\ntype EventHandler = (event: Event) => void;\ntype Mapper<T, U> = (item: T) => U;",
+          "tipe": "typescript"
+        },
+        {
+          "label": "Kapan interface lebih baik",
+          "kode": "// Kontrak objek yang akan di-implement class\ninterface Repository<T> {\n  findById(id: number): Promise<T | null>;\n  findAll(): Promise<T[]>;\n  create(data: Omit<T, 'id'>): Promise<T>;\n  update(id: number, data: Partial<T>): Promise<T>;\n  delete(id: number): Promise<void>;\n}\n\n// Extend library pihak ketiga\n// Misal: tambah property ke Express Request\nimport { Request } from 'express';\n\ndeclare global {\n  namespace Express {\n    interface Request {\n      user?: User; // tambah property 'user' ke semua Request\n    }\n  }\n}",
+          "tipe": "typescript"
+        }
+      ],
+      "poin_penting": "Tidak ada pilihan yang 'salah' untuk kasus yang bisa keduanya tangani. Yang terpenting: konsisten dalam satu codebase. Banyak tim pakai konvensi: interface untuk objek/class, type alias untuk segala yang lain."
+    },
+    {
+      "id": "03-04",
+      "judul": "Intersection Types (&) — Gabungkan Beberapa Tipe",
+      "badge": "Menengah",
+      "analogi": {
+        "judul": "Karyawan rangkap jabatan",
+        "cerita": "Bayangkan seseorang yang sekaligus menjadi dokter DAN pengacara. Ia harus memenuhi syarat dokter (punya SIP, bisa periksa pasien) DAN syarat pengacara (punya SIK, bisa sidang di pengadilan). Intersection type (`&`) di TypeScript itu seperti itu: objek harus memenuhi syarat tipe A DAN tipe B secara bersamaan."
+      },
+      "penjelasan": "Intersection type menggabungkan dua atau lebih tipe menjadi satu. Objek yang memenuhi intersection type harus punya SEMUA property dari tipe-tipe yang digabungkan.",
+      "contoh_kode": [
+        {
+          "label": "Intersection dasar",
+          "kode": "type BisaBaca = {\n  baca(): string;\n};\n\ntype BisaTulis = {\n  tulis(konten: string): void;\n};\n\n// File harus bisa baca DAN tulis\ntype File = BisaBaca & BisaTulis;\n\nconst file: File = {\n  baca() { return 'isi file'; },\n  tulis(konten) { /* simpan konten */ }\n  // Harus ada keduanya — tidak boleh salah satu saja\n};",
+          "tipe": "typescript"
+        },
+        {
+          "label": "Intersection untuk extend objek",
+          "kode": "type EntityDasar = {\n  id: number;\n  createdAt: Date;\n};\n\ntype DataUser = {\n  nama: string;\n  email: string;\n};\n\n// User adalah gabungan keduanya\ntype User = EntityDasar & DataUser;\n// Sama seperti:\n// type User = {\n//   id: number;\n//   createdAt: Date;\n//   nama: string;\n//   email: string;\n// }\n\nconst user: User = {\n  id: 1,\n  createdAt: new Date(),\n  nama: 'Budi',\n  email: 'budi@mail.com'\n};",
+          "tipe": "typescript"
+        },
+        {
+          "label": "Intersection vs extends — kapan beda?",
+          "kode": "// Interface extends:\ninterface A { x: number; }\ninterface B extends A { y: number; }\n// B = { x: number; y: number } — B adalah tipe baru\n\n// Type intersection:\ntype A = { x: number; };\ntype C = A & { y: number; };\n// C = { x: number; y: number } — hasilnya sama\n\n// Perbedaan muncul saat ada property yang konflik:\ninterface P { x: string; }\ninterface Q extends P {\n  x: number; // ❌ Error: langsung dideteksi saat definisi\n}\n\ntype P2 = { x: string; };\ntype Q2 = P2 & { x: number; };\n// Tidak error saat definisi, tapi tipe x jadi 'never'\n// (string & number = never, tidak ada nilai yang bisa keduanya)",
+          "tipe": "typescript"
+        }
+      ],
+      "poin_penting": "Intersection (`&`) menggabungkan tipe secara additive — hasilnya harus punya semuanya. Ini berbeda dengan union (`|`) yang artinya 'salah satu'. `A & B` = harus A dan B. `A | B` = boleh A atau B."
+    }
+  ]
+}

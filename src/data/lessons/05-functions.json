@@ -1,0 +1,145 @@
+{
+  "bagian": 5,
+  "judul": "Functions",
+  "deskripsi": "Fungsi adalah jantung dari hampir semua kode. Di TypeScript, kamu bisa (dan harus) mendefinisikan tipe untuk parameter dan return value. Ini membuat fungsi jadi kontrak yang jelas: 'masukkan ini, dapat itu'.",
+  "topik": [
+    {
+      "id": "05-01",
+      "judul": "Parameter Types & Return Type",
+      "badge": "Dasar",
+      "analogi": {
+        "judul": "Mesin pabrik",
+        "cerita": "Mesin pembuat kue keju punya spesifikasi jelas: input-nya tepung (200gr), gula (50gr), keju (100gr). Output-nya: kue keju 1 loyang. Kalau kamu masukkan ikan asin, mesinnya akan protes. Return type di TypeScript adalah spesifikasi output-nya: 'mesin ini dijamin menghasilkan X, bukan Y atau Z'."
+      },
+      "contoh_kode": [
+        {
+          "label": "Anotasi parameter dan return type",
+          "kode": "// Tanpa TypeScript — tidak ada kontrak\nfunction hitungDiskon(harga, persen) {\n  return harga - (harga * persen / 100);\n}\n\n// Dengan TypeScript — kontrak jelas\nfunction hitungDiskon(harga: number, persen: number): number {\n  return harga - (harga * persen / 100);\n}\n\n// TS langsung tangkap kesalahan:\nhitungDiskon('150000', 20);\n// ❌ Error: Argument of type 'string' is not assignable to 'number'\n\nconst hasil: string = hitungDiskon(150000, 20);\n// ❌ Error: Type 'number' is not assignable to type 'string'",
+          "tipe": "typescript"
+        },
+        {
+          "label": "Return type yang kompleks",
+          "kode": "interface HasilCari {\n  data: Produk[];\n  total: number;\n  halaman: number;\n  totalHalaman: number;\n}\n\n// Return type yang jelas — developer tahu apa yang akan didapat\nasync function cariProduk(\n  keyword: string,\n  halaman: number\n): Promise<HasilCari> {\n  const response = await fetch(`/api/produk?q=${keyword}&page=${halaman}`);\n  return response.json();\n}\n\n// TypeScript tahu persis struktur data yang dikembalikan\nconst hasil = await cariProduk('sepatu', 1);\nconsole.log(hasil.totalHalaman); // ✅ TS tahu property ini ada\nconsole.log(hasil.jumlahHalaman); // ❌ Error: property tidak ada",
+          "tipe": "typescript"
+        },
+        {
+          "label": "Arrow function — sintaks yang sama",
+          "kode": "// Arrow function biasa\nconst tambah = (a: number, b: number): number => a + b;\n\n// Arrow function dengan body\nconst formatRupiah = (angka: number): string => {\n  return `Rp ${angka.toLocaleString('id-ID')}`;\n};\n\n// Tipe fungsi sebagai variabel\nconst kalikan: (a: number, b: number) => number = (a, b) => a * b;\n\n// Atau pakai type alias (lebih readable)\ntype Operasi = (a: number, b: number) => number;\nconst bagi: Operasi = (a, b) => a / b;",
+          "tipe": "typescript"
+        }
+      ],
+      "poin_penting": "Untuk parameter fungsi, TypeScript tidak bisa infer tipenya — kamu wajib tulis. Untuk return type, TypeScript bisa infer dari isi fungsi. Tapi tetap disarankan tulis return type secara eksplisit untuk fungsi publik dan fungsi kompleks — dokumentasi yang baik."
+    },
+    {
+      "id": "05-02",
+      "judul": "Optional & Default Parameters",
+      "badge": "Dasar",
+      "analogi": {
+        "judul": "Kopi dengan pilihan tambahan",
+        "cerita": "Pesan kopi: kamu wajib bilang jenis kopi (espresso, americano, latte) — ini parameter wajib. Tapi gula dan susu opsional — kalau tidak bilang, barista pakai standar: gula 1 sendok, tidak pakai susu. Default parameter di TypeScript persis ini: ada nilai yang dipakai kalau kamu tidak memberikan argumen."
+      },
+      "contoh_kode": [
+        {
+          "label": "Optional parameter (?)",
+          "kode": "// Tambah ? untuk jadikan opsional\nfunction buatProfil(\n  nama: string,\n  email: string,\n  bio?: string,        // opsional\n  telepon?: string     // opsional\n) {\n  return {\n    nama,\n    email,\n    bio: bio ?? 'Belum ada bio',\n    telepon: telepon ?? '-'\n  };\n}\n\n// Semua ini valid:\nbuatProfil('Budi', 'budi@mail.com');\nbuatProfil('Ani', 'ani@mail.com', 'Developer dari Bandung');\nbuatProfil('Cici', 'cici@mail.com', 'Designer', '081234567890');\n\n// ❌ Tapi tidak boleh skip parameter wajib:\nbuatProfil('Dodi'); // Error: 'email' diperlukan",
+          "tipe": "typescript"
+        },
+        {
+          "label": "Default parameter",
+          "kode": "// Berikan nilai default langsung di signature\nfunction hitungHarga(\n  harga: number,\n  pajak: number = 11,           // default 11%\n  diskon: number = 0            // default tidak ada diskon\n): number {\n  const hargaSetelahDiskon = harga - (harga * diskon / 100);\n  return hargaSetelahDiskon * (1 + pajak / 100);\n}\n\nhitungHarga(100000);        // harga=100000, pajak=11, diskon=0\nhitungHarga(100000, 0);     // harga=100000, pajak=0, diskon=0\nhitungHarga(100000, 11, 20); // harga=100000, pajak=11, diskon=20\n\n// Perbedaan dengan optional:\n// Optional (?): nilainya undefined kalau tidak diisi\n// Default: nilainya default kalau tidak diisi — tidak perlu null check!",
+          "tipe": "typescript"
+        },
+        {
+          "label": "Default parameter dengan objek — pattern sangat berguna",
+          "kode": "interface OpsiCari {\n  halaman?: number;\n  perHalaman?: number;\n  urutkan?: 'asc' | 'desc';\n  kolomUrut?: string;\n}\n\n// Destrukturisasi dengan default value\nasync function cariProduk(\n  keyword: string,\n  {\n    halaman = 1,\n    perHalaman = 20,\n    urutkan = 'desc',\n    kolomUrut = 'createdAt'\n  }: OpsiCari = {} // default: objek kosong\n) {\n  // Semua parameter sudah punya nilai\n  const url = `/api/produk?q=${keyword}&page=${halaman}&limit=${perHalaman}`;\n  return fetch(url);\n}\n\n// Panggil dengan berbagai cara:\nawait cariProduk('kaos');\nawait cariProduk('kaos', { halaman: 2 });\nawait cariProduk('kaos', { urutkan: 'asc', kolomUrut: 'harga' });",
+          "tipe": "typescript"
+        }
+      ],
+      "poin_penting": "Parameter opsional dan default HARUS berada setelah parameter wajib. `function f(a?: string, b: number)` akan error — parameter opsional tidak boleh mendahului parameter wajib."
+    },
+    {
+      "id": "05-03",
+      "judul": "Rest Parameters",
+      "badge": "Dasar",
+      "analogi": {
+        "judul": "Wadah 'ambil semua'",
+        "cerita": "Di supermarket, kamu bisa pesan: '1 roti, 2 susu, dan sisanya ambil apa saja yang ada di promo'. 'Sisanya' itu tidak tentu jumlahnya — bisa 0, bisa 10. Rest parameter adalah 'wadah ambil semua' untuk argumen yang jumlahnya tidak tentu."
+      },
+      "penjelasan": "Rest parameter mengumpulkan semua argumen yang tersisa menjadi sebuah array. Ditulis dengan `...` sebelum nama parameter.",
+      "contoh_kode": [
+        {
+          "label": "Rest parameter dasar",
+          "kode": "// ...angka mengumpulkan semua argumen ke dalam array number[]\nfunction jumlahkan(...angka: number[]): number {\n  return angka.reduce((total, n) => total + n, 0);\n}\n\njumlahkan(1, 2, 3);         // 6\njumlahkan(10, 20, 30, 40);  // 100\njumlahkan(5);               // 5\njumlahkan();                // 0",
+          "tipe": "typescript"
+        },
+        {
+          "label": "Kombinasi parameter biasa dan rest",
+          "kode": "// Parameter biasa dulu, rest di akhir\nfunction kirimEmail(\n  pengirim: string,\n  subjek: string,\n  ...penerima: string[] // satu atau lebih penerima\n) {\n  console.log(`Dari: ${pengirim}`);\n  console.log(`Subjek: ${subjek}`);\n  console.log(`Ke: ${penerima.join(', ')}`);\n}\n\nkirimEmail('admin@mail.com', 'Meeting Besok', 'budi@mail.com');\nkirimEmail('admin@mail.com', 'Promo', 'budi@mail.com', 'ani@mail.com', 'cici@mail.com');",
+          "tipe": "typescript"
+        },
+        {
+          "label": "Rest parameter vs spread operator",
+          "kode": "// Rest parameter: kumpulkan banyak argumen jadi array\nfunction log(level: string, ...pesan: string[]) {\n  console.log(`[${level}]`, pesan.join(' '));\n}\n\n// Spread operator: sebar array jadi argumen\nconst pesanLog = ['Server', 'mulai', 'berjalan'];\nlog('INFO', ...pesanLog); // sama dengan log('INFO', 'Server', 'mulai', 'berjalan')",
+          "tipe": "typescript"
+        }
+      ],
+      "poin_penting": "Rest parameter HARUS menjadi parameter terakhir. Tidak boleh ada parameter lain setelahnya. Dan `...args: any[]` adalah antipattern — selalu beri tipe yang spesifik pada rest parameter."
+    },
+    {
+      "id": "05-04",
+      "judul": "void vs never sebagai Return Type",
+      "badge": "Menengah",
+      "analogi": {
+        "judul": "Kurir vs jalan buntu",
+        "cerita": "Kurir yang mengantarkan paket tanpa mengharapkan tanda terima balik — ia datang, taruh paket, pergi. Tidak ada yang dikembalikan. Itu `void`. Sekarang bayangkan kurir yang masuk ke jalan buntu — ia tidak pernah kembali sama sekali, bukan karena tidak ada yang dibawa, tapi karena jalannya tidak punya ujung. Itu `never`."
+      },
+      "perbedaan": [
+        {
+          "tipe": "void",
+          "arti": "Fungsi selesai dieksekusi tapi tidak mengembalikan nilai yang berguna. Secara teknis mengembalikan `undefined`.",
+          "contoh_kode": {
+            "kode": "// void — fungsi selesai, tidak ada return value\nfunction simpanLog(pesan: string): void {\n  console.log(`[${new Date().toISOString()}] ${pesan}`);\n  // tidak ada return\n}\n\n// Boleh return undefined secara eksplisit\nfunction resetForm(): void {\n  formData = {};\n  return; // return tanpa nilai, atau return undefined\n}\n\n// Event handler hampir selalu void\ndocument.addEventListener('click', (e: MouseEvent): void => {\n  console.log('Diklik!');\n});",
+            "tipe": "typescript"
+          }
+        },
+        {
+          "tipe": "never",
+          "arti": "Fungsi tidak pernah selesai — selalu throw error atau infinite loop.",
+          "contoh_kode": {
+            "kode": "// never — fungsi tidak pernah return\nfunction lemparError(pesan: string): never {\n  throw new Error(pesan);\n  // Baris ini tidak pernah dicapai\n}\n\nfunction loopSelamanya(): never {\n  while (true) {\n    prosesAntrian();\n  }\n  // Baris ini tidak pernah dicapai\n}\n\n// Penggunaan praktis: fungsi helper untuk assert\nfunction assertTidakMungkin(nilai: never): never {\n  throw new Error(`Nilai tidak terduga: ${JSON.stringify(nilai)}`);\n}",
+            "tipe": "typescript"
+          }
+        }
+      ],
+      "contoh_perbedaan": {
+        "label": "void vs never — perbedaan yang jelas",
+        "kode": "// void: fungsi BISA dipanggil, hasilnya tidak dipakai\nconst logFn: () => void = () => console.log('log');\nlogFn(); // bisa dipanggil, tidak error\n\n// never: fungsi tidak akan pernah return ke caller\nconst errorFn: () => never = () => { throw new Error(); };\nerrorFn(); // bisa dipanggil, tapi eksekusi setelah ini tidak akan terjadi\n\n// Implikasi praktis:\nfunction cekNilai(nilai: string | null): string {\n  if (nilai === null) {\n    lemparError('Nilai tidak boleh null'); // return type: never\n    // TypeScript tahu: kalau sampai sini, eksekusi berhenti\n    // Jadi di bawah ini TypeScript TAHU nilai adalah string\n  }\n  return nilai.toUpperCase(); // ✅ aman karena null sudah di-handle oleh never\n}",
+        "tipe": "typescript"
+      },
+      "poin_penting": "`void` adalah return type fungsi yang tidak mengembalikan nilai. `never` adalah return type fungsi yang tidak pernah selesai. Keduanya terlihat mirip tapi punya makna berbeda yang TypeScript manfaatkan untuk type narrowing."
+    },
+    {
+      "id": "05-05",
+      "judul": "Function Overloads",
+      "badge": "Lanjutan",
+      "analogi": {
+        "judul": "Tombol multipurpose",
+        "cerita": "Di kamera, ada satu tombol yang perilakunya berbeda tergantung konteks: tekan sekali = foto, tekan dan tahan = mulai video, tekan dua kali = foto burst. Satu tombol, tiga perilaku berbeda. Function overload di TypeScript sama: satu nama fungsi, tapi perilaku dan tipe yang berbeda tergantung argumen yang diberikan."
+      },
+      "penjelasan": "Overload memungkinkan kamu mendefinisikan beberapa 'signature' untuk satu fungsi. TypeScript akan pilih signature yang cocok berdasarkan argumen yang diberikan.",
+      "contoh_kode": [
+        {
+          "label": "Function overload dasar",
+          "kode": "// Definisikan semua signature yang valid\nfunction proses(input: string): string;\nfunction proses(input: number): number;\nfunction proses(input: string[]): string;\n\n// Implementasi — harus handle semua kasus\nfunction proses(input: string | number | string[]): string | number {\n  if (typeof input === 'string') {\n    return input.toUpperCase();\n  }\n  if (typeof input === 'number') {\n    return input * 2;\n  }\n  return input.join(', ');\n}\n\n// TypeScript pilih return type yang tepat berdasarkan argumen:\nconst a = proses('halo');      // tipe: string\nconst b = proses(42);          // tipe: number\nconst c = proses(['a', 'b']);  // tipe: string",
+          "tipe": "typescript"
+        },
+        {
+          "label": "Overload di kasus nyata: format tanggal",
+          "kode": "// Fungsi yang bisa terima Date atau string,\n// dan return format yang berbeda\nfunction formatTanggal(tanggal: Date): string;\nfunction formatTanggal(tanggal: Date, format: 'pendek'): string;\nfunction formatTanggal(tanggal: Date, format: 'panjang'): string;\nfunction formatTanggal(tanggal: Date, format: 'timestamp'): number;\n\n// Implementasi\nfunction formatTanggal(\n  tanggal: Date,\n  format: 'pendek' | 'panjang' | 'timestamp' = 'pendek'\n): string | number {\n  const options = {\n    pendek: { day: '2-digit', month: '2-digit', year: '2-digit' },\n    panjang: { day: 'long', month: 'long', year: 'numeric' }\n  } as const;\n\n  if (format === 'timestamp') return tanggal.getTime();\n  return tanggal.toLocaleDateString('id-ID', options[format]);\n}\n\n// Penggunaan:\nconst d = new Date();\nformatTanggal(d);              // string: '09/05/26'\nformatTanggal(d, 'panjang');  // string: 'Sabtu, 9 Mei 2026'\nformatTanggal(d, 'timestamp'); // number: 1715299200000",
+          "tipe": "typescript"
+        }
+      ],
+      "poin_penting": "Overload signature (baris yang tidak punya body) adalah yang terlihat oleh caller. Implementasi signature (yang punya body) tidak terlihat dari luar. Aturan: implementasi harus bisa handle SEMUA signature yang didefinisikan."
+    }
+  ]
+}

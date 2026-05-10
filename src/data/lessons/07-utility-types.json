@@ -1,0 +1,178 @@
+{
+  "bagian": 7,
+  "judul": "Utility Types",
+  "deskripsi": "TypeScript menyediakan utility types bawaan — tools siap pakai untuk memanipulasi dan mentransformasi tipe yang sudah ada. Daripada tulis ulang dari nol, kamu bisa 'modifikasi' tipe yang sudah ada dengan cara yang aman dan ekspresif.",
+  "topik": [
+    {
+      "id": "07-01",
+      "judul": "Partial<T> — Semua Property Jadi Optional",
+      "badge": "Menengah",
+      "analogi": {
+        "judul": "Form edit profil",
+        "cerita": "Saat daftar akun, semua field wajib diisi: nama, email, password. Tapi saat edit profil, kamu hanya ubah yang mau diubah — tidak perlu isi ulang semua. `Partial<T>` mengubah semua property wajib jadi opsional, cocok untuk skenario 'update sebagian'."
+      },
+      "penjelasan": "`Partial<T>` mengambil tipe T dan membuat semua property-nya menjadi optional (`?`).",
+      "contoh_kode": [
+        {
+          "label": "Partial dasar",
+          "kode": "interface User {\n  id: number;\n  nama: string;\n  email: string;\n  telepon: string;\n  alamat: string;\n}\n\n// Partial<User> = semua property jadi optional\ntype UpdateUser = Partial<User>;\n// Hasilnya:\n// {\n//   id?: number;\n//   nama?: string;\n//   email?: string;\n//   telepon?: string;\n//   alamat?: string;\n// }\n\n// Sangat berguna untuk fungsi update\nfunction updateUser(id: number, data: Partial<User>) {\n  // data bisa berisi satu atau banyak field\n  return db.update('users', id, data);\n}\n\n// Semua ini valid:\nupdateUser(1, { nama: 'Budi Santoso' });\nupdateUser(1, { email: 'budi.baru@mail.com', telepon: '089xxx' });\nupdateUser(1, {}); // valid tapi tidak ada yang diubah",
+          "tipe": "typescript"
+        },
+        {
+          "label": "Partial dengan default values — pola yang sering dipakai",
+          "kode": "interface Konfigurasi {\n  timeout: number;\n  retries: number;\n  baseUrl: string;\n  debug: boolean;\n}\n\nconst defaultKonfigurasi: Konfigurasi = {\n  timeout: 5000,\n  retries: 3,\n  baseUrl: 'https://api.example.com',\n  debug: false\n};\n\n// Terima konfigurasi sebagian, gabungkan dengan default\nfunction buatKlien(opsi: Partial<Konfigurasi> = {}): Konfigurasi {\n  return { ...defaultKonfigurasi, ...opsi };\n}\n\nconst klien1 = buatKlien(); // pakai semua default\nconst klien2 = buatKlien({ debug: true }); // override hanya debug\nconst klien3 = buatKlien({ timeout: 10000, baseUrl: 'https://staging.api.example.com' });",
+          "tipe": "typescript"
+        }
+      ],
+      "poin_penting": "Partial<T> tidak membuat semua property menjadi nullable — hanya optional. Artinya propertynya boleh tidak ada, bukan boleh null. Untuk yang boleh null, pakai `{ [K in keyof T]?: T[K] | null }`."
+    },
+    {
+      "id": "07-02",
+      "judul": "Required<T> — Semua Property Jadi Wajib",
+      "badge": "Menengah",
+      "analogi": {
+        "judul": "Checklist sebelum terbang",
+        "cerita": "Sebelum pesawat lepas landas, ada checklist yang SEMUA itemnya wajib dicentang — tidak ada yang opsional. `Required<T>` itu seperti mode 'pra-terbang': semua property yang tadinya opsional menjadi wajib."
+      },
+      "penjelasan": "Kebalikan dari `Partial`. `Required<T>` menghapus tanda `?` dari semua property, menjadikan semuanya wajib.",
+      "contoh_kode": [
+        {
+          "label": "Required dasar",
+          "kode": "interface DraftProduk {\n  nama?: string;\n  harga?: number;\n  deskripsi?: string;\n  kategori?: string;\n  stok?: number;\n}\n\n// Untuk publish, semua harus ada\ntype ProdukPublish = Required<DraftProduk>;\n// Hasilnya:\n// {\n//   nama: string;  // tidak ada ? lagi\n//   harga: number;\n//   deskripsi: string;\n//   kategori: string;\n//   stok: number;\n// }\n\nfunction publishProduk(produk: Required<DraftProduk>) {\n  // Dijamin semua field ada di sini\n  console.log(`Publish: ${produk.nama} — Rp ${produk.harga}`);\n}\n\nconst draft: DraftProduk = { nama: 'Kaos' };\npublishProduk(draft);\n// ❌ Error: 'harga', 'deskripsi', dll. tidak ada\n\nconst lengkap: Required<DraftProduk> = {\n  nama: 'Kaos', harga: 75000,\n  deskripsi: 'Kaos polos berkualitas',\n  kategori: 'Pakaian', stok: 100\n};\npublishProduk(lengkap); // ✅",
+          "tipe": "typescript"
+        }
+      ],
+      "poin_penting": "`Required<T>` sering dipakai berpasangan dengan `Partial<T>`: gunakan Partial untuk input/draft, Required untuk output/final yang sudah tervalidasi."
+    },
+    {
+      "id": "07-03",
+      "judul": "Pick<T, K> — Ambil Sebagian Property",
+      "badge": "Menengah",
+      "analogi": {
+        "judul": "Profil publik vs profil lengkap",
+        "cerita": "Data user kamu ada di database: nama, email, password_hash, kartu_kredit, alamat_rumah, nomor_ktp. Tapi yang ditampilkan di profil publik hanya: nama dan foto. `Pick` itu seperti memilih mana saja yang mau ditampilkan ke publik — ambil beberapa field, sisanya tidak perlu."
+      },
+      "penjelasan": "`Pick<T, K>` mengambil subset property dari T. K adalah union dari nama-nama property yang ingin diambil.",
+      "contoh_kode": [
+        {
+          "label": "Pick dasar",
+          "kode": "interface User {\n  id: number;\n  nama: string;\n  email: string;\n  passwordHash: string;\n  kartuKredit: string;\n  createdAt: Date;\n}\n\n// Ambil hanya field yang aman ditampilkan ke publik\ntype ProfilPublik = Pick<User, 'id' | 'nama'>;\n// Hasilnya: { id: number; nama: string; }\n\n// Untuk response API — tidak expose data sensitif\ntype UserResponse = Pick<User, 'id' | 'nama' | 'email' | 'createdAt'>;\n\nfunction getPublikProfil(user: User): ProfilPublik {\n  return { id: user.id, nama: user.nama };\n  // passwordHash dan kartuKredit tidak masuk\n}",
+          "tipe": "typescript"
+        },
+        {
+          "label": "Pick dalam form",
+          "kode": "interface Produk {\n  id: number;\n  nama: string;\n  harga: number;\n  stok: number;\n  deskripsi: string;\n  gambar: string;\n  createdAt: Date;\n  updatedAt: Date;\n}\n\n// Form buat produk — tidak perlu id, timestamp\ntype FormBuatProduk = Pick<Produk, 'nama' | 'harga' | 'stok' | 'deskripsi' | 'gambar'>;\n\n// Form update harga saja\ntype UpdateHarga = Pick<Produk, 'harga'>;\n\nfunction updateHargaProduk(id: number, data: UpdateHarga) {\n  return db.update('produk', id, data);\n}\n\nupdateHargaProduk(1, { harga: 99000 });        // ✅\nupdateHargaProduk(1, { harga: 99000, stok: 5 }); // ❌ Error: 'stok' bukan bagian dari UpdateHarga",
+          "tipe": "typescript"
+        }
+      ],
+      "poin_penting": "Pick sangat berguna untuk membuat tipe untuk form, API response, atau tampilan spesifik yang hanya butuh sebagian data. Lebih baik Pick yang spesifik daripada passing objek lengkap dan tidak jelas field mana yang dipakai."
+    },
+    {
+      "id": "07-04",
+      "judul": "Omit<T, K> — Buang Sebagian Property",
+      "badge": "Menengah",
+      "analogi": {
+        "judul": "Resep tanpa bahan tertentu",
+        "cerita": "Resep nasi goreng lengkap ada: nasi, telur, kecap, garam, bawang. Tapi kamu masak untuk orang yang alergi telur — resepnya sama tapi tanpa telur. `Omit` itu seperti itu: ambil semuanya, tapi buang yang tidak perlu."
+      },
+      "penjelasan": "`Omit<T, K>` adalah kebalikan Pick — ambil SEMUA property dari T kecuali yang disebutkan di K.",
+      "contoh_kode": [
+        {
+          "label": "Omit dasar",
+          "kode": "interface Produk {\n  id: number;\n  nama: string;\n  harga: number;\n  stok: number;\n  createdAt: Date;\n  updatedAt: Date;\n}\n\n// Untuk form buat produk — buang id dan timestamps\ntype FormBuatProduk = Omit<Produk, 'id' | 'createdAt' | 'updatedAt'>;\n// Hasilnya: { nama: string; harga: number; stok: number; }\n\n// Lebih ringkas dari Pick saat property yang dibuang sedikit\n// Pick: Pick<Produk, 'nama' | 'harga' | 'stok'>\n// Omit: Omit<Produk, 'id' | 'createdAt' | 'updatedAt'>\n// Pilih yang lebih ringkas sesuai situasi",
+          "tipe": "typescript"
+        },
+        {
+          "label": "Omit untuk variasi tipe",
+          "kode": "interface Artikel {\n  id: number;\n  judul: string;\n  konten: string;\n  penulis: User;\n  tags: string[];\n  publishedAt: Date;\n  slug: string;\n}\n\n// Preview artikel — tidak perlu konten lengkap\ntype PreviewArtikel = Omit<Artikel, 'konten'>;\n\n// Draft artikel — belum publish, tidak perlu publishedAt dan slug\ntype DraftArtikel = Omit<Artikel, 'id' | 'publishedAt' | 'slug'>;\n\n// Untuk create — tidak perlu id (di-generate server)\ntype CreateArtikel = Omit<Artikel, 'id'>;",
+          "tipe": "typescript"
+        },
+        {
+          "label": "Pick vs Omit — kapan pakai yang mana?",
+          "kode": "// Gunakan Pick saat: property yang DIAMBIL lebih sedikit dari yang ditinggal\n// Contoh: ambil 2 dari 10 property\ntype ProfilSingkat = Pick<User, 'nama' | 'foto'>;\n\n// Gunakan Omit saat: property yang DIBUANG lebih sedikit dari yang diambil\n// Contoh: buang 2 dari 10 property\ntype UserTanpaPassword = Omit<User, 'passwordHash' | 'kartuKredit'>;\n\n// Keduanya valid — pilih yang lebih readable dan ringkas",
+          "tipe": "typescript"
+        }
+      ],
+      "poin_penting": "Pick dan Omit adalah dua sisi koin yang sama. Pilih berdasarkan mana yang lebih ringkas untuk kasus kamu — kalau yang dibuang lebih sedikit dari yang diambil, Omit lebih tepat."
+    },
+    {
+      "id": "07-05",
+      "judul": "Record<K, V> — Tipe untuk Objek sebagai Map",
+      "badge": "Menengah",
+      "analogi": {
+        "judul": "Kamus",
+        "cerita": "Kamus adalah kumpulan pasangan 'kata → definisi'. Setiap kata (key) punya tepat satu definisi (value). `Record<K, V>` itu seperti kamus: K adalah tipe untuk key-nya, V adalah tipe untuk value-nya."
+      },
+      "penjelasan": "`Record<K, V>` membuat tipe objek di mana semua key bertipe K dan semua value bertipe V. Alternatif yang lebih ekspresif dari `{ [key: string]: V }`.",
+      "contoh_kode": [
+        {
+          "label": "Record dasar",
+          "kode": "// Record<KeyType, ValueType>\ntype KamusBuah = Record<string, string>;\nconst kamus: KamusBuah = {\n  apple: 'apel',\n  mango: 'mangga',\n  orange: 'jeruk'\n};\n\n// Dengan literal union sebagai key — lebih ketat!\ntype StatusPesanan = 'pending' | 'diproses' | 'dikirim' | 'selesai';\ntype WarnaBadge = Record<StatusPesanan, string>;\n\nconst warna: WarnaBadge = {\n  pending: '#FFA500',\n  diproses: '#3B82F6',\n  dikirim: '#8B5CF6',\n  selesai: '#10B981'\n};\n// TypeScript pastikan semua status ada warnanya\n// Kalau ada status baru ditambah ke union, TS akan error di sini",
+          "tipe": "typescript"
+        },
+        {
+          "label": "Record untuk indexing data",
+          "kode": "interface Produk {\n  id: number;\n  nama: string;\n  harga: number;\n}\n\n// Konversi array jadi map untuk lookup O(1)\nfunction indexByKey<T extends Record<string, unknown>>(\n  arr: T[],\n  key: keyof T\n): Record<string, T> {\n  return arr.reduce((map, item) => {\n    map[String(item[key])] = item;\n    return map;\n  }, {} as Record<string, T>);\n}\n\nconst produkList: Produk[] = [\n  { id: 1, nama: 'Kaos', harga: 75000 },\n  { id: 2, nama: 'Celana', harga: 150000 },\n];\n\nconst produkById = indexByKey(produkList, 'id');\nprodukById['1'].nama; // 'Kaos' ✅",
+          "tipe": "typescript"
+        }
+      ],
+      "poin_penting": "Kelebihan `Record<StatusPesanan, string>` dibanding `{ [key: string]: string }`: Record dengan literal union key memastikan SEMUA kemungkinan key harus ada. Kalau ada key yang ketinggalan atau ada key yang tidak valid, TypeScript langsung error."
+    },
+    {
+      "id": "07-06",
+      "judul": "ReturnType<T> & Parameters<T>",
+      "badge": "Lanjutan",
+      "analogi": {
+        "judul": "Spesifikasi mesin",
+        "cerita": "Kalau kamu punya mesin (fungsi) tapi kehilangan manual-nya, kamu masih bisa cek: 'input mesin ini apa?' dan 'output mesin ini apa?' hanya dari fisik mesinnya. `Parameters` dan `ReturnType` itu seperti itu — kamu bisa 'baca' tipe input dan output sebuah fungsi secara otomatis."
+      },
+      "penjelasan": "`ReturnType<T>` mengekstrak tipe return dari fungsi. `Parameters<T>` mengekstrak tipe parameter sebagai tuple.",
+      "contoh_kode": [
+        {
+          "label": "ReturnType",
+          "kode": "function getUser(id: number) {\n  return {\n    id,\n    nama: 'Budi',\n    email: 'budi@mail.com',\n    createdAt: new Date()\n  };\n}\n\n// Ambil return type secara otomatis — tidak perlu define ulang\ntype User = ReturnType<typeof getUser>;\n// User = { id: number; nama: string; email: string; createdAt: Date; }\n\n// Berguna saat kamu tidak punya kontrol atas definisi fungsinya\n// (misalnya dari library pihak ketiga)\nimport { createStore } from 'redux';\ntype StoreType = ReturnType<typeof createStore>;",
+          "tipe": "typescript"
+        },
+        {
+          "label": "Parameters",
+          "kode": "function kirimEmail(\n  dari: string,\n  ke: string[],\n  subjek: string,\n  isi: string\n) {\n  // ...\n}\n\ntype ParamKirimEmail = Parameters<typeof kirimEmail>;\n// [dari: string, ke: string[], subjek: string, isi: string]\n\n// Berguna untuk fungsi wrapper\nfunction kirimEmailDenganLog(...args: Parameters<typeof kirimEmail>) {\n  console.log(`Kirim email: ${args[2]}`); // args[2] = subjek\n  return kirimEmail(...args);\n}",
+          "tipe": "typescript"
+        },
+        {
+          "label": "Kombinasi keduanya",
+          "kode": "// Buat fungsi yang memoize hasil fungsi lain\n// dengan type safety penuh\nfunction memoize<T extends (...args: any[]) => any>(\n  fn: T\n): (...args: Parameters<T>) => ReturnType<T> {\n  const cache = new Map<string, ReturnType<T>>();\n\n  return (...args: Parameters<T>): ReturnType<T> => {\n    const key = JSON.stringify(args);\n    if (cache.has(key)) {\n      return cache.get(key)!;\n    }\n    const hasil = fn(...args);\n    cache.set(key, hasil);\n    return hasil;\n  };\n}\n\nconst hitungFibonacci = memoize((n: number): number => {\n  if (n <= 1) return n;\n  return hitungFibonacci(n - 1) + hitungFibonacci(n - 2);\n});\n\nconst hasil = hitungFibonacci(40); // tipe: number ✅",
+          "tipe": "typescript"
+        }
+      ],
+      "poin_penting": "`ReturnType` dan `Parameters` sangat berguna saat bekerja dengan kode yang sudah ada — terutama library pihak ketiga. Daripada mendefinisikan ulang tipe secara manual (dan berisiko tidak sinkron), ekstrak langsung dari fungsinya."
+    },
+    {
+      "id": "07-07",
+      "judul": "Readonly<T> & NonNullable<T>",
+      "badge": "Menengah",
+      "analogi": {
+        "judul": "Dokumen yang sudah ditandatangani vs jaminan ada isinya",
+        "cerita": "`Readonly` itu seperti dokumen yang sudah ditandatangani — tidak bisa diubah lagi. `NonNullable` itu seperti kontrak yang menjamin barangnya ada — tidak kosong, tidak null, pasti ada."
+      },
+      "topik_kecil": [
+        {
+          "nama": "Readonly<T>",
+          "penjelasan": "Jadikan semua property readonly — tidak bisa diubah setelah dibuat.",
+          "contoh_kode": {
+            "kode": "interface KonfigurasiApp {\n  namaApp: string;\n  versi: string;\n  baseUrl: string;\n}\n\nconst config: Readonly<KonfigurasiApp> = {\n  namaApp: 'TokoKu',\n  versi: '2.0.0',\n  baseUrl: 'https://api.tokoku.com'\n};\n\nconfig.versi = '2.1.0'; // ❌ Error: readonly property!\n\n// Sangat berguna untuk:\n// 1. Konfigurasi yang tidak boleh berubah\n// 2. Pastikan fungsi tidak mengubah argumennya\nfunction prosesConfig(cfg: Readonly<KonfigurasiApp>) {\n  cfg.baseUrl = 'https://lain.com'; // ❌ Error — diproteksi!\n  console.log(cfg.namaApp); // ✅ Boleh baca\n}",
+            "tipe": "typescript"
+          }
+        },
+        {
+          "nama": "NonNullable<T>",
+          "penjelasan": "Hapus `null` dan `undefined` dari tipe.",
+          "contoh_kode": {
+            "kode": "type MungkinNull = string | null | undefined;\n\ntype PastiAda = NonNullable<MungkinNull>;\n// PastiAda = string\n\n// Berguna setelah validasi\nfunction prosesData(input: string | null | undefined) {\n  if (!input) {\n    throw new Error('Input tidak boleh kosong');\n  }\n  // Setelah validasi, kita tahu input pasti string\n  // Tapi TS masih anggap string | null | undefined\n  // Kita bisa cast:\n  const data: NonNullable<typeof input> = input;\n  return data.toUpperCase(); // ✅\n}\n\n// Atau lebih simpel, gunakan narrowing:\nfunction prosesData2(input: string | null | undefined): string {\n  if (input == null) throw new Error('Input kosong');\n  return input.toUpperCase(); // TS narrow otomatis ke string\n}",
+            "tipe": "typescript"
+          }
+        }
+      ],
+      "poin_penting": "TypeScript punya banyak utility types lain seperti `Awaited<T>`, `ConstructorParameters<T>`, `InstanceType<T>`. Tapi 7 utility types di bagian ini yang paling sering dipakai di 90% kasus. Pelajari dulu yang ini sampai hafal, baru eksplorasi yang lain."
+    }
+  ]
+}
