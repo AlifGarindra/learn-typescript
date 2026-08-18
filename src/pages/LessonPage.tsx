@@ -1,6 +1,6 @@
 import { useParams, Navigate, Link } from 'react-router-dom';
 import { useEffect } from 'react';
-import { findTopik, getAdjacentTopics } from '../data/lessons';
+import { findTopik, getAdjacentTopics } from '../data/courses';
 import { AnalogyCard } from '../components/lesson/AnalogyCard';
 import { ConceptNote } from '../components/lesson/ConceptNote';
 import { LessonNav } from '../components/lesson/LessonNav';
@@ -16,7 +16,7 @@ export function LessonPage() {
   const result = findTopik(topikId);
   if (!result) return <Navigate to="/topik/00-01" replace />;
 
-  const { bagian, topik } = result;
+  const { kursus, bagian, topik } = result;
   const { prev, next } = getAdjacentTopics(topikId);
 
   // Cek apakah ada kode TypeScript yang bisa dibuka di playground
@@ -31,7 +31,8 @@ export function LessonPage() {
       {/* Header */}
       <header className="space-y-3">
         <p className="text-xs text-gray-500 font-medium uppercase tracking-wider">
-          Bagian {bagian.bagian} — {bagian.judul}
+          <span className="text-blue-400">{kursus.judulPendek}</span>
+          {' · '}Bagian {bagian.bagian} — {bagian.judul}
         </p>
         <div className="flex items-start gap-3">
           <h2 className="text-2xl md:text-3xl font-bold text-white leading-tight flex-1">

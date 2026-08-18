@@ -163,20 +163,48 @@ export function getTemplate(id: string): string {
   return TEMPLATES[id] ?? TEMPLATE_KOSONG;
 }
 
+// Field yang sengaja dilewati: contoh "salah" bukan starter code yang baik.
+const FIELD_DILEWATI = new Set(['salah_vs_benar']);
+
+/** Telusuri isi topik, ambil potongan TypeScript murni pertama yang ditemukan. */
+function cariKodeTypeScript(nilai: unknown): string | null {
+  if (Array.isArray(nilai)) {
+    for (const item of nilai) {
+      const hasil = cariKodeTypeScript(item);
+      if (hasil) return hasil;
+    }
+    return null;
+  }
+
+  if (nilai === null || typeof nilai !== 'object') return null;
+
+  const obj = nilai as Record<string, unknown>;
+  if (typeof obj.kode === 'string' && obj.tipe === 'typescript') {
+    return obj.kode;
+  }
+
+  for (const [key, isi] of Object.entries(obj)) {
+    if (FIELD_DILEWATI.has(key)) continue;
+    const hasil = cariKodeTypeScript(isi);
+    if (hasil) return hasil;
+  }
+  return null;
+}
+
 export function getStarterCodeFromTopik(topik: Topik): string {
-  const candidates = [
+  // Sumber utama dulu — bagian yang paling mewakili inti topik.
+  const utama = [
     ...(topik.solusi_typescript?.contoh_kode ?? []),
     ...(topik.contoh_kode ?? []),
     ...(topik.konsep?.flatMap((k) => k.contoh_kode) ?? []),
     ...(topik.perbedaan_dengan_any?.contoh_kode ?? []),
-    ...(topik.masalah_tanpa_generics?.contoh_kode ?? []),
     ...(topik.solusi_generics?.contoh_kode ?? []),
-  ];
+  ].find((c) => c.tipe === 'typescript');
 
-  const tsSnippet = candidates.find((c) => c.tipe === 'typescript');
-  if (tsSnippet) return tsSnippet.kode;
+  if (utama) return utama.kode;
 
-  if (topik.contoh_nyata?.tipe === 'typescript') return topik.contoh_nyata.kode;
-
-  return TEMPLATE_KOSONG;
+  // Kalau tidak ketemu, telusuri seluruh isi topik.
+  // Topik yang isinya TSX/native saja mengembalikan '' —
+  // tombol "Coba di Playground" otomatis disembunyikan.
+  return cariKodeTypeScript(topik) ?? '';
 }

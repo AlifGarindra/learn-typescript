@@ -1,0 +1,137 @@
+{
+  "bagian": 4,
+  "judul": "Menampilkan Daftar Data",
+  "deskripsi": "Hampir setiap aplikasi mobile adalah daftar: daftar produk, chat, notifikasi, transaksi. FlatList adalah komponen paling sering dipakai di React Native, dan generic-nya adalah tempat generics TypeScript akhirnya terasa berguna, bukan cuma teori.",
+  "topik": [
+    {
+      "id": "rn-04-01",
+      "judul": "FlatList<T> — daftar yang tahu isinya apa",
+      "badge": "Menengah",
+      "analogi": {
+        "judul": "Rak sepatu di toko yang cuma memajang lima pasang",
+        "cerita": "Toko sepatu punya seribu pasang di gudang, tapi rak pajangnya cuma muat lima belas. Saat pengunjung berjalan, pegawai mengganti isi rak mengikuti arah pandangannya — yang sudah lewat dikembalikan ke gudang. Itulah FlatList: dari seribu produk, hanya yang terlihat di layar yang benar-benar dirender. Dan generic <T> adalah label yang memberi tahu 'rak ini isinya sepatu' — jadi begitu pegawai mengambil satu item, dia tahu persis benda apa yang ada di tangannya."
+      },
+      "masalah_di_javascript": {
+        "penjelasan": "Merender daftar panjang dengan .map() memaksa React Native membuat seribu komponen sekaligus. Di HP kelas menengah, scroll-nya patah-patah dan memori membengkak. Dan tanpa tipe, item di dalam renderItem adalah kotak hitam — kamu menebak isinya dari ingatan.",
+        "contoh_kode": [
+          {
+            "label": "JavaScript — dua masalah sekaligus",
+            "kode": "<ScrollView>\n  {produkList.map((produk) => (\n    <KartuProduk key={produk.id} nama={produk.name} harga={produk.price} />\n    // API-nya mengirim 'nama' dan 'harga', bukan 'name' dan 'price'.\n    // Hasilnya: seribu kartu kosong, dan scroll yang berat.\n  ))}\n</ScrollView>",
+            "tipe": "javascript"
+          }
+        ]
+      },
+      "solusi_typescript": {
+        "penjelasan": "FlatList adalah komponen generic. Begitu data-nya bertipe Produk[], TypeScript otomatis tahu bahwa parameter item di renderItem juga bertipe Produk — tanpa kamu tulis satu anotasi pun.",
+        "contoh_kode": [
+          {
+            "label": "DaftarProduk.tsx — tipe mengalir dari data ke renderItem",
+            "kode": "import { FlatList, Text } from 'react-native';\n\ntype Produk = {\n  id: string;\n  nama: string;\n  harga: number;\n  stok: number;\n};\n\nexport function DaftarProduk({ produkList }: { produkList: Produk[] }) {\n  return (\n    <FlatList\n      data={produkList}\n      keyExtractor={(produk) => produk.id}\n      renderItem={({ item }) => (\n        // `item` otomatis bertipe Produk — hasil inferensi dari `data`\n        <KartuProduk nama={item.nama} harga={item.harga} />\n      )}\n    />\n  );\n}\n\n// item.name  ❌ Property 'name' does not exist on type 'Produk'.\n//               Did you mean 'nama'?",
+            "tipe": "tsx"
+          }
+        ]
+      },
+      "contoh_kode": [
+        {
+          "label": "ListRenderItem<T> — saat renderItem dipisah ke fungsi sendiri",
+          "kode": "import type { ListRenderItem } from 'react-native';\nimport { FlatList } from 'react-native';\n\n// Kalau renderItem ditulis di luar JSX, inferensi terputus —\n// di sinilah ListRenderItem<T> dipakai supaya tipenya kembali jelas.\nconst renderProduk: ListRenderItem<Produk> = ({ item, index }) => (\n  <KartuProduk\n    nama={item.nama}\n    harga={item.harga}\n    urutan={index + 1}\n  />\n);\n\n<FlatList data={produkList} renderItem={renderProduk} keyExtractor={(p) => p.id} />",
+          "tipe": "tsx"
+        },
+        {
+          "label": "Menulis generic-nya secara eksplisit",
+          "kode": "// Berguna saat data bisa kosong atau tipenya perlu ditegaskan\n<FlatList<Produk>\n  data={hasilPencarian}\n  renderItem={({ item }) => <KartuProduk nama={item.nama} harga={item.harga} />}\n  keyExtractor={(item) => item.id}\n/>",
+          "tipe": "tsx"
+        }
+      ],
+      "salah_vs_benar": [
+        {
+          "judul": "renderItem menerima objek pembungkus, bukan item langsung",
+          "penjelasan": "Ini kesalahan paling sering pada FlatList. Argumennya adalah { item, index, separators } — bukan item itu sendiri.",
+          "salah": {
+            "kode": "<FlatList\n  data={produkList}\n  renderItem={(produk) => <KartuProduk nama={produk.nama} />}\n/>\n// ❌ Property 'nama' does not exist on type\n//    'ListRenderItemInfo<Produk>'",
+            "tipe": "tsx"
+          },
+          "benar": {
+            "kode": "<FlatList\n  data={produkList}\n  renderItem={({ item }) => <KartuProduk nama={item.nama} />}\n/>  // ✅ destructure { item } dulu",
+            "tipe": "tsx"
+          }
+        }
+      ],
+      "aturan_praktis": "Begitu daftar bisa berisi lebih dari sekitar dua puluh item, pindah dari ScrollView + map ke FlatList. Untuk daftar pendek dan tetap (misalnya menu pengaturan), ScrollView justru lebih sederhana.",
+      "poin_penting": "FlatList<T> menurunkan tipe dari prop data ke renderItem secara otomatis. Kamu hanya perlu menulis tipenya sendiri saat renderItem dipisah ke variabel — dan itulah gunanya ListRenderItem<T>."
+    },
+    {
+      "id": "rn-04-02",
+      "judul": "Melengkapi daftar: keyExtractor, pemisah, dan keadaan kosong",
+      "badge": "Menengah",
+      "analogi": {
+        "judul": "Etalase yang tetap sopan saat barang habis",
+        "cerita": "Toko yang baik tidak membiarkan etalasenya kosong melompong saat stok habis — dipasang tulisan 'Stok baru datang Senin'. Ada juga sekat antar rak supaya barang tidak terlihat menumpuk, dan label harga yang tidak pernah tertukar antar produk. FlatList menyediakan ketiganya lewat prop, dan semuanya ikut dicek tipenya."
+      },
+      "penjelasan": "keyExtractor wajib mengembalikan string — bukan number. Ini sumber error yang membingungkan bagi pendatang dari React web, yang terbiasa memberi key berupa angka.",
+      "contoh_kode": [
+        {
+          "label": "Daftar transaksi yang lengkap",
+          "kode": "import { FlatList, View, Text } from 'react-native';\n\ntype Transaksi = {\n  id: number;          // dari database, bertipe angka\n  judul: string;\n  nominal: number;\n  tanggal: string;\n};\n\nexport function RiwayatTransaksi({ data }: { data: Transaksi[] }) {\n  return (\n    <FlatList\n      data={data}\n      keyExtractor={(item) => String(item.id)}   // wajib string\n      renderItem={({ item }) => (\n        <View style={{ paddingVertical: 12 }}>\n          <Text>{item.judul}</Text>\n          <Text>Rp {item.nominal.toLocaleString('id-ID')}</Text>\n        </View>\n      )}\n      ItemSeparatorComponent={() => (\n        <View style={{ height: 1, backgroundColor: '#e5e7eb' }} />\n      )}\n      ListEmptyComponent={() => (\n        <Text style={{ textAlign: 'center', padding: 32, color: '#6b7280' }}>\n          Belum ada transaksi bulan ini\n        </Text>\n      )}\n      ListHeaderComponent={<Text style={{ fontWeight: '600' }}>Agustus 2026</Text>}\n      contentContainerStyle={{ padding: 16 }}\n    />\n  );\n}",
+          "tipe": "tsx"
+        },
+        {
+          "label": "Muat lebih banyak saat digulir ke bawah",
+          "kode": "import { FlatList, ActivityIndicator } from 'react-native';\n\ntype Props = {\n  produk: Produk[];\n  sedangMuat: boolean;\n  onMuatLagi: () => void;\n  onSegarkan: () => void;\n};\n\nexport function DaftarTakTerbatas({ produk, sedangMuat, onMuatLagi, onSegarkan }: Props) {\n  return (\n    <FlatList\n      data={produk}\n      keyExtractor={(item) => item.id}\n      renderItem={({ item }) => <KartuProduk nama={item.nama} harga={item.harga} />}\n      onEndReached={onMuatLagi}\n      onEndReachedThreshold={0.5}          // number, bukan '0.5'\n      refreshing={sedangMuat}              // boolean\n      onRefresh={onSegarkan}\n      ListFooterComponent={sedangMuat ? <ActivityIndicator /> : null}\n    />\n  );\n}",
+          "tipe": "tsx"
+        }
+      ],
+      "salah_vs_benar": [
+        {
+          "judul": "keyExtractor harus mengembalikan string",
+          "penjelasan": "Kalau id-mu berupa angka, ubah dulu. Tanpa TypeScript, ini menghasilkan peringatan runtime yang mudah terlewat di antara log lain.",
+          "salah": {
+            "kode": "<FlatList\n  data={transaksi}\n  keyExtractor={(item) => item.id}\n/>\n// ❌ Type 'number' is not assignable to type 'string'",
+            "tipe": "tsx"
+          },
+          "benar": {
+            "kode": "<FlatList\n  data={transaksi}\n  keyExtractor={(item) => item.id.toString()}\n/>  // ✅",
+            "tipe": "tsx"
+          }
+        },
+        {
+          "judul": "ListEmptyComponent tidak muncul kalau kamu mendahuluinya",
+          "penjelasan": "Bukan error tipe, tapi kesalahan pola yang umum: mengembalikan komponen kosong lebih dulu membuat header, pull-to-refresh, dan tata letak daftar ikut hilang.",
+          "salah": {
+            "kode": "if (produk.length === 0) return <Text>Belum ada produk</Text>;\n\nreturn <FlatList data={produk} renderItem={renderProduk} />;\n// ❌ pengguna kehilangan pull-to-refresh saat daftar kosong —\n//    padahal itu justru saat mereka paling ingin memuat ulang",
+            "tipe": "tsx"
+          },
+          "benar": {
+            "kode": "return (\n  <FlatList\n    data={produk}\n    renderItem={renderProduk}\n    keyExtractor={(p) => p.id}\n    refreshing={sedangMuat}\n    onRefresh={onSegarkan}\n    ListEmptyComponent={<Text>Belum ada produk</Text>}\n  />\n);  // ✅ daftar tetap hidup walau kosong",
+            "tipe": "tsx"
+          }
+        }
+      ],
+      "poin_penting": "keyExtractor selalu mengembalikan string, dan keadaan kosong sebaiknya ditangani lewat ListEmptyComponent — bukan dengan return lebih awal yang mematikan fitur daftar lainnya."
+    },
+    {
+      "id": "rn-04-03",
+      "judul": "SectionList untuk data berkelompok",
+      "badge": "Lanjutan",
+      "analogi": {
+        "judul": "Buku menu dengan pemisah kategori",
+        "cerita": "Menu restoran tidak menumpuk seratus item jadi satu daftar panjang. Ada halaman Makanan, halaman Minuman, halaman Dessert — masing-masing dengan judul di atasnya yang tetap terlihat saat kamu membolak-balik. SectionList adalah menu itu: data yang sudah dikelompokkan, dengan judul kelompok yang menempel di atas layar saat digulir."
+      },
+      "penjelasan": "SectionList punya dua generic: SectionList<ItemT, SectionT>. Yang pertama tipe tiap baris, yang kedua tipe data tambahan di tingkat kelompok. Kalau kelompoknya cuma punya judul, generic kedua boleh dilewat.",
+      "contoh_kode": [
+        {
+          "label": "Riwayat pesanan dikelompokkan per tanggal",
+          "kode": "import { SectionList, View, Text } from 'react-native';\n\ntype Pesanan = {\n  id: string;\n  namaToko: string;\n  total: number;\n};\n\ntype KelompokPesanan = {\n  title: string;       // nama field ini sudah ditentukan SectionList\n  data: Pesanan[];     // begitu juga yang ini\n};\n\nconst kelompok: KelompokPesanan[] = [\n  {\n    title: 'Hari ini',\n    data: [\n      { id: 'p1', namaToko: 'Warung Bu Tini', total: 32000 },\n      { id: 'p2', namaToko: 'Kopi Senja', total: 45000 },\n    ],\n  },\n  {\n    title: 'Kemarin',\n    data: [{ id: 'p3', namaToko: 'Ayam Geprek 99', total: 28000 }],\n  },\n];\n\nexport function RiwayatPesanan() {\n  return (\n    <SectionList\n      sections={kelompok}\n      keyExtractor={(item) => item.id}\n      renderItem={({ item }) => (\n        // item bertipe Pesanan\n        <Text>{item.namaToko} — Rp {item.total.toLocaleString('id-ID')}</Text>\n      )}\n      renderSectionHeader={({ section }) => (\n        // section bertipe KelompokPesanan\n        <View style={{ backgroundColor: '#f3f4f6', padding: 8 }}>\n          <Text style={{ fontWeight: '600' }}>{section.title}</Text>\n        </View>\n      )}\n      stickySectionHeadersEnabled\n    />\n  );\n}",
+          "tipe": "tsx"
+        },
+        {
+          "label": "Data tambahan di tingkat kelompok",
+          "kode": "type KelompokDenganTotal = {\n  title: string;\n  totalHari: number;     // field tambahan milik kelompok\n  data: Pesanan[];\n};\n\n<SectionList<Pesanan, KelompokDenganTotal>\n  sections={kelompokDenganTotal}\n  keyExtractor={(item) => item.id}\n  renderItem={({ item }) => <BarisPesanan pesanan={item} />}\n  renderSectionHeader={({ section }) => (\n    <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>\n      <Text>{section.title}</Text>\n      <Text>Rp {section.totalHari.toLocaleString('id-ID')}</Text>\n      {/* section.totalHari dikenali karena generic keduanya ditulis */}\n    </View>\n  )}\n/>",
+          "tipe": "tsx"
+        }
+      ],
+      "aturan_praktis": "Nama field `title` dan `data` bukan pilihan bebas — SectionList mengharapkan `data`, dan `title` adalah konvensi yang dipakai tipe bawaannya. Ubah nama lain sesuai kebutuhan, tapi jangan `data`.",
+      "poin_penting": "SectionList<ItemT, SectionT>: generic pertama untuk tiap baris, kedua untuk data kelompok. Tulis yang kedua hanya kalau header-mu membaca field selain title."
+    }
+  ]
+}

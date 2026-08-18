@@ -1,0 +1,128 @@
+{
+  "bagian": 5,
+  "judul": "Navigasi Antar Layar",
+  "deskripsi": "Navigasi adalah tempat paling rawan salah di aplikasi mobile: nama layar salah ketik, parameter kurang, tipe parameter tidak cocok. React Navigation punya dukungan TypeScript yang sangat baik — tapi hanya kalau kamu menyiapkan satu hal di awal: peta parameter.",
+  "topik": [
+    {
+      "id": "rn-05-01",
+      "judul": "ParamList — peta semua layar dan bekalnya",
+      "badge": "Menengah",
+      "analogi": {
+        "judul": "Daftar syarat dokumen di loket kelurahan",
+        "cerita": "Di kelurahan ada papan besar: 'Loket 1 — Surat Domisili: bawa KTP dan KK. Loket 2 — Surat Usaha: bawa KTP, KK, dan foto tempat usaha.' Papan itu menyelamatkan semua orang; kamu tahu persis apa yang harus dibawa sebelum antre, bukan setelah sampai di depan petugas. RootStackParamList adalah papan itu untuk aplikasimu: daftar semua layar beserta bekal yang wajib dibawa saat menujunya."
+      },
+      "masalah_di_javascript": {
+        "penjelasan": "Tanpa peta parameter, nama layar hanyalah string biasa dan parameternya objek bebas. Salah satu huruf pada nama layar, atau lupa satu parameter, tidak menghasilkan error sampai pengguna benar-benar menekan tombolnya.",
+        "contoh_kode": [
+          {
+            "label": "JavaScript — tiga kesalahan yang semuanya diam",
+            "kode": "navigation.navigate('DetailProduk', { id: produk.id });\nnavigation.navigate('detailProduk', { id: produk.id });  // huruf kecil — layar tidak ditemukan\nnavigation.navigate('DetailProduk');                      // lupa kirim id\nnavigation.navigate('DetailProduk', { produkId: produk.id }); // nama parameter beda\n\n// Layar tujuan membaca route.params.id → undefined → layar kosong,\n// atau crash saat memanggil ambilProduk(undefined).",
+            "tipe": "javascript"
+          }
+        ]
+      },
+      "solusi_typescript": {
+        "penjelasan": "Tulis satu type yang memetakan nama layar ke parameternya. Layar tanpa parameter diberi nilai undefined. Peta ini menjadi sumber kebenaran untuk seluruh aplikasi.",
+        "contoh_kode": [
+          {
+            "label": "src/types/navigation.ts — papan pengumumannya",
+            "kode": "export type RootStackParamList = {\n  Beranda: undefined;                         // tidak butuh parameter\n  DetailProduk: { produkId: string };          // wajib bawa produkId\n  Keranjang: undefined;\n  Checkout: { kodePromo?: string };            // parameter opsional\n  Pembayaran: { pesananId: string; total: number };\n};",
+            "tipe": "typescript"
+          },
+          {
+            "label": "Mendaftarkan navigator memakai peta itu",
+            "kode": "import { createNativeStackNavigator } from '@react-navigation/native-stack';\nimport type { RootStackParamList } from '../types/navigation';\n\nconst Stack = createNativeStackNavigator<RootStackParamList>();\n\nexport function RootNavigator() {\n  return (\n    <Stack.Navigator>\n      <Stack.Screen name=\"Beranda\" component={LayarBeranda} />\n      <Stack.Screen name=\"DetailProduk\" component={LayarDetailProduk} />\n      <Stack.Screen name=\"Keranjang\" component={LayarKeranjang} />\n      <Stack.Screen name=\"Checkout\" component={LayarCheckout} />\n      <Stack.Screen name=\"Pembayaran\" component={LayarPembayaran} />\n      {/* <Stack.Screen name=\"Profil\" ... /> ❌ 'Profil' tidak ada di peta */}\n    </Stack.Navigator>\n  );\n}",
+            "tipe": "tsx"
+          }
+        ]
+      },
+      "salah_vs_benar": [
+        {
+          "judul": "Semua kesalahan navigasi berubah jadi error editor",
+          "penjelasan": "Setelah peta terpasang, keempat kesalahan di contoh JavaScript tadi tidak bisa lagi lolos.",
+          "salah": {
+            "kode": "navigation.navigate('detailProduk', { produkId: '1' });\n// ❌ Argument of type '\"detailProduk\"' is not assignable...\n\nnavigation.navigate('DetailProduk');\n// ❌ Expected 2 arguments, but got 1\n\nnavigation.navigate('DetailProduk', { id: '1' });\n// ❌ Object literal may only specify known properties —\n//    'id' does not exist in type '{ produkId: string; }'\n\nnavigation.navigate('Pembayaran', { pesananId: 'ps1', total: '250000' });\n// ❌ Type 'string' is not assignable to type 'number'",
+            "tipe": "typescript"
+          },
+          "benar": {
+            "kode": "navigation.navigate('DetailProduk', { produkId: produk.id });   // ✅\nnavigation.navigate('Keranjang');                                // ✅ tanpa parameter\nnavigation.navigate('Checkout', {});                             // ✅ opsional boleh kosong\nnavigation.navigate('Pembayaran', { pesananId: 'ps1', total: 250000 }); // ✅",
+            "tipe": "typescript"
+          }
+        }
+      ],
+      "aturan_praktis": "Taruh ParamList di satu file (src/types/navigation.ts) dan impor dari sana. Kalau tiap layar mendefinisikan versinya sendiri, petanya berhenti menjadi sumber kebenaran.",
+      "poin_penting": "Satu type ParamList mengubah nama layar dari string bebas menjadi daftar tertutup — dan mengubah parameter navigasi dari tebakan menjadi kontrak."
+    },
+    {
+      "id": "rn-05-02",
+      "judul": "Mengetik props layar dengan NativeStackScreenProps",
+      "badge": "Menengah",
+      "analogi": {
+        "judul": "Amplop yang sudah tertulis isinya",
+        "cerita": "Kurir memberimu amplop dengan keterangan di luar: 'Isi: 1 KTP, 1 kartu keluarga.' Kamu tidak perlu merobeknya untuk tahu isinya, dan kalau isinya ternyata beda, kesalahan itu tanggung jawab pengirim. Sebuah layar menerima amplop bernama props — di dalamnya ada route (bekal yang dibawa) dan navigation (tiket untuk pindah layar). NativeStackScreenProps adalah keterangan di luar amplop itu."
+      },
+      "penjelasan": "NativeStackScreenProps<ParamList, 'NamaLayar'> menghasilkan tipe props lengkap untuk satu layar: route.params sesuai peta, dan navigation yang tahu ke mana saja layar ini boleh menuju.",
+      "contoh_kode": [
+        {
+          "label": "LayarDetailProduk.tsx",
+          "kode": "import type { NativeStackScreenProps } from '@react-navigation/native-stack';\nimport type { RootStackParamList } from '../types/navigation';\nimport { View, Text } from 'react-native';\n\ntype Props = NativeStackScreenProps<RootStackParamList, 'DetailProduk'>;\n\nexport function LayarDetailProduk({ route, navigation }: Props) {\n  const { produkId } = route.params;   // bertipe string, dijamin ada\n  const produk = useProduk(produkId);\n\n  if (!produk) return <Memuat />;\n\n  return (\n    <View style={{ padding: 16, gap: 12 }}>\n      <Text style={{ fontSize: 20, fontWeight: '600' }}>{produk.nama}</Text>\n      <Text>Rp {produk.harga.toLocaleString('id-ID')}</Text>\n\n      <TombolUtama\n        label=\"Beli Sekarang\"\n        onTekan={() => navigation.navigate('Checkout', {})}\n      />\n    </View>\n  );\n}\n\n// route.params.kodePromo  ❌ tidak ada di parameter DetailProduk",
+          "tipe": "tsx"
+        },
+        {
+          "label": "Mengatur judul layar dari parameter",
+          "kode": "import { useEffect } from 'react';\n\nexport function LayarDetailProduk({ route, navigation }: Props) {\n  const { produkId } = route.params;\n  const produk = useProduk(produkId);\n\n  useEffect(() => {\n    navigation.setOptions({ title: produk?.nama ?? 'Memuat...' });\n  }, [navigation, produk]);\n\n  // navigation.setOptions juga bertipe — opsi yang tidak dikenal ditolak\n  // navigation.setOptions({ judul: 'x' })  ❌\n}",
+          "tipe": "tsx"
+        }
+      ],
+      "salah_vs_benar": [
+        {
+          "judul": "Jangan mengetik props layar dengan tangan",
+          "penjelasan": "Menulis tipe route sendiri terlihat lebih sederhana, tapi ikatannya ke ParamList putus — kalau peta berubah, layar ini tidak ikut merah.",
+          "salah": {
+            "kode": "type Props = {\n  route: { params: { produkId: string } };\n  navigation: any;\n};\n// ❌ navigation jadi any — semua nama layar dan parameter lolos begitu saja",
+            "tipe": "typescript"
+          },
+          "benar": {
+            "kode": "type Props = NativeStackScreenProps<RootStackParamList, 'DetailProduk'>;\n// ✅ route dan navigation keduanya mengikuti peta,\n//    dan ikut berubah otomatis kalau petanya diperbarui",
+            "tipe": "typescript"
+          }
+        }
+      ],
+      "poin_penting": "NativeStackScreenProps<ParamList, 'NamaLayar'> memberi route dan navigation sekaligus, keduanya terikat pada peta parameter — jadi perubahan peta langsung terasa di semua layar."
+    },
+    {
+      "id": "rn-05-03",
+      "judul": "useNavigation di komponen dalam",
+      "badge": "Lanjutan",
+      "analogi": {
+        "judul": "Kartu akses yang dibawa sendiri",
+        "cerita": "Di kantor, tamu diantar resepsionis ke setiap ruangan. Tapi karyawan tetap punya kartu akses sendiri — tidak perlu menunggu diantar. Layar menerima navigation lewat props (diantar), sedangkan komponen kecil di dalamnya, seperti kartu produk yang tertanam tiga lapis di dalam daftar, lebih praktis memegang kartu aksesnya sendiri lewat useNavigation. Syaratnya cuma satu: kartu itu harus menyebut sedang berada di gedung mana, kalau tidak, aksesnya jadi 'ke mana saja' dan pengawasannya hilang."
+      },
+      "penjelasan": "useNavigation tanpa tipe mengembalikan navigation yang terlalu longgar — nama layar apa pun diterima. Ada dua cara memperbaikinya: menulis generic di setiap pemanggilan, atau mendaftarkan ParamList secara global sekali untuk seluruh aplikasi.",
+      "contoh_kode": [
+        {
+          "label": "Cara 1 — generic di tempat pemakaian",
+          "kode": "import { useNavigation } from '@react-navigation/native';\nimport type { NativeStackNavigationProp } from '@react-navigation/native-stack';\nimport type { RootStackParamList } from '../types/navigation';\n\ntype NavigasiProduk = NativeStackNavigationProp<RootStackParamList, 'Beranda'>;\n\nexport function KartuProduk({ produk }: { produk: Produk }) {\n  const navigation = useNavigation<NavigasiProduk>();\n\n  return (\n    <Pressable onPress={() => navigation.navigate('DetailProduk', { produkId: produk.id })}>\n      <Text>{produk.nama}</Text>\n    </Pressable>\n  );\n}",
+          "tipe": "tsx"
+        },
+        {
+          "label": "Cara 2 — daftarkan sekali, berlaku di seluruh aplikasi",
+          "kode": "// src/types/navigation.ts\nexport type RootStackParamList = {\n  Beranda: undefined;\n  DetailProduk: { produkId: string };\n  Keranjang: undefined;\n};\n\n// Deklarasi global: memberi tahu React Navigation peta bawaan aplikasi ini\ndeclare global {\n  namespace ReactNavigation {\n    interface RootParamList extends RootStackParamList {}\n  }\n}",
+          "tipe": "typescript"
+        },
+        {
+          "label": "Setelah dideklarasikan global — tidak perlu generic lagi",
+          "kode": "import { useNavigation } from '@react-navigation/native';\n\nexport function KartuProduk({ produk }: { produk: Produk }) {\n  const navigation = useNavigation();   // sudah tahu peta aplikasi\n\n  return (\n    <Pressable onPress={() => navigation.navigate('DetailProduk', { produkId: produk.id })}>\n      <Text>{produk.nama}</Text>\n    </Pressable>\n  );\n}\n\n// navigation.navigate('Profil')  ❌ tetap ditolak — 'Profil' tidak ada di peta",
+          "tipe": "tsx"
+        },
+        {
+          "label": "useRoute juga perlu tipenya",
+          "kode": "import { useRoute } from '@react-navigation/native';\nimport type { RouteProp } from '@react-navigation/native';\nimport type { RootStackParamList } from '../types/navigation';\n\ntype RouteDetail = RouteProp<RootStackParamList, 'DetailProduk'>;\n\nexport function TombolBagikan() {\n  const route = useRoute<RouteDetail>();\n  const { produkId } = route.params;   // bertipe string\n\n  return <Pressable onPress={() => bagikan(produkId)}><Text>Bagikan</Text></Pressable>;\n}",
+          "tipe": "tsx"
+        }
+      ],
+      "aturan_praktis": "Untuk aplikasi dengan satu stack utama, pakai deklarasi global — sekali tulis, semua useNavigation ikut terjaga. Untuk aplikasi dengan banyak navigator bertingkat, generic per pemakaian lebih akurat.",
+      "poin_penting": "useNavigation tanpa tipe adalah pintu belakang yang membatalkan semua kerja ParamList. Beri dia generic, atau daftarkan peta aplikasi lewat declare global."
+    }
+  ]
+}

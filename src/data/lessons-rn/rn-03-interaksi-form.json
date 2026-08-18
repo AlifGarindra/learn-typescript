@@ -1,0 +1,128 @@
+{
+  "bagian": 3,
+  "judul": "Interaksi & Form",
+  "deskripsi": "Sentuhan, ketikan, dan perbedaan perilaku antara iOS dan Android. Bagian di mana tipe event React Native terlihat berbeda dari React web — dan di mana Platform.OS berubah dari sekadar string menjadi alat bantu yang dicek TypeScript.",
+  "topik": [
+    {
+      "id": "rn-03-01",
+      "judul": "Menangani sentuhan: onPress dan GestureResponderEvent",
+      "badge": "Dasar",
+      "analogi": {
+        "judul": "Bel rumah vs bel hotel",
+        "cerita": "Bel rumah cuma satu tombol: ditekan, berbunyi, selesai. Bel resepsionis hotel lebih kaya informasi — petugas tahu dari layar siapa yang menekan, dari kamar berapa, jam berapa. Di React Native, onPress punya dua wajah itu: sering kali kamu cuma butuh tahu 'ditekan', tapi kalau perlu, event-nya membawa detail lengkap — koordinat sentuhan, jumlah jari, waktu. Tipe detail itu bernama GestureResponderEvent."
+      },
+      "penjelasan": "Berbeda dari web yang punya MouseEvent dan ClickEvent, semua sentuhan di React Native diwakili satu tipe: GestureResponderEvent. Kebanyakan waktu kamu tidak memerlukannya sama sekali — tulis `() => void` dan selesai. Tipe event baru berguna ketika kamu butuh posisi sentuhan, misalnya untuk memunculkan menu di titik yang ditekan.",
+      "contoh_kode": [
+        {
+          "label": "Tipe handler yang paling umum",
+          "kode": "type KartuProdukProps = {\n  produk: Produk;\n  onTekan: () => void;                    // paling sering: tidak butuh event\n  onTekanLama?: (produkId: string) => void; // kirim data, bukan event\n};\n\n<Pressable\n  onPress={onTekan}\n  onLongPress={() => onTekanLama?.(produk.id)}\n>\n  <Text>{produk.nama}</Text>\n</Pressable>",
+          "tipe": "tsx"
+        },
+        {
+          "label": "Ketika event-nya memang dibutuhkan",
+          "kode": "import type { GestureResponderEvent } from 'react-native';\nimport { Pressable, Text } from 'react-native';\n\nexport function ItemChat({ pesan }: { pesan: Pesan }) {\n  const bukaMenu = (e: GestureResponderEvent) => {\n    const { pageX, pageY } = e.nativeEvent;  // titik sentuhan di layar\n    tampilkanMenuDi({ x: pageX, y: pageY, pesanId: pesan.id });\n  };\n\n  return (\n    <Pressable onLongPress={bukaMenu}>\n      <Text>{pesan.isi}</Text>\n    </Pressable>\n  );\n}",
+          "tipe": "tsx"
+        }
+      ],
+      "salah_vs_benar": [
+        {
+          "judul": "onPress bukan onClick",
+          "penjelasan": "TypeScript menangkap kebiasaan lama dari React web — onClick sama sekali tidak ada di PressableProps, jadi salah ketik langsung terlihat.",
+          "salah": {
+            "kode": "<Pressable onClick={() => bayar()}>\n  <Text>Bayar</Text>\n</Pressable>\n// ❌ Property 'onClick' does not exist on type\n//    'IntrinsicAttributes & PressableProps ...'\n// Tanpa TS: tombolnya diam saja saat ditekan, tanpa error apa pun.",
+            "tipe": "tsx"
+          },
+          "benar": {
+            "kode": "<Pressable onPress={() => bayar()}>\n  <Text>Bayar</Text>\n</Pressable>  // ✅",
+            "tipe": "tsx"
+          }
+        },
+        {
+          "judul": "Jangan langsung menyambungkan handler yang menerima argumen",
+          "penjelasan": "onPress mengirim GestureResponderEvent sebagai argumen pertama. Kalau fungsimu mengharapkan string, TypeScript menolak sambungan langsungnya.",
+          "salah": {
+            "kode": "const hapusItem = (itemId: string) => { /* ... */ };\n\n<Pressable onPress={hapusItem}>\n// ❌ Type '(itemId: string) => void' is not assignable to type\n//    '(event: GestureResponderEvent) => void'",
+            "tipe": "tsx"
+          },
+          "benar": {
+            "kode": "<Pressable onPress={() => hapusItem(item.id)}>\n  <Text>Hapus</Text>\n</Pressable>  // ✅ bungkus dalam arrow function",
+            "tipe": "tsx"
+          }
+        }
+      ],
+      "poin_penting": "Semua sentuhan di React Native memakai satu tipe event: GestureResponderEvent. Kebanyakan handler cukup ditulis `() => void` — ambil event-nya hanya kalau kamu butuh koordinat sentuhan."
+    },
+    {
+      "id": "rn-03-02",
+      "judul": "TextInput dan state form yang bertipe",
+      "badge": "Menengah",
+      "analogi": {
+        "judul": "Formulir pendaftaran yang diperiksa satpam",
+        "cerita": "Di depan gedung, satpam memeriksa formulir tamu sebelum kamu masuk: nama sudah diisi? nomor HP formatnya benar? Kalau ada yang kosong, kamu diminta melengkapi di tempat — tidak sampai naik lift lalu ditolak di lantai sepuluh. Tipe untuk state form berperan seperti satpam itu, tapi lebih awal lagi: memeriksa saat kamu menulis kodenya, bukan saat pengguna menekan Kirim."
+      },
+      "masalah_di_javascript": {
+        "penjelasan": "Form yang punya lima field biasanya dikelola dalam satu objek state. Tanpa tipe, salah tulis nama field tidak menghasilkan error — nilainya hanya diam-diam undefined, dan yang terkirim ke server adalah data setengah jadi.",
+        "contoh_kode": [
+          {
+            "label": "JavaScript — typo yang lolos sampai ke server",
+            "kode": "const [form, setForm] = useState({\n  penerima: '',\n  telepon: '',\n  alamat: '',\n});\n\n<TextInput\n  value={form.telpon}                          // typo: telpon\n  onChangeText={(t) => setForm({ ...form, telpon: t })}  // typo lagi\n/>\n\n// Hasilnya: kotak input selalu kosong di layar,\n// dan objek form diam-diam punya properti 'telpon' yang tidak dipakai siapa pun.",
+            "tipe": "javascript"
+          }
+        ]
+      },
+      "solusi_typescript": {
+        "penjelasan": "Deskripsikan bentuk form sekali sebagai type. Setelah itu setiap akses dan setiap update dicek — termasuk update parsial yang memakai spread.",
+        "contoh_kode": [
+          {
+            "label": "FormAlamat.tsx — satu objek state, semua field terjaga",
+            "kode": "import { useState } from 'react';\nimport { View, TextInput, Text } from 'react-native';\n\ntype FormAlamat = {\n  penerima: string;\n  telepon: string;\n  alamat: string;\n  catatan: string;\n};\n\nexport function FormPengiriman({ onSimpan }: { onSimpan: (data: FormAlamat) => void }) {\n  const [form, setForm] = useState<FormAlamat>({\n    penerima: '',\n    telepon: '',\n    alamat: '',\n    catatan: '',\n  });\n\n  // satu fungsi update untuk semua field, tetap aman\n  const ubah = <K extends keyof FormAlamat>(field: K, nilai: FormAlamat[K]) => {\n    setForm((sebelumnya) => ({ ...sebelumnya, [field]: nilai }));\n  };\n\n  return (\n    <View style={{ gap: 12 }}>\n      <TextInput\n        placeholder=\"Nama penerima\"\n        value={form.penerima}\n        onChangeText={(teks) => ubah('penerima', teks)}\n      />\n      <TextInput\n        placeholder=\"Nomor HP\"\n        keyboardType=\"phone-pad\"\n        value={form.telepon}\n        onChangeText={(teks) => ubah('telepon', teks)}\n      />\n      <TextInput\n        placeholder=\"Alamat lengkap\"\n        multiline\n        value={form.alamat}\n        onChangeText={(teks) => ubah('alamat', teks)}\n      />\n    </View>\n  );\n}\n\n// ubah('telpon', teks)  ❌ Argument of type '\"telpon\"' is not assignable\n//                          to parameter of type keyof FormAlamat",
+            "tipe": "tsx"
+          }
+        ]
+      },
+      "contoh_kode": [
+        {
+          "label": "Validasi: pesan error yang bentuknya menempel pada form",
+          "kode": "type ErrorForm = Partial<Record<keyof FormAlamat, string>>;\n// hasilnya: { penerima?: string; telepon?: string; alamat?: string; catatan?: string }\n\nfunction validasi(form: FormAlamat): ErrorForm {\n  const error: ErrorForm = {};\n  if (!form.penerima.trim()) error.penerima = 'Nama penerima wajib diisi';\n  if (!/^08\\d{8,11}$/.test(form.telepon)) error.telepon = 'Nomor HP tidak valid';\n  if (form.alamat.trim().length < 10) error.alamat = 'Alamat terlalu pendek';\n  return error;\n}\n\nconst error = validasi(form);\nconst bolehKirim = Object.keys(error).length === 0;\n\n// error.telpon = 'x'  ❌ ditolak — nama field mengikuti FormAlamat",
+          "tipe": "typescript"
+        },
+        {
+          "label": "onChangeText vs onChange — beda dari web",
+          "kode": "// ✅ yang biasa dipakai: langsung dapat string\n<TextInput onChangeText={(teks) => setPencarian(teks)} />\n\n// kalau butuh event lengkapnya:\nimport type { NativeSyntheticEvent, TextInputChangeEventData } from 'react-native';\n\n<TextInput\n  onChange={(e: NativeSyntheticEvent<TextInputChangeEventData>) => {\n    console.log(e.nativeEvent.text);\n  }}\n/>\n\n// ❌ e.target.value tidak ada di React Native — itu milik web",
+          "tipe": "tsx"
+        }
+      ],
+      "aturan_praktis": "Pakai onChangeText, bukan onChange. Untuk pesan error, `Partial<Record<keyof FormX, string>>` membuat nama field error selalu sinkron dengan form-nya.",
+      "poin_penting": "Satu type untuk bentuk form membuat nama field, fungsi update, dan pesan error terikat pada sumber yang sama — typo di salah satunya langsung terlihat."
+    },
+    {
+      "id": "rn-03-03",
+      "judul": "Kode khusus platform: Platform.OS dan Platform.select",
+      "badge": "Menengah",
+      "analogi": {
+        "judul": "Colokan listrik di negara berbeda",
+        "cerita": "Alat elektronik yang sama, dibawa ke Inggris dan ke Indonesia, butuh kepala colokan berbeda. Isi alatnya sama persis — yang berbeda hanya bagian yang bersentuhan dengan dunia luar. iOS dan Android juga begitu: logika aplikasimu sama, tapi bayangan kartu, jarak dari atas layar, dan perilaku keyboard punya aturan masing-masing. Platform.OS adalah cara menanyakan 'saya sedang di negara mana?'."
+      },
+      "penjelasan": "Platform.OS bukan sekadar string biasa — tipenya adalah union literal 'ios' | 'android' | 'windows' | 'macos' | 'web'. Karena itu TypeScript bisa mempersempit tipenya di dalam if, dan menolak perbandingan dengan nilai yang tidak pernah mungkin.",
+      "contoh_kode": [
+        {
+          "label": "Platform.select — TypeScript menyimpulkan tipe hasilnya",
+          "kode": "import { Platform, StyleSheet } from 'react-native';\n\nconst styles = StyleSheet.create({\n  kartu: {\n    backgroundColor: '#fff',\n    borderRadius: 12,\n    ...Platform.select({\n      ios: {\n        shadowColor: '#000',\n        shadowOffset: { width: 0, height: 2 },\n        shadowOpacity: 0.1,\n        shadowRadius: 8,\n      },\n      android: {\n        elevation: 3,\n      },\n    }),\n  },\n});\n\n// Platform.select mengembalikan tipe gabungan dari cabang yang ada,\n// dan hasilnya tetap cocok dengan ViewStyle.",
+          "tipe": "typescript"
+        },
+        {
+          "label": "Narrowing dengan Platform.OS",
+          "kode": "import { Platform, KeyboardAvoidingView } from 'react-native';\n\n// perilaku keyboard memang berbeda dan harus dibedakan\n<KeyboardAvoidingView\n  behavior={Platform.OS === 'ios' ? 'padding' : 'height'}\n  style={{ flex: 1 }}\n>\n  <FormPengiriman onSimpan={simpan} />\n</KeyboardAvoidingView>\n\n// nilai numerik pun bisa dibedakan dengan tipe yang tetap terjaga\nconst jarakAtas: number = Platform.OS === 'ios' ? 44 : 24;\n\n// ❌ if (Platform.OS === 'iOS') { ... }\n//    This comparison appears unintentional because the types\n//    'ios' | 'android' | ... and '\"iOS\"' have no overlap.",
+          "tipe": "tsx"
+        },
+        {
+          "label": "Pemisahan lewat nama file — tipe tetap satu",
+          "kode": "// PemilihTanggal.ios.tsx dan PemilihTanggal.android.tsx\n// Metro memilih file yang tepat otomatis, tapi tipenya harus sama.\n// Taruh kontraknya di satu tempat supaya keduanya tidak melenceng:\n\n// PemilihTanggal.types.ts\nexport type PemilihTanggalProps = {\n  nilai: Date;\n  onUbah: (tanggal: Date) => void;\n  minimal?: Date;\n};\n\n// PemilihTanggal.ios.tsx\nimport type { PemilihTanggalProps } from './PemilihTanggal.types';\nexport function PemilihTanggal({ nilai, onUbah }: PemilihTanggalProps) { /* ... */ }\n\n// PemilihTanggal.android.tsx\nimport type { PemilihTanggalProps } from './PemilihTanggal.types';\nexport function PemilihTanggal({ nilai, onUbah }: PemilihTanggalProps) { /* ... */ }",
+          "tipe": "tsx"
+        }
+      ],
+      "aturan_praktis": "Bedakan platform hanya untuk hal yang memang berbeda secara native: bayangan, jarak aman, perilaku keyboard, izin. Logika bisnis jangan pernah bercabang per platform.",
+      "poin_penting": "Platform.OS bertipe union literal, jadi TypeScript ikut menjaganya: salah tulis 'iOS' bukan bug diam-diam, tapi error yang langsung terlihat."
+    }
+  ]
+}

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { Sidebar } from './components/layout/Sidebar';
+import { kursusDariPathname } from './data/courses';
 import { LessonPage } from './pages/LessonPage';
 import { PlaygroundPage } from './pages/PlaygroundPage';
 
@@ -8,6 +9,7 @@ function Layout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const location = useLocation();
   const isPlayground = location.pathname.startsWith('/playground');
+  const kursusAktif = kursusDariPathname(location.pathname);
 
   return (
     <div className="flex h-svh overflow-hidden">
@@ -45,7 +47,7 @@ function Layout() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
               </svg>
             </button>
-            <span className="text-white font-semibold text-sm">Belajar TypeScript</span>
+            <span className="text-white font-semibold text-sm">{kursusAktif.judul}</span>
           </div>
         )}
 

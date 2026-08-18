@@ -1,5 +1,5 @@
 export type BadgeLevel = 'Fondasi' | 'Dasar' | 'Menengah' | 'Lanjutan';
-export type KodeTipe = 'typescript' | 'javascript' | 'bash' | 'json' | 'error';
+export type KodeTipe = 'typescript' | 'tsx' | 'javascript' | 'bash' | 'json' | 'error';
 
 export interface ContohKode {
   label: string;
@@ -164,6 +164,24 @@ export interface Topik {
 
   // 07-utility-types
   topik_kecil?: Array<{ nama: string; penjelasan: string; contoh_kode: { kode: string; tipe: KodeTipe } }>;
+
+  // react-native
+  perbedaan_web_mobile?: ItemPerbedaanWebMobile[];
+  salah_vs_benar?: SalahVsBenar[];
+}
+
+// React Native course blocks
+export interface ItemPerbedaanWebMobile {
+  aspek: string;
+  react_web: string;
+  react_native: string;
+}
+
+export interface SalahVsBenar {
+  judul: string;
+  penjelasan?: string;
+  salah: { kode: string; tipe: KodeTipe };
+  benar: { kode: string; tipe: KodeTipe };
 }
 
 export interface LessonBagian {

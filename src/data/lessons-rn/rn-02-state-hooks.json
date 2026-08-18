@@ -1,0 +1,143 @@
+{
+  "bagian": 2,
+  "judul": "State & Hooks",
+  "deskripsi": "Hooks adalah tempat data aplikasi hidup dan berubah. TypeScript di sini bukan soal menulis tipe sebanyak-banyaknya, tapi tahu kapan harus menulis dan kapan cukup membiarkan TypeScript menebak sendiri.",
+  "topik": [
+    {
+      "id": "rn-02-01",
+      "judul": "useState dan kapan generic-nya perlu ditulis",
+      "badge": "Dasar",
+      "analogi": {
+        "judul": "Wadah makanan di kulkas",
+        "cerita": "Kalau kamu memasukkan nasi ke sebuah wadah, siapa pun yang membuka kulkas tahu isinya nasi — tidak perlu ditempeli label. Tapi kalau kamu menyiapkan wadah kosong untuk lauk yang akan dibeli nanti, wadah itu wajib dilabeli, kalau tidak orang serumah akan mengiranya wadah bebas dan mengisinya dengan apa saja. useState persis begitu: kalau nilai awalnya sudah jelas, TypeScript membaca sendiri isinya; kalau awalnya kosong (null atau array kosong), kamu yang harus memberi label."
+      },
+      "penjelasan": "useState menyimpulkan tipe dari nilai awal. Selama nilai awal mewakili bentuk data sesungguhnya, kamu tidak perlu menulis apa-apa. Generic baru wajib ditulis ketika nilai awal lebih sempit daripada nilai yang akan datang kemudian — kasus paling umum: null di awal, objek nanti; atau array kosong yang akan diisi objek.",
+      "contoh_kode": [
+        {
+          "label": "Tidak perlu generic — nilai awal sudah mewakili",
+          "kode": "import { useState } from 'react';\n\nconst [jumlah, setJumlah] = useState(1);          // number\nconst [catatan, setCatatan] = useState('');       // string\nconst [sedangKirim, setSedangKirim] = useState(false); // boolean\n\nsetJumlah(jumlah + 1);      // ✅\nsetCatatan('Tolong dibungkus rapi');  // ✅\nsetJumlah('dua');           // ❌ Argument of type 'string' is not\n                            //    assignable to parameter of type\n                            //    'SetStateAction<number>'",
+          "tipe": "typescript"
+        },
+        {
+          "label": "Wajib generic — nilai awal null atau array kosong",
+          "kode": "type Alamat = {\n  id: string;\n  penerima: string;\n  jalan: string;\n  kota: string;\n};\n\n// tanpa generic, TS menebak tipenya 'null' dan menolak isi apa pun\nconst [alamatTerpilih, setAlamatTerpilih] = useState<Alamat | null>(null);\n\n// tanpa generic, [] menjadi never[] — tidak bisa diisi selamanya\nconst [daftarAlamat, setDaftarAlamat] = useState<Alamat[]>([]);\n\nsetAlamatTerpilih({ id: 'a1', penerima: 'Budi', jalan: 'Melati 12', kota: 'Bandung' }); // ✅\nsetDaftarAlamat((sebelumnya) => [...sebelumnya, alamatBaru]);  // ✅",
+          "tipe": "typescript"
+        },
+        {
+          "label": "Union literal untuk state yang pilihannya terbatas",
+          "kode": "type ModePembayaran = 'transfer' | 'ewallet' | 'cod';\n\nconst [mode, setMode] = useState<ModePembayaran>('transfer');\n\nsetMode('ewallet');   // ✅\nsetMode('kartu');     // ❌ nilai di luar daftar langsung ditolak\n\n// Tanpa generic, TS menebak tipenya 'string' dan semua nilai lolos.",
+          "tipe": "typescript"
+        }
+      ],
+      "salah_vs_benar": [
+        {
+          "judul": "Array kosong tanpa generic menjadi never[]",
+          "penjelasan": "Ini jebakan paling sering. `useState([])` membuat TypeScript menyimpulkan never[] — array yang tidak bisa berisi apa pun, sehingga setiap penambahan ditolak.",
+          "salah": {
+            "kode": "const [keranjang, setKeranjang] = useState([]);\n// keranjang bertipe never[]\n\nsetKeranjang([...keranjang, { id: 'p1', nama: 'Kaos', jumlah: 2 }]);\n// ❌ Type '{ id: string; ... }' is not assignable to type 'never'",
+            "tipe": "typescript"
+          },
+          "benar": {
+            "kode": "type ItemKeranjang = { id: string; nama: string; jumlah: number };\n\nconst [keranjang, setKeranjang] = useState<ItemKeranjang[]>([]);\n\nsetKeranjang([...keranjang, { id: 'p1', nama: 'Kaos', jumlah: 2 }]); // ✅",
+            "tipe": "typescript"
+          }
+        },
+        {
+          "judul": "Jangan tulis generic yang sudah jelas",
+          "penjelasan": "Menulis tipe yang sudah bisa disimpulkan hanya menambah kebisingan tanpa menambah keamanan.",
+          "salah": {
+            "kode": "const [jumlah, setJumlah] = useState<number>(1);\nconst [nama, setNama] = useState<string>('');\n// ❌ bukan error, tapi mubazir — TS sudah tahu dari nilai awalnya",
+            "tipe": "typescript"
+          },
+          "benar": {
+            "kode": "const [jumlah, setJumlah] = useState(1);\nconst [nama, setNama] = useState('');\n// ✅ biarkan TS menebak kalau nilai awalnya sudah mewakili",
+            "tipe": "typescript"
+          }
+        }
+      ],
+      "aturan_praktis": "Tulis generic hanya kalau nilai awalnya null, undefined, array kosong, atau kalau kamu ingin membatasi nilai ke daftar tertentu. Selain itu, biarkan TypeScript bekerja.",
+      "poin_penting": "useState<T> diperlukan saat nilai awal belum mewakili nilai sesungguhnya — null hari ini, objek nanti; kosong hari ini, terisi nanti."
+    },
+    {
+      "id": "rn-02-02",
+      "judul": "useEffect dan cleanup yang wajib di mobile",
+      "badge": "Menengah",
+      "analogi": {
+        "judul": "Mematikan kompor sebelum keluar rumah",
+        "cerita": "Menyalakan kompor itu mudah; yang sering lupa adalah mematikannya sebelum pergi. Di aplikasi web, 'pergi' berarti menutup tab dan semuanya ikut mati. Di aplikasi mobile, pengguna berpindah layar puluhan kali tanpa pernah menutup aplikasi — kalau setiap layar meninggalkan kompor menyala (timer, listener lokasi, koneksi socket), setelah setengah jam HP panas dan baterai habis. Fungsi cleanup di useEffect adalah kebiasaan mematikan kompor itu."
+      },
+      "penjelasan": "useEffect di TypeScript tidak butuh anotasi tipe — yang dijaga TypeScript adalah nilai kembaliannya. Effect hanya boleh mengembalikan fungsi cleanup atau tidak mengembalikan apa pun. Aturan ini menyelamatkan kesalahan klasik: menulis async langsung di useEffect, yang membuat effect mengembalikan Promise.",
+      "contoh_kode": [
+        {
+          "label": "Timer hitung mundur — dengan cleanup",
+          "kode": "import { useState, useEffect } from 'react';\n\nexport function HitungMundurOTP() {\n  const [sisaDetik, setSisaDetik] = useState(60);\n\n  useEffect(() => {\n    const timer = setInterval(() => {\n      setSisaDetik((d) => (d > 0 ? d - 1 : 0));\n    }, 1000);\n\n    return () => clearInterval(timer);  // kompor dimatikan saat layar ditinggalkan\n  }, []);\n\n  return <Text>Kirim ulang dalam {sisaDetik} detik</Text>;\n}",
+          "tipe": "tsx"
+        },
+        {
+          "label": "Listener bawaan React Native juga harus dilepas",
+          "kode": "import { useEffect, useState } from 'react';\nimport { Keyboard, AppState } from 'react-native';\nimport type { AppStateStatus } from 'react-native';\n\nexport function useKeyboardTerbuka() {\n  const [terbuka, setTerbuka] = useState(false);\n\n  useEffect(() => {\n    const muncul = Keyboard.addListener('keyboardDidShow', () => setTerbuka(true));\n    const hilang = Keyboard.addListener('keyboardDidHide', () => setTerbuka(false));\n\n    return () => {\n      muncul.remove();\n      hilang.remove();\n    };\n  }, []);\n\n  return terbuka;\n}\n\n// AppState — tahu kapan aplikasi masuk background\nuseEffect(() => {\n  const sub = AppState.addEventListener('change', (status: AppStateStatus) => {\n    if (status === 'active') muatUlangSaldo();\n  });\n  return () => sub.remove();\n}, []);",
+          "tipe": "tsx"
+        }
+      ],
+      "salah_vs_benar": [
+        {
+          "judul": "Jangan jadikan callback useEffect async",
+          "penjelasan": "Fungsi async selalu mengembalikan Promise, sedangkan useEffect hanya menerima fungsi cleanup atau undefined. TypeScript menolaknya — dan itu bagus, karena Promise yang dikembalikan tidak akan pernah dipakai sebagai cleanup.",
+          "salah": {
+            "kode": "useEffect(async () => {\n  const data = await ambilProduk();\n  setProduk(data);\n}, []);\n// ❌ Argument of type '() => Promise<void>' is not assignable to\n//    parameter of type 'EffectCallback'",
+            "tipe": "typescript"
+          },
+          "benar": {
+            "kode": "useEffect(() => {\n  let masihAktif = true;\n\n  async function muat() {\n    const data = await ambilProduk();\n    if (masihAktif) setProduk(data);  // cegah update setelah layar ditutup\n  }\n\n  muat();\n  return () => {\n    masihAktif = false;\n  };\n}, []);",
+            "tipe": "typescript"
+          }
+        }
+      ],
+      "aturan_praktis": "Setiap kali kamu menulis addListener, setInterval, setTimeout, atau subscribe di dalam useEffect, tulis cleanup-nya di baris yang sama sebelum lanjut mengetik yang lain.",
+      "poin_penting": "Di mobile, layar ditinggalkan jauh lebih sering daripada aplikasi ditutup. Effect tanpa cleanup adalah kebocoran memori yang menumpuk sepanjang sesi pengguna."
+    },
+    {
+      "id": "rn-02-03",
+      "judul": "useRef: pegangan ke komponen dan nilai yang tidak memicu render",
+      "badge": "Menengah",
+      "analogi": {
+        "judul": "Remote TV vs papan pengumuman",
+        "cerita": "Remote TV kamu pegang untuk mengendalikan sesuatu dari jauh — tekan tombol, TV bereaksi, tapi tidak ada satu pun yang berubah di ruangan. Papan pengumuman sebaliknya: begitu isinya diganti, semua orang di ruangan menoleh dan bereaksi. useRef itu remote — kamu memegang sesuatu (misalnya kotak input) dan menyuruhnya bertindak, tanpa membuat layar digambar ulang. useState itu papan pengumuman — setiap perubahan memicu render."
+      },
+      "penjelasan": "useRef punya dua kegunaan yang tipenya berbeda. Untuk memegang komponen, tipenya adalah komponen itu sendiri dengan nilai awal null. Untuk menyimpan nilai yang boleh berubah tanpa render, tipenya nilai itu sendiri.",
+      "contoh_kode": [
+        {
+          "label": "Pegang TextInput untuk pindah fokus otomatis",
+          "kode": "import { useRef } from 'react';\nimport { TextInput, View } from 'react-native';\n\nexport function FormLogin() {\n  const refPassword = useRef<TextInput>(null);\n\n  return (\n    <View>\n      <TextInput\n        placeholder=\"Email\"\n        returnKeyType=\"next\"\n        onSubmitEditing={() => refPassword.current?.focus()}\n      />\n      {/* ?. wajib — TS tahu current masih null sebelum komponen terpasang */}\n      <TextInput ref={refPassword} placeholder=\"Password\" secureTextEntry />\n    </View>\n  );\n}",
+          "tipe": "tsx"
+        },
+        {
+          "label": "Simpan nilai tanpa memicu render — mencegah tombol ditekan dua kali",
+          "kode": "import { useRef } from 'react';\n\nexport function TombolBayar({ onBayar }: { onBayar: () => Promise<void> }) {\n  const sedangProses = useRef(false);  // boolean, bukan state\n\n  const tekan = async () => {\n    if (sedangProses.current) return;  // tekan kedua diabaikan\n    sedangProses.current = true;\n    try {\n      await onBayar();\n    } finally {\n      sedangProses.current = false;\n    }\n  };\n\n  return <TombolUtama label=\"Bayar Sekarang\" onTekan={tekan} />;\n}",
+          "tipe": "tsx"
+        },
+        {
+          "label": "Pegang FlatList untuk menggulir ke atas",
+          "kode": "import { useRef } from 'react';\nimport { FlatList } from 'react-native';\n\ntype Produk = { id: string; nama: string };\n\nconst refDaftar = useRef<FlatList<Produk>>(null);\n\n// setelah pengguna mengganti filter, kembalikan ke posisi teratas\nconst gantiKategori = (kategori: string) => {\n  setKategori(kategori);\n  refDaftar.current?.scrollToOffset({ offset: 0, animated: true });\n};",
+          "tipe": "tsx"
+        }
+      ],
+      "salah_vs_benar": [
+        {
+          "judul": "current bisa null — jangan diakses langsung",
+          "penjelasan": "Saat render pertama, komponen belum terpasang sehingga current masih null. Dengan strict mode, TypeScript memaksamu menanganinya.",
+          "salah": {
+            "kode": "const refCatatan = useRef<TextInput>(null);\n\nrefCatatan.current.focus();\n// ❌ 'refCatatan.current' is possibly 'null'",
+            "tipe": "typescript"
+          },
+          "benar": {
+            "kode": "const refCatatan = useRef<TextInput>(null);\n\nrefCatatan.current?.focus();       // ✅ aman, tidak melakukan apa-apa kalau null\n\n// atau kalau memang perlu cabang berbeda:\nif (refCatatan.current) {\n  refCatatan.current.focus();\n}",
+            "tipe": "typescript"
+          }
+        }
+      ],
+      "aturan_praktis": "Kalau perubahan nilainya harus terlihat di layar, pakai useState. Kalau tidak, pakai useRef — mengubah ref tidak akan pernah menggambar ulang komponen.",
+      "poin_penting": "useRef<TextInput>(null) untuk memegang komponen, useRef(nilaiAwal) untuk menyimpan data diam. Yang pertama selalu perlu pengecekan null."
+    }
+  ]
+}

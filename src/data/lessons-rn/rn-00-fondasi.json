@@ -1,0 +1,223 @@
+{
+  "bagian": 0,
+  "judul": "Fondasi React Native",
+  "deskripsi": "Sebelum menulis satu baris kode, kita samakan dulu pemahaman: kenapa TypeScript jauh lebih penting di mobile daripada di web, bagaimana React Native sebenarnya bekerja, dan seperti apa project yang sehat sejak hari pertama.",
+  "topik": [
+    {
+      "id": "rn-00-01",
+      "judul": "Kenapa TypeScript penting di React Native?",
+      "badge": "Fondasi",
+      "analogi": {
+        "judul": "Salah cetak brosur vs salah kirim paket ke luar pulau",
+        "cerita": "Kalau kamu salah cetak brosur untuk acara di kantor, tinggal cetak ulang — sepuluh menit beres. Tapi kalau kamu salah kirim satu kontainer barang ke Papua, barangnya sudah di kapal: mau ditarik butuh berminggu-minggu dan biayanya besar. Web itu brosur — deploy ulang dua menit selesai. Aplikasi mobile itu kontainer di kapal: begitu masuk App Store, perbaikan kecil sekalipun harus antre review satu sampai tiga hari, dan pengguna yang malas update tetap memakai versi yang bugnya masih ada. Karena itu, bug yang di web cuma bikin kesal, di mobile bisa jadi rating bintang satu selama seminggu. TypeScript memindahkan penemuan bug dari 'setelah kapal berangkat' ke 'saat masih di gudang'."
+      },
+      "masalah_di_javascript": {
+        "penjelasan": "Di React Native, akses properti yang tidak ada tidak selalu berhenti sopan seperti di browser. Layar bisa langsung merah (redbox) di development, dan di production aplikasi bisa crash total — bukan cuma satu bagian halaman yang kosong.",
+        "contoh_kode": [
+          {
+            "label": "JavaScript — typo nama prop baru ketahuan saat aplikasi jalan",
+            "kode": "// KartuProduk.js\nfunction KartuProduk({ produk, onTekan }) {\n  return (\n    <Pressable onPress={onTekan}>\n      <Text>{produk.nama}</Text>\n      {/* typo: hargaJual, padahal API mengirim harga_jual */}\n      <Text>Rp {produk.hargaJual.toLocaleString('id-ID')}</Text>\n    </Pressable>\n  );\n}\n\n// Di layar lain, kita lupa mengirim onTekan\n<KartuProduk produk={produk} />\n\n// Hasilnya saat dijalankan di HP:\n// TypeError: Cannot read property 'toLocaleString' of undefined\n// Aplikasi crash. Ketahuannya? Setelah rilis, dari review pengguna.",
+            "tipe": "javascript"
+          }
+        ]
+      },
+      "solusi_typescript": {
+        "penjelasan": "Dengan TypeScript, bentuk data produk dan daftar prop komponen ditulis sekali. Editor langsung menandai typo dan prop yang lupa dikirim — sebelum aplikasi sempat di-build, apalagi diunggah ke store.",
+        "contoh_kode": [
+          {
+            "label": "TypeScript — kesalahan yang sama ditolak di editor",
+            "kode": "type Produk = {\n  id: string;\n  nama: string;\n  harga_jual: number;\n};\n\ntype KartuProdukProps = {\n  produk: Produk;\n  onTekan: () => void;\n};\n\nfunction KartuProduk({ produk, onTekan }: KartuProdukProps) {\n  return (\n    <Pressable onPress={onTekan}>\n      <Text>{produk.nama}</Text>\n      <Text>Rp {produk.hargaJual.toLocaleString('id-ID')}</Text>\n      {/* ❌ Property 'hargaJual' does not exist on type 'Produk'.\n             Did you mean 'harga_jual'? */}\n    </Pressable>\n  );\n}\n\n<KartuProduk produk={produk} />\n// ❌ Property 'onTekan' is missing in type '{ produk: Produk; }'",
+            "tipe": "tsx"
+          }
+        ]
+      },
+      "perbandingan": [
+        {
+          "aspek": "Waktu perbaikan bug",
+          "javascript": "Ketahuan setelah rilis — tunggu review store 1–3 hari",
+          "typescript": "Ketahuan di editor, sebelum commit"
+        },
+        {
+          "aspek": "Data dari API",
+          "javascript": "Ditebak dari ingatan atau buka Postman terus-menerus",
+          "typescript": "Bentuknya tertulis, autocomplete menuntun"
+        },
+        {
+          "aspek": "Ganti nama prop komponen",
+          "javascript": "Cari manual di semua layar, sering ada yang terlewat",
+          "typescript": "Semua pemakaian yang belum diubah langsung merah"
+        },
+        {
+          "aspek": "Navigasi antar layar",
+          "javascript": "Salah kirim parameter baru ketahuan saat layar dibuka",
+          "typescript": "Parameter tiap layar diketik, salah kirim ditolak"
+        },
+        {
+          "aspek": "Pengguna yang kena dampak",
+          "javascript": "Semua yang sudah terlanjur update",
+          "typescript": "Nol — bugnya tidak pernah sampai ke HP siapa pun"
+        }
+      ],
+      "aturan_praktis": "Semakin mahal biaya memperbaiki kesalahan, semakin besar nilai TypeScript. Di mobile, biaya itu paling mahal — jadi mulai project React Native langsung dengan TypeScript, jangan 'nanti kalau sempat'.",
+      "poin_penting": "Di web kamu bisa memperbaiki bug dalam hitungan menit; di mobile dalam hitungan hari. TypeScript memindahkan penemuan bug ke waktu ketika memperbaikinya masih gratis."
+    },
+    {
+      "id": "rn-00-02",
+      "judul": "Cara kerja React Native — dan di mana TypeScript berperan",
+      "badge": "Fondasi",
+      "analogi": {
+        "judul": "Juru bahasa di ruang rapat",
+        "cerita": "Bayangkan rapat antara tim Indonesia dan tim Jepang. Kamu bicara bahasa Indonesia, lawan bicara paham bahasa Jepang, dan di tengah ada juru bahasa yang menerjemahkan setiap kalimat. Kamu tidak perlu belajar bahasa Jepang — cukup bicara jelas, juru bahasa yang mengurus sisanya. React Native persis begitu: kamu menulis JavaScript, sementara HP berbicara bahasa Swift/Objective-C (iOS) dan Kotlin/Java (Android). React Native adalah juru bahasanya. Dan TypeScript? Dia editor naskah yang membaca kalimatmu sebelum diucapkan — memastikan kamu tidak salah sebut angka atau nama, karena juru bahasa akan menerjemahkan apa adanya, termasuk kesalahanmu."
+      },
+      "alur_kerja": [
+        {
+          "langkah": 1,
+          "judul": "Kamu menulis TypeScript (.tsx)",
+          "deskripsi": "Kode komponen, tipe data, dan logika aplikasi — semuanya dalam TypeScript."
+        },
+        {
+          "langkah": 2,
+          "judul": "TypeScript dicek lalu tipenya dibuang",
+          "deskripsi": "Babel (lewat Metro bundler) menghapus semua anotasi tipe dan menghasilkan JavaScript biasa. Tipe tidak ikut ke HP — nol beban di runtime."
+        },
+        {
+          "langkah": 3,
+          "judul": "Metro menggabungkan semuanya jadi satu bundle",
+          "deskripsi": "Semua file JavaScript dijadikan satu berkas besar yang dikirim ke aplikasi."
+        },
+        {
+          "langkah": 4,
+          "judul": "JavaScript engine (Hermes) menjalankannya di HP",
+          "deskripsi": "Hermes mengeksekusi kode dan meminta React Native membuat komponen native asli — <View> jadi UIView di iOS dan ViewGroup di Android."
+        }
+      ],
+      "penjelasan": "Poin yang sering disalahpahami: React Native bukan WebView. Tidak ada browser di dalamnya. <View> bukan <div> yang dibungkus — dia benar-benar menjadi komponen native. Dan TypeScript sepenuhnya hilang di langkah 2, sama seperti di project web. Artinya menambahkan TypeScript tidak membuat aplikasi lebih berat sedikit pun; yang bertambah hanya rasa aman saat menulis kode.",
+      "contoh_kode": [
+        {
+          "label": "Yang kamu tulis vs yang benar-benar berjalan di HP",
+          "kode": "// Yang kamu tulis — Keranjang.tsx\ntype ItemKeranjang = { nama: string; jumlah: number };\n\nexport function ringkasKeranjang(items: ItemKeranjang[]): string {\n  const total = items.reduce((n, item) => n + item.jumlah, 0);\n  return `${total} barang`;\n}\n\n// Yang sampai ke HP setelah tipe dibuang — JavaScript murni\nexport function ringkasKeranjang(items) {\n  const total = items.reduce((n, item) => n + item.jumlah, 0);\n  return `${total} barang`;\n}",
+          "tipe": "typescript"
+        }
+      ],
+      "poin_penting": "TypeScript adalah alat bantu saat menulis, bukan bagian dari aplikasi yang jalan. Di React Native pun dia hilang total sebelum kode sampai ke HP pengguna."
+    },
+    {
+      "id": "rn-00-03",
+      "judul": "Setup project pertama dengan Expo + TypeScript",
+      "badge": "Fondasi",
+      "analogi": {
+        "judul": "Dapur katering vs bangun dapur sendiri",
+        "cerita": "Mau masak untuk 50 orang, kamu punya dua pilihan: sewa dapur katering yang kompornya sudah menyala dan alatnya lengkap, atau bangun dapur sendiri dari nol — beli kompor, pasang gas, urus izin. Untuk kebanyakan orang, dapur katering jelas lebih masuk akal; kamu datang dan langsung masak. Expo adalah dapur katering itu: konfigurasi iOS dan Android sudah disiapkan, TypeScript sudah menyala, tinggal buka editor dan menulis fitur."
+      },
+      "langkah_setup": [
+        {
+          "judul": "1. Buat project baru (template TypeScript sudah default)",
+          "kode": "npx create-expo-app@latest toko-kita\ncd toko-kita",
+          "tipe": "bash"
+        },
+        {
+          "judul": "2. Jalankan di HP atau simulator",
+          "kode": "npx expo start\n# tekan i untuk iOS simulator, a untuk Android emulator\n# atau scan QR code pakai aplikasi Expo Go di HP",
+          "tipe": "bash"
+        },
+        {
+          "judul": "3. Cek tipe secara manual — ini yang paling sering dilupakan",
+          "kode": "npx tsc --noEmit\n# Metro tetap menjalankan aplikasi walaupun ada error tipe,\n# jadi jalankan perintah ini sebelum commit.",
+          "tipe": "bash"
+        },
+        {
+          "judul": "4. Simpan sebagai script supaya tidak lupa",
+          "kode": "{\n  \"scripts\": {\n    \"start\": \"expo start\",\n    \"typecheck\": \"tsc --noEmit\"\n  }\n}",
+          "tipe": "json"
+        }
+      ],
+      "contoh_kode": [
+        {
+          "label": "tsconfig.json — cukup segini untuk mulai",
+          "kode": "{\n  \"extends\": \"expo/tsconfig.base\",\n  \"compilerOptions\": {\n    \"strict\": true,\n    \"paths\": {\n      \"@/*\": [\"./src/*\"]\n    }\n  },\n  \"include\": [\"**/*.ts\", \"**/*.tsx\"]\n}",
+          "tipe": "json"
+        }
+      ],
+      "struktur_folder": {
+        "penjelasan": "Struktur yang rapi sejak awal membuat file tipe mudah ditemukan. Kunci utamanya: tipe yang dipakai lintas layar tinggal di src/types, bukan tersebar di dalam komponen.",
+        "struktur": "toko-kita/\n├── app/                  # layar aplikasi (Expo Router)\n│   ├── _layout.tsx\n│   ├── index.tsx         # daftar produk\n│   └── produk/[id].tsx   # detail produk\n├── src/\n│   ├── components/       # komponen yang dipakai ulang\n│   │   ├── KartuProduk.tsx\n│   │   └── TombolUtama.tsx\n│   ├── hooks/            # custom hooks\n│   │   └── useProduk.ts\n│   ├── services/         # panggilan API\n│   │   └── api.ts\n│   └── types/            # tipe bersama\n│       ├── produk.ts\n│       └── navigation.ts\n├── assets/\n├── app.json\n└── tsconfig.json"
+      },
+      "aturan_praktis": "Metro bundler tidak menghentikan aplikasi karena error tipe — dia hanya membuang anotasinya. Jadi `tsc --noEmit` wajib jalan sebelum commit, kalau tidak, TypeScript-mu cuma dekorasi.",
+      "poin_penting": "Mulai dengan `create-expo-app` — TypeScript sudah aktif sejak menit pertama. Yang perlu kamu tambahkan sendiri hanya `strict: true` dan kebiasaan menjalankan `tsc --noEmit`."
+    },
+    {
+      "id": "rn-00-04",
+      "judul": "React di web vs React Native — apa yang berubah",
+      "badge": "Fondasi",
+      "analogi": {
+        "judul": "Pindah dari mengetik surat ke mengisi formulir bank",
+        "cerita": "Kalau kamu sudah biasa mengetik surat di komputer, kamu tahu cara menyusun kalimat, mengatur paragraf, memberi judul. Ketika pindah ke mengisi formulir bank, keterampilan menulismu tetap terpakai — yang berubah cuma wadahnya: bukan halaman kosong, tapi kotak-kotak yang sudah ditentukan. React Native begitu: cara berpikir React-nya sama persis (komponen, props, state, hooks), yang berubah cuma nama elemen dan aturan style-nya."
+      },
+      "perbedaan_web_mobile": [
+        {
+          "aspek": "Elemen pembungkus",
+          "react_web": "<div>",
+          "react_native": "<View> dari 'react-native'"
+        },
+        {
+          "aspek": "Menampilkan teks",
+          "react_web": "Teks bisa ditaruh di mana saja",
+          "react_native": "Wajib di dalam <Text>, kalau tidak aplikasi error"
+        },
+        {
+          "aspek": "Tombol",
+          "react_web": "<button onClick={...}>",
+          "react_native": "<Pressable onPress={...}>"
+        },
+        {
+          "aspek": "Input",
+          "react_web": "<input onChange={e => e.target.value}>",
+          "react_native": "<TextInput onChangeText={teks => ...}>"
+        },
+        {
+          "aspek": "Style",
+          "react_web": "className / CSS, satuan px, string",
+          "react_native": "objek JavaScript, angka tanpa satuan"
+        },
+        {
+          "aspek": "Daftar panjang",
+          "react_web": "items.map(...)",
+          "react_native": "<FlatList> supaya hemat memori"
+        },
+        {
+          "aspek": "Tipe event",
+          "react_web": "React.ChangeEvent<HTMLInputElement>",
+          "react_native": "GestureResponderEvent, NativeSyntheticEvent<...>"
+        }
+      ],
+      "salah_vs_benar": [
+        {
+          "judul": "Teks harus dibungkus <Text>",
+          "penjelasan": "Ini kesalahan nomor satu orang yang baru pindah dari React web. Di web, teks telanjang di dalam <div> itu wajar; di React Native, itu crash.",
+          "salah": {
+            "kode": "import { View } from 'react-native';\n\nexport function SapaanUser() {\n  return (\n    <View>\n      Halo, Budi\n      {/* ❌ Error: Text strings must be rendered within a <Text> component. */}\n    </View>\n  );\n}",
+            "tipe": "tsx"
+          },
+          "benar": {
+            "kode": "import { View, Text } from 'react-native';\n\nexport function SapaanUser() {\n  return (\n    <View>\n      <Text>Halo, Budi</Text>\n      {/* ✅ semua teks punya rumah */}\n    </View>\n  );\n}",
+            "tipe": "tsx"
+          }
+        },
+        {
+          "judul": "Style adalah objek, bukan string",
+          "penjelasan": "Karena style berbentuk objek JavaScript, TypeScript bisa ikut mengeceknya — properti CSS yang tidak ada di React Native langsung ditolak.",
+          "salah": {
+            "kode": "<View style={{ padding: '16px', floating: 'left' }}>\n  {/* ❌ Type 'string' is not assignable to type 'DimensionValue'.\n     ❌ Object literal may only specify known properties —\n        'floating' does not exist in type 'ViewStyle'. */}\n</View>",
+            "tipe": "tsx"
+          },
+          "benar": {
+            "kode": "<View style={{ padding: 16, flexDirection: 'row' }}>\n  {/* ✅ angka tanpa satuan, properti yang memang ada di ViewStyle */}\n</View>",
+            "tipe": "tsx"
+          }
+        }
+      ],
+      "aturan_praktis": "Semua pengetahuan React-mu tetap berlaku: komponen, props, state, useEffect, context. Yang perlu dipelajari ulang hanya kosakata elemennya dan cara style bekerja.",
+      "poin_penting": "React Native bukan React versi lain — ini React yang sama dengan kosakata elemen berbeda. Yang berubah: <div> jadi <View>, teks wajib di <Text>, dan style jadi objek yang ikut dicek TypeScript."
+    }
+  ]
+}

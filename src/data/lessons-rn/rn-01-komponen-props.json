@@ -1,0 +1,208 @@
+{
+  "bagian": 1,
+  "judul": "Komponen & Props",
+  "deskripsi": "Komponen adalah unit terkecil aplikasi React Native, dan props adalah cara komponen menerima instruksi. Di sinilah TypeScript paling terasa gunanya: satu komponen dipakai di sepuluh layar, dan tipe props menjaga kesepuluhnya tetap benar.",
+  "topik": [
+    {
+      "id": "rn-01-01",
+      "judul": "Komponen bawaan: View, Text, Image, Pressable",
+      "badge": "Dasar",
+      "analogi": {
+        "judul": "Perabot standar rumah kontrakan",
+        "cerita": "Setiap rumah kontrakan datang dengan perabot standar: lemari, meja, kursi, lampu. Kamu tidak membuatnya sendiri — tinggal pakai, lalu atur tata letaknya sesuai selera. React Native juga datang dengan perabot standar: View untuk kotak, Text untuk tulisan, Image untuk gambar, Pressable untuk yang bisa ditekan. Semua sudah punya tipe bawaan, jadi begitu kamu ketik titik setelah nama prop, editor langsung menunjukkan pilihan yang sah."
+      },
+      "konsep": [
+        {
+          "nama": "View",
+          "deskripsi": "Kotak pembungkus — padanan <div>. Menerima ViewProps.",
+          "contoh_kode": [
+            {
+              "label": "View sebagai wadah, style-nya bertipe ViewStyle",
+              "kode": "import { View } from 'react-native';\n\n<View style={{ padding: 16, gap: 12, backgroundColor: '#fff' }}>\n  {/* isi kartu produk di sini */}\n</View>",
+              "tipe": "tsx"
+            }
+          ]
+        },
+        {
+          "nama": "Text",
+          "deskripsi": "Satu-satunya tempat sah untuk teks. Menerima TextProps — punya style sendiri (TextStyle) yang mengenal fontSize, fontWeight, dst.",
+          "contoh_kode": [
+            {
+              "label": "numberOfLines memotong judul produk yang kepanjangan",
+              "kode": "import { Text } from 'react-native';\n\n<Text numberOfLines={2} style={{ fontSize: 16, fontWeight: '600' }}>\n  Sepatu Lari Pria Ringan Anti Slip Ukuran 38-45\n</Text>\n\n// numberOfLines bertipe number — kalau kamu tulis '2' (string), TS menolak",
+              "tipe": "tsx"
+            }
+          ]
+        },
+        {
+          "nama": "Image",
+          "deskripsi": "Gambar dari internet atau dari folder assets. Sumbernya bertipe ImageSourcePropType.",
+          "contoh_kode": [
+            {
+              "label": "Dua bentuk source — dari URL dan dari file lokal",
+              "kode": "import { Image } from 'react-native';\n\n// dari internet: wajib objek { uri }, dan wajib punya ukuran\n<Image\n  source={{ uri: 'https://toko.id/produk/sepatu.jpg' }}\n  style={{ width: 120, height: 120, borderRadius: 8 }}\n/>\n\n// dari assets lokal: require, ukurannya sudah diketahui\n<Image source={require('../../assets/logo.png')} />\n\n// ❌ <Image source=\"https://toko.id/sepatu.jpg\" />\n//    Type 'string' is not assignable to type 'ImageSourcePropType'",
+              "tipe": "tsx"
+            }
+          ]
+        },
+        {
+          "nama": "Pressable",
+          "deskripsi": "Apa pun yang bisa ditekan. Menggantikan Button yang tampilannya tidak bisa diatur.",
+          "contoh_kode": [
+            {
+              "label": "style bisa berupa fungsi yang menerima state tekan",
+              "kode": "import { Pressable, Text } from 'react-native';\n\n<Pressable\n  onPress={() => tambahKeKeranjang(produk.id)}\n  style={({ pressed }) => ({\n    opacity: pressed ? 0.6 : 1,\n    backgroundColor: '#2563eb',\n    padding: 14,\n    borderRadius: 10,\n  })}\n>\n  <Text style={{ color: '#fff', textAlign: 'center' }}>Tambah ke Keranjang</Text>\n</Pressable>\n\n// `pressed` otomatis bertipe boolean — tidak perlu kamu tulis tipenya",
+              "tipe": "tsx"
+            }
+          ]
+        }
+      ],
+      "aturan_praktis": "Kalau ragu prop apa yang tersedia untuk sebuah komponen, tekan Ctrl+Space di dalam tag-nya. Tipe bawaan React Native sudah lengkap — jangan buka dokumentasi kalau editor bisa menjawab lebih cepat.",
+      "poin_penting": "Komponen bawaan React Native semuanya sudah bertipe. Kamu tidak perlu mendeskripsikan ulang — cukup pakai, dan biarkan editor menuntun prop mana yang sah."
+    },
+    {
+      "id": "rn-01-02",
+      "judul": "Mengetik props komponen sendiri",
+      "badge": "Dasar",
+      "analogi": {
+        "judul": "Formulir pemesanan katering",
+        "cerita": "Katering yang rapi tidak menerima pesanan lewat obrolan bebas. Mereka memberi formulir: nama acara (wajib), jumlah porsi (wajib, angka), catatan alergi (boleh kosong), jam pengantaran (pilih dari daftar). Formulir itu melindungi dua pihak — pemesan tahu apa yang harus diisi, katering tidak perlu menebak. Tipe props adalah formulir itu untuk komponenmu: apa yang wajib, apa yang opsional, dan nilai apa saja yang sah."
+      },
+      "masalah_di_javascript": {
+        "penjelasan": "Tanpa tipe, satu-satunya cara tahu prop apa yang dibutuhkan sebuah komponen adalah membuka file-nya dan membaca. Setelah tiga bulan dan sepuluh pemakaian, tidak ada yang ingat prop mana yang wajib.",
+        "contoh_kode": [
+          {
+            "label": "JavaScript — semua pemakaian di bawah ini 'berhasil' sampai dijalankan",
+            "kode": "function TombolUtama({ label, onTekan, varian, sedangMuat }) {\n  // varian: 'utama' atau 'bahaya'? atau 'primary'? Tidak ada yang tahu.\n  return (\n    <Pressable onPress={onTekan}>\n      <Text>{sedangMuat ? 'Memproses...' : label}</Text>\n    </Pressable>\n  );\n}\n\n<TombolUtama label=\"Bayar\" onTekan={bayar} varian=\"primary\" />   // salah nilai\n<TombolUtama title=\"Bayar\" onPress={bayar} />                     // salah nama prop\n<TombolUtama label=\"Bayar\" />                                     // lupa onTekan\n// Ketiganya lolos tanpa peringatan apa pun.",
+            "tipe": "javascript"
+          }
+        ]
+      },
+      "solusi_typescript": {
+        "penjelasan": "Tulis satu type untuk props, lalu pasang di parameter komponen. Sejak saat itu, setiap pemakaian yang salah ditolak di editor — termasuk nilai varian yang tidak ada di daftar.",
+        "contoh_kode": [
+          {
+            "label": "TombolUtama.tsx — props yang menjelaskan dirinya sendiri",
+            "kode": "import { Pressable, Text, ActivityIndicator } from 'react-native';\n\ntype TombolUtamaProps = {\n  label: string;\n  onTekan: () => void;\n  varian?: 'utama' | 'bahaya' | 'garis';  // opsional, nilainya terbatas\n  sedangMuat?: boolean;\n};\n\nexport function TombolUtama({\n  label,\n  onTekan,\n  varian = 'utama',\n  sedangMuat = false,\n}: TombolUtamaProps) {\n  const warna = { utama: '#2563eb', bahaya: '#dc2626', garis: 'transparent' };\n\n  return (\n    <Pressable\n      onPress={onTekan}\n      disabled={sedangMuat}\n      style={{ backgroundColor: warna[varian], padding: 14, borderRadius: 10 }}\n    >\n      {sedangMuat ? <ActivityIndicator color=\"#fff\" /> : <Text>{label}</Text>}\n    </Pressable>\n  );\n}",
+            "tipe": "tsx"
+          }
+        ]
+      },
+      "salah_vs_benar": [
+        {
+          "judul": "Nilai varian di luar daftar",
+          "penjelasan": "Karena varian bertipe union literal, salah tulis satu huruf pun langsung ketahuan — dan editor menawarkan daftar nilai yang sah saat kamu mengetik.",
+          "salah": {
+            "kode": "<TombolUtama label=\"Hapus Akun\" onTekan={hapus} varian=\"danger\" />\n// ❌ Type '\"danger\"' is not assignable to type\n//    '\"utama\" | \"bahaya\" | \"garis\" | undefined'",
+            "tipe": "tsx"
+          },
+          "benar": {
+            "kode": "<TombolUtama label=\"Hapus Akun\" onTekan={hapus} varian=\"bahaya\" />\n// ✅ dan varian boleh dilewat karena opsional:\n<TombolUtama label=\"Simpan\" onTekan={simpan} />",
+            "tipe": "tsx"
+          }
+        },
+        {
+          "judul": "Handler yang menerima argumen tak terduga",
+          "penjelasan": "Tulis tipe fungsi selengkap yang kamu butuhkan. `() => void` berarti pemanggil tidak menjanjikan argumen apa pun.",
+          "salah": {
+            "kode": "type Props = { onPilih: Function };  // ❌ terlalu longgar\n\n<KartuProduk onPilih={(id) => buka(id)} />\n// `id` bertipe any — typo di dalamnya tidak akan ketahuan",
+            "tipe": "tsx"
+          },
+          "benar": {
+            "kode": "type Props = { onPilih: (produkId: string) => void };  // ✅ jelas\n\n<KartuProduk onPilih={(id) => buka(id)} />\n// `id` otomatis bertipe string, tanpa perlu ditulis",
+            "tipe": "tsx"
+          }
+        }
+      ],
+      "aturan_praktis": "Beri nama tipe props sesuai nama komponennya: KartuProduk → KartuProdukProps. Konsisten, mudah dicari, dan tidak pernah bentrok.",
+      "poin_penting": "Tipe props adalah dokumentasi komponen yang tidak bisa basi — karena kalau isinya salah, kodenya tidak mau jalan."
+    },
+    {
+      "id": "rn-01-03",
+      "judul": "children dan ReactNode",
+      "badge": "Dasar",
+      "analogi": {
+        "judul": "Amplop yang tidak peduli isinya apa",
+        "cerita": "Amplop tidak menanyakan apa yang kamu masukkan — surat, foto, uang, atau kartu ucapan, semua diterima. Tugas amplop cuma satu: membungkus dan melindungi. Komponen pembungkus seperti Kartu atau Layar juga begitu: dia tidak peduli isinya teks, gambar, atau komponen lain. Tipe yang menyatakan 'apa pun yang bisa ditampilkan React' bernama ReactNode — itulah tipe amplopnya."
+      },
+      "penjelasan": "ReactNode mencakup semua yang sah dirender React: elemen JSX, string, angka, array dari semuanya, null, dan undefined. Karena mencakup null, komponen pembungkus tetap aman ketika isinya dirender bersyarat.",
+      "contoh_kode": [
+        {
+          "label": "Kartu.tsx — pembungkus yang menerima isi apa pun",
+          "kode": "import type { ReactNode } from 'react';\nimport { View, Text } from 'react-native';\n\ntype KartuProps = {\n  judul: string;\n  children: ReactNode;\n  aksiKanan?: ReactNode;  // ikon atau tombol kecil di pojok — opsional\n};\n\nexport function Kartu({ judul, children, aksiKanan }: KartuProps) {\n  return (\n    <View style={{ backgroundColor: '#fff', borderRadius: 12, padding: 16, gap: 8 }}>\n      <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>\n        <Text style={{ fontWeight: '600' }}>{judul}</Text>\n        {aksiKanan}\n      </View>\n      {children}\n    </View>\n  );\n}",
+          "tipe": "tsx"
+        },
+        {
+          "label": "Dipakai — isinya bebas, tipe tetap terjaga",
+          "kode": "<Kartu judul=\"Alamat Pengiriman\" aksiKanan={<TombolUbah onTekan={ubahAlamat} />}>\n  <Text>Jl. Melati No. 12, Bandung</Text>\n  <Text style={{ color: '#6b7280' }}>Budi Santoso · 0812-3456-7890</Text>\n</Kartu>\n\n<Kartu judul=\"Metode Pembayaran\">\n  {metode ? <Text>{metode.nama}</Text> : <Text>Belum dipilih</Text>}\n</Kartu>",
+          "tipe": "tsx"
+        }
+      ],
+      "salah_vs_benar": [
+        {
+          "judul": "Jangan pakai JSX.Element untuk children",
+          "penjelasan": "JSX.Element hanya mencakup satu elemen JSX. Begitu isinya string, angka, dua elemen, atau hasil kondisi yang bisa null, tipenya langsung tidak cocok.",
+          "salah": {
+            "kode": "type KartuProps = { children: JSX.Element };\n\n<Kartu>Total: Rp 250.000</Kartu>\n// ❌ Type 'string' is not assignable to type 'Element'\n\n<Kartu>{sudahLunas && <Badge />}</Kartu>\n// ❌ Type 'false' is not assignable to type 'Element'",
+            "tipe": "tsx"
+          },
+          "benar": {
+            "kode": "import type { ReactNode } from 'react';\n\ntype KartuProps = { children: ReactNode };\n\n<Kartu>Total: Rp 250.000</Kartu>          // ✅ string\n<Kartu>{sudahLunas && <Badge />}</Kartu>    // ✅ boleh false/null\n<Kartu>\n  <Text>Baris 1</Text>\n  <Text>Baris 2</Text>\n</Kartu>                                    // ✅ beberapa anak",
+            "tipe": "tsx"
+          }
+        }
+      ],
+      "poin_penting": "children hampir selalu bertipe ReactNode. Pakai tipe yang lebih sempit hanya kalau kamu memang ingin membatasi isinya."
+    },
+    {
+      "id": "rn-01-04",
+      "judul": "Style: StyleSheet dan StyleProp<ViewStyle>",
+      "badge": "Menengah",
+      "analogi": {
+        "judul": "Seragam kantor dengan izin variasi",
+        "cerita": "Kantor menetapkan seragam: kemeja biru, celana hitam. Tapi ada kelonggaran — karyawan boleh menambahkan pin atau syal sendiri selama tidak melanggar aturan dasar. Komponen yang baik juga begitu: dia punya style bawaan, tapi mengizinkan pemakainya menambahkan sedikit variasi lewat prop style. TypeScript berperan sebagai bagian HRD yang memastikan tambahannya masih berupa pakaian, bukan helm proyek."
+      },
+      "penjelasan": "React Native punya tiga tipe style utama: ViewStyle untuk kotak, TextStyle untuk teks (mewarisi ViewStyle plus fontSize, fontWeight, dan kawan-kawan), dan ImageStyle untuk gambar. Pembungkusnya, StyleProp<T>, artinya 'boleh satu objek style, boleh array, boleh juga null' — persis seperti yang diterima prop style bawaan.",
+      "contoh_kode": [
+        {
+          "label": "StyleSheet.create — tipenya tersimpul otomatis",
+          "kode": "import { StyleSheet, View, Text } from 'react-native';\n\nconst styles = StyleSheet.create({\n  kartu: {\n    backgroundColor: '#fff',\n    borderRadius: 12,\n    padding: 16,\n  },\n  harga: {\n    fontSize: 18,\n    fontWeight: '600',   // string literal, bukan angka 600\n    color: '#16a34a',\n  },\n});\n\n// styles.kartu bertipe ViewStyle, styles.harga bertipe TextStyle —\n// tanpa satu pun anotasi yang kamu tulis.\n<View style={styles.kartu}>\n  <Text style={styles.harga}>Rp 250.000</Text>\n</View>",
+          "tipe": "tsx"
+        },
+        {
+          "label": "Menerima style dari luar dengan StyleProp",
+          "kode": "import type { StyleProp, ViewStyle } from 'react-native';\nimport { View, Text, StyleSheet } from 'react-native';\n\ntype KartuProdukProps = {\n  nama: string;\n  harga: number;\n  style?: StyleProp<ViewStyle>;   // pemakai boleh menimpa sebagian\n};\n\nexport function KartuProduk({ nama, harga, style }: KartuProdukProps) {\n  return (\n    <View style={[styles.dasar, style]}>\n      {/* array: style bawaan dulu, style dari luar menimpa di atasnya */}\n      <Text>{nama}</Text>\n      <Text>Rp {harga.toLocaleString('id-ID')}</Text>\n    </View>\n  );\n}\n\n// dipakai:\n<KartuProduk nama=\"Kaos Polos\" harga={75000} style={{ marginBottom: 12 }} />",
+          "tipe": "tsx"
+        }
+      ],
+      "salah_vs_benar": [
+        {
+          "judul": "fontWeight itu string, bukan angka",
+          "penjelasan": "Ini kesalahan paling sering saat pindah dari CSS. Di CSS kamu menulis font-weight: 600; di React Native nilainya harus string '600'.",
+          "salah": {
+            "kode": "const styles = StyleSheet.create({\n  judul: { fontSize: 20, fontWeight: 600 },\n});\n// ❌ Type 'number' is not assignable to type\n//    '\"normal\" | \"bold\" | \"100\" | ... | \"900\" | undefined'",
+            "tipe": "typescript"
+          },
+          "benar": {
+            "kode": "const styles = StyleSheet.create({\n  judul: { fontSize: 20, fontWeight: '600' },  // ✅ string\n});",
+            "tipe": "typescript"
+          }
+        },
+        {
+          "judul": "Jangan pakai ViewStyle untuk komponen teks",
+          "penjelasan": "ViewStyle tidak mengenal properti teks. Kalau komponenmu meneruskan style ke <Text>, pakai TextStyle.",
+          "salah": {
+            "kode": "type LabelProps = { style?: StyleProp<ViewStyle> };\n\n<Label style={{ fontSize: 14 }} />\n// ❌ 'fontSize' does not exist in type 'ViewStyle'",
+            "tipe": "tsx"
+          },
+          "benar": {
+            "kode": "import type { StyleProp, TextStyle } from 'react-native';\n\ntype LabelProps = { style?: StyleProp<TextStyle> };\n\n<Label style={{ fontSize: 14, color: '#6b7280' }} />  // ✅",
+            "tipe": "tsx"
+          }
+        }
+      ],
+      "aturan_praktis": "Pilih tipe style sesuai komponen yang akan menerimanya: View → ViewStyle, Text → TextStyle, Image → ImageStyle. Salah pilih akan langsung terasa saat pemakainya mengetik.",
+      "poin_penting": "Karena style di React Native adalah objek JavaScript, TypeScript ikut memeriksanya. Pakai StyleProp<ViewStyle> saat komponenmu mengizinkan style dari luar."
+    }
+  ]
+}

@@ -12,6 +12,7 @@ function getHighlighter() {
       themes: [import('shiki/themes/tokyo-night.mjs')],
       langs: [
         import('shiki/langs/typescript.mjs'),
+        import('shiki/langs/tsx.mjs'),
         import('shiki/langs/javascript.mjs'),
         import('shiki/langs/bash.mjs'),
         import('shiki/langs/json.mjs'),
@@ -24,6 +25,7 @@ function getHighlighter() {
 
 const shikiLang: Record<KodeTipe, string> = {
   typescript: 'typescript',
+  tsx: 'tsx',
   javascript: 'javascript',
   bash: 'bash',
   json: 'json',
@@ -32,6 +34,7 @@ const shikiLang: Record<KodeTipe, string> = {
 
 const labelStyles: Record<KodeTipe, string> = {
   typescript: 'bg-blue-500/20 text-blue-300',
+  tsx: 'bg-cyan-500/20 text-cyan-300',
   javascript: 'bg-yellow-500/20 text-yellow-300',
   bash: 'bg-green-500/20 text-green-300',
   json: 'bg-orange-500/20 text-orange-300',
@@ -40,6 +43,7 @@ const labelStyles: Record<KodeTipe, string> = {
 
 const labelText: Record<KodeTipe, string> = {
   typescript: 'TypeScript',
+  tsx: 'TSX',
   javascript: 'JavaScript',
   bash: 'Terminal',
   json: 'JSON',

@@ -4,7 +4,7 @@ import { PlaygroundEditor } from '../components/playground/PlaygroundEditor';
 import { OutputPanel } from '../components/playground/OutputPanel';
 import { SavedSnippets } from '../components/playground/SavedSnippets';
 import { usePlaygroundStore } from '../store/playgroundStore';
-import { findTopik } from '../data/lessons';
+import { findTopik } from '../data/courses';
 import {
   daftarTemplate,
   getTemplate,

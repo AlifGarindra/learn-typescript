@@ -1,0 +1,124 @@
+{
+  "bagian": 6,
+  "judul": "Data, API & Penyimpanan",
+  "deskripsi": "Bagian penutup: dari mana data aplikasi datang dan bagaimana menjaganya tetap jujur. Di sinilah semua yang sudah dipelajari — union, generics, narrowing — dipakai bersamaan untuk menangani jaringan yang lambat dan koneksi yang putus, dua hal yang di mobile jauh lebih sering terjadi daripada di web.",
+  "topik": [
+    {
+      "id": "rn-06-01",
+      "judul": "Memanggil API dan mengetik responsnya",
+      "badge": "Menengah",
+      "analogi": {
+        "judul": "Barang titipan dari luar kota",
+        "cerita": "Kalau ada paket datang dari pengirim yang tidak kamu kenal, kamu tidak langsung percaya isinya sesuai keterangan di resi. Kamu buka, cek, baru dipakai. Respons API persis paket itu: server ada di komputer lain, dikelola tim lain, dan bisa berubah tanpa memberi tahu kamu. TypeScript memberimu resi yang jelas — tapi resi bukan jaminan, jadi tetap tulis kodenya seolah paketnya bisa saja kurang isi."
+      },
+      "penjelasan": "Poin paling penting yang sering disalahpahami: TypeScript tidak memeriksa data yang datang dari jaringan. `response.json()` mengembalikan any, dan begitu kamu menempelkan tipe padanya, kamu sedang berjanji — bukan membuktikan. Karena itu, tulis tipenya sedekat mungkin dengan bentuk asli respons, dan tetap tangani kemungkinan field yang kosong.",
+      "contoh_kode": [
+        {
+          "label": "src/services/api.ts — satu fungsi ambil data yang bertipe",
+          "kode": "export type Produk = {\n  id: string;\n  nama: string;\n  harga: number;\n  gambar: string | null;      // API memang bisa mengirim null\n  stok: number;\n};\n\nexport type ResponsDaftar<T> = {\n  data: T[];\n  halaman: number;\n  total: number;\n};\n\nconst BASE_URL = 'https://api.toko-kita.id';\n\nexport async function ambilProduk(halaman = 1): Promise<ResponsDaftar<Produk>> {\n  const res = await fetch(`${BASE_URL}/produk?halaman=${halaman}`);\n\n  if (!res.ok) {\n    throw new Error(`Gagal memuat produk (${res.status})`);\n  }\n\n  // json() mengembalikan any — di sinilah janji itu dibuat\n  return (await res.json()) as ResponsDaftar<Produk>;\n}",
+          "tipe": "typescript"
+        },
+        {
+          "label": "Generic membuat satu fungsi melayani semua endpoint",
+          "kode": "async function minta<T>(path: string, opsi?: RequestInit): Promise<T> {\n  const res = await fetch(`${BASE_URL}${path}`, {\n    headers: { 'Content-Type': 'application/json' },\n    ...opsi,\n  });\n\n  if (!res.ok) throw new Error(`HTTP ${res.status}`);\n  return (await res.json()) as T;\n}\n\n// Pemanggilnya menentukan bentuk yang diharapkan:\nconst daftar = await minta<ResponsDaftar<Produk>>('/produk');\nconst produk = await minta<Produk>('/produk/p-123');\nconst pesanan = await minta<Pesanan>('/pesanan', {\n  method: 'POST',\n  body: JSON.stringify({ produkId: 'p-123', jumlah: 2 }),\n});\n\n// daftar.data[0].harga  → number, autocomplete jalan sampai ke dalam",
+          "tipe": "typescript"
+        }
+      ],
+      "salah_vs_benar": [
+        {
+          "judul": "Tipe tidak menjamin field-nya benar-benar ada",
+          "penjelasan": "Kalau API mengirim gambar null tapi tipemu bilang string, TypeScript diam saja dan aplikasi crash di HP pengguna. Tulis kemungkinan null-nya, lalu tangani.",
+          "salah": {
+            "kode": "type Produk = { id: string; nama: string; gambar: string };\n\nconst produk = (await res.json()) as Produk;\n<Image source={{ uri: produk.gambar }} />\n// ❌ TS diam, tapi kalau server mengirim null → crash di runtime",
+            "tipe": "tsx"
+          },
+          "benar": {
+            "kode": "type Produk = { id: string; nama: string; gambar: string | null };\n\nconst produk = await minta<Produk>('/produk/p-123');\n\n<Image\n  source={produk.gambar ? { uri: produk.gambar } : require('../assets/kosong.png')}\n/>  // ✅ TS memaksamu memikirkan kasus null",
+            "tipe": "tsx"
+          }
+        }
+      ],
+      "aturan_praktis": "Tulis tipe respons sejujur mungkin, termasuk `| null` untuk field yang bisa kosong. Tipe yang terlalu optimistis lebih berbahaya daripada tidak punya tipe sama sekali — karena ia membuatmu berhenti waspada.",
+      "poin_penting": "`as Produk` adalah janji, bukan bukti. TypeScript menjaga cara kamu memakai data; yang menjaga kebenarannya tetap kamu dan tim backend."
+    },
+    {
+      "id": "rn-06-02",
+      "judul": "Discriminated union untuk keadaan memuat data",
+      "badge": "Lanjutan",
+      "analogi": {
+        "judul": "Papan status pesanan makanan online",
+        "cerita": "Aplikasi pesan antar tidak pernah menampilkan 'Kurir sedang menuju lokasi' bersamaan dengan 'Pesanan dibatalkan'. Satu waktu, satu status, dan tiap status punya informasi sendiri: kalau sedang diantar ada nama kurir, kalau dibatalkan ada alasan pembatalan. Keadaan memuat data di aplikasi juga begitu — sedang memuat, berhasil, atau gagal. Kesalahan umum adalah menyimpannya sebagai tiga saklar terpisah yang bisa menyala bersamaan dan menghasilkan kondisi yang mustahil."
+      },
+      "masalah_di_javascript": {
+        "penjelasan": "Pola tiga state terpisah — data, sedangMuat, error — membuat delapan kombinasi mungkin, padahal hanya tiga yang masuk akal. Kombinasi mustahil seperti 'sedang memuat sambil error sambil punya data' tidak dicegah siapa pun.",
+        "contoh_kode": [
+          {
+            "label": "Tiga state terpisah — sumber bug yang sulit dilacak",
+            "kode": "const [produk, setProduk] = useState(null);\nconst [sedangMuat, setSedangMuat] = useState(false);\nconst [error, setError] = useState(null);\n\n// Lupa setError(null) sebelum memuat ulang?\n// Layar menampilkan pesan error lama bersamaan dengan data baru.\n\nif (sedangMuat) return <Memuat />;\nif (error) return <PesanError pesan={error} />;\nreturn <DaftarProduk data={produk} />;  // produk masih bisa null di sini",
+            "tipe": "javascript"
+          }
+        ]
+      },
+      "solusi_typescript": {
+        "penjelasan": "Gabungkan ketiganya jadi satu nilai bertipe union, dengan field status sebagai pembeda. Kombinasi mustahil menjadi tidak bisa ditulis, dan TypeScript mempersempit tipenya di tiap cabang sehingga data hanya bisa diakses saat memang sudah ada.",
+        "contoh_kode": [
+          {
+            "label": "Satu state, tiga kemungkinan, nol kombinasi mustahil",
+            "kode": "type KeadaanMuat<T> =\n  | { status: 'memuat' }\n  | { status: 'berhasil'; data: T }\n  | { status: 'gagal'; pesan: string };\n\nconst [keadaan, setKeadaan] = useState<KeadaanMuat<Produk[]>>({ status: 'memuat' });\n\nuseEffect(() => {\n  let aktif = true;\n\n  ambilProduk()\n    .then((hasil) => {\n      if (aktif) setKeadaan({ status: 'berhasil', data: hasil.data });\n    })\n    .catch((e: unknown) => {\n      const pesan = e instanceof Error ? e.message : 'Terjadi kesalahan';\n      if (aktif) setKeadaan({ status: 'gagal', pesan });\n    });\n\n  return () => { aktif = false; };\n}, []);",
+            "tipe": "typescript"
+          },
+          {
+            "label": "Merender tiap keadaan — TypeScript menuntun di setiap cabang",
+            "kode": "export function LayarProduk() {\n  const [keadaan, setKeadaan] = useState<KeadaanMuat<Produk[]>>({ status: 'memuat' });\n\n  if (keadaan.status === 'memuat') {\n    return <ActivityIndicator />;\n    // keadaan.data ❌ tidak ada di cabang ini — dan memang belum ada\n  }\n\n  if (keadaan.status === 'gagal') {\n    return <PesanError pesan={keadaan.pesan} onCoba={muatUlang} />;\n  }\n\n  // Sampai di sini TypeScript tahu status pasti 'berhasil'\n  return (\n    <FlatList\n      data={keadaan.data}\n      keyExtractor={(p) => p.id}\n      renderItem={({ item }) => <KartuProduk nama={item.nama} harga={item.harga} />}\n    />\n  );\n}",
+            "tipe": "tsx"
+          }
+        ]
+      },
+      "aturan_praktis": "Kalau dua potongan state tidak pernah masuk akal menyala bersamaan, mereka seharusnya satu union — bukan dua useState.",
+      "poin_penting": "Discriminated union mengubah 'jangan lupa reset error' dari disiplin yang harus diingat menjadi aturan yang dijaga compiler."
+    },
+    {
+      "id": "rn-06-03",
+      "judul": "AsyncStorage dan custom hook yang bertipe",
+      "badge": "Lanjutan",
+      "analogi": {
+        "judul": "Laci penyimpanan yang isinya selalu jadi fotokopi",
+        "cerita": "Bayangkan laci ajaib: apa pun yang kamu masukkan — buku, foto, kunci — keluar lagi sebagai lembar fotokopi hitam putih. Kamu tahu itu tadinya kunci, tapi yang di tanganmu sekarang selembar kertas. AsyncStorage seperti itu: apa pun yang disimpan berubah jadi string, dan saat diambil kembali kamu harus menerjemahkannya sendiri ke bentuk semula. Kalau kamu salah menerjemahkan, tidak ada yang memperingatkan — kecuali kamu membungkusnya dengan tipe yang benar."
+      },
+      "penjelasan": "AsyncStorage.getItem selalu mengembalikan `string | null`, apa pun yang kamu simpan. Sebagian besar bug penyimpanan lokal lahir dari lupa menangani null dan lupa JSON.parse. Membungkusnya sekali dalam fungsi generic menyelesaikan keduanya untuk seluruh aplikasi.",
+      "contoh_kode": [
+        {
+          "label": "src/services/simpanan.ts — pembungkus generic",
+          "kode": "import AsyncStorage from '@react-native-async-storage/async-storage';\n\nexport async function simpan<T>(kunci: string, nilai: T): Promise<void> {\n  await AsyncStorage.setItem(kunci, JSON.stringify(nilai));\n}\n\nexport async function baca<T>(kunci: string, bawaan: T): Promise<T> {\n  const mentah = await AsyncStorage.getItem(kunci);   // string | null\n  if (mentah === null) return bawaan;\n\n  try {\n    return JSON.parse(mentah) as T;\n  } catch {\n    // isi laci rusak — kembalikan nilai bawaan daripada membiarkan aplikasi crash\n    return bawaan;\n  }\n}\n\nexport async function hapus(kunci: string): Promise<void> {\n  await AsyncStorage.removeItem(kunci);\n}",
+          "tipe": "typescript"
+        },
+        {
+          "label": "Kunci penyimpanan sebagai union — tidak ada lagi salah ketik",
+          "kode": "type KunciSimpanan = 'keranjang' | 'token-login' | 'preferensi-tema';\n\nexport async function simpanAman<T>(kunci: KunciSimpanan, nilai: T) {\n  await AsyncStorage.setItem(kunci, JSON.stringify(nilai));\n}\n\nawait simpanAman('keranjang', keranjang);      // ✅\nawait simpanAman('keranjang-lama', keranjang); // ❌ ditolak\n\n// Tanpa union, 'keranjang-lama' tersimpan diam-diam dan tidak pernah terbaca lagi.",
+          "tipe": "typescript"
+        },
+        {
+          "label": "useKeranjangTersimpan — custom hook yang tipenya mengalir sendiri",
+          "kode": "import { useEffect, useState } from 'react';\nimport { baca, simpan } from '../services/simpanan';\n\nexport type ItemKeranjang = {\n  produkId: string;\n  nama: string;\n  harga: number;\n  jumlah: number;\n};\n\nexport function useKeranjang() {\n  const [items, setItems] = useState<ItemKeranjang[]>([]);\n  const [siap, setSiap] = useState(false);\n\n  // muat sekali saat aplikasi dibuka\n  useEffect(() => {\n    baca<ItemKeranjang[]>('keranjang', []).then((tersimpan) => {\n      setItems(tersimpan);\n      setSiap(true);\n    });\n  }, []);\n\n  // simpan setiap kali berubah\n  useEffect(() => {\n    if (siap) simpan('keranjang', items);\n  }, [items, siap]);\n\n  const tambah = (item: ItemKeranjang) => {\n    setItems((sebelumnya) => {\n      const ada = sebelumnya.find((i) => i.produkId === item.produkId);\n      if (!ada) return [...sebelumnya, item];\n      return sebelumnya.map((i) =>\n        i.produkId === item.produkId ? { ...i, jumlah: i.jumlah + item.jumlah } : i\n      );\n    });\n  };\n\n  const hapusItem = (produkId: string) => {\n    setItems((sebelumnya) => sebelumnya.filter((i) => i.produkId !== produkId));\n  };\n\n  const total = items.reduce((n, i) => n + i.harga * i.jumlah, 0);\n\n  return { items, tambah, hapusItem, total, siap };\n}\n\n// Pemakainya dapat semuanya bertipe tanpa satu anotasi tambahan:\n// const { items, tambah, total } = useKeranjang();\n// total → number, items → ItemKeranjang[]",
+          "tipe": "typescript"
+        }
+      ],
+      "salah_vs_benar": [
+        {
+          "judul": "getItem mengembalikan string | null — keduanya harus ditangani",
+          "penjelasan": "Langsung JSON.parse pada hasil getItem adalah salah satu crash paling sering di aplikasi React Native, terutama saat pengguna baru pertama kali membuka aplikasi.",
+          "salah": {
+            "kode": "const keranjang = JSON.parse(await AsyncStorage.getItem('keranjang'));\n// ❌ Argument of type 'string | null' is not assignable to\n//    parameter of type 'string'\n// Tanpa TS: crash 'unexpected token u in JSON' di pemakaian pertama.",
+            "tipe": "typescript"
+          },
+          "benar": {
+            "kode": "const keranjang = await baca<ItemKeranjang[]>('keranjang', []);\n// ✅ null ditangani, JSON rusak ditangani, tipenya jelas",
+            "tipe": "typescript"
+          }
+        }
+      ],
+      "aturan_praktis": "Custom hook tidak perlu tipe kembalian yang ditulis manual — TypeScript menyimpulkannya dari objek yang kamu return. Tulis manual hanya kalau kamu ingin menyembunyikan sebagian isinya.",
+      "poin_penting": "Bungkus AsyncStorage sekali dalam fungsi generic dengan nilai bawaan. Sesudah itu, tidak ada lagi kode aplikasimu yang perlu memikirkan string, null, atau JSON.parse."
+    }
+  ]
+}

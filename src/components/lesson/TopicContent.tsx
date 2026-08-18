@@ -1,5 +1,6 @@
 import type { Topik, ContohKode, KodeTipe } from '../../types/lesson';
 import { CodeBlock } from './CodeBlock';
+import { ErrorVsCorrect } from './ErrorVsCorrect';
 
 function SectionTitle({ children }: { children: React.ReactNode }) {
   return (
@@ -195,6 +196,36 @@ export function TopicContent({ topik }: { topik: Topik }) {
           <KodeList list={topik.contoh_kode} />
         </section>
       )}
+
+      {/* perbedaan_web_mobile (React Native) */}
+      {topik.perbedaan_web_mobile && (
+        <section className="space-y-4">
+          <SectionTitle>React Web vs React Native</SectionTitle>
+          <div className="overflow-x-auto rounded-xl border border-white/8">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-white/8 bg-white/4">
+                  <th className="px-4 py-3 text-left text-gray-400 font-medium">Aspek</th>
+                  <th className="px-4 py-3 text-left text-yellow-400 font-medium">React Web</th>
+                  <th className="px-4 py-3 text-left text-cyan-400 font-medium">React Native</th>
+                </tr>
+              </thead>
+              <tbody>
+                {topik.perbedaan_web_mobile.map((row, i) => (
+                  <tr key={i} className="border-b border-white/5 hover:bg-white/3 transition-colors">
+                    <td className="px-4 py-3 text-gray-300 font-medium">{row.aspek}</td>
+                    <td className="px-4 py-3 text-gray-400 font-mono text-xs">{row.react_web}</td>
+                    <td className="px-4 py-3 text-gray-300 font-mono text-xs">{row.react_native}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </section>
+      )}
+
+      {/* salah_vs_benar (React Native) */}
+      {topik.salah_vs_benar && <ErrorVsCorrect items={topik.salah_vs_benar} />}
 
       {/* aturan_praktis */}
       {topik.aturan_praktis && (
